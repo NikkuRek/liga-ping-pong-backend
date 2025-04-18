@@ -1,1 +1,0 @@
-# liga-ping-pong-backend
