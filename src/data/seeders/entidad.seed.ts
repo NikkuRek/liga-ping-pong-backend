@@ -19,5 +19,3 @@ export const entidadSeed = async () => {
     console.error("Error al ejecutar seed de entidades:", error)
   }
 }
-
-// Exportación nombrada para resolver el error

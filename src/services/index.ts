@@ -1,3 +1,2 @@
-import { EntidadServices } from "./entidad.service"
-
-export { EntidadServices }
+export * from './career.service';
+export * from './entidad.service';

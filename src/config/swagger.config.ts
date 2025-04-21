@@ -1,30 +1,23 @@
-import swaggerJSDoc from "swagger-jsdoc"
-import swaggerUi from "swagger-ui-express"
-import type { Express } from "express"
+const port = process.env.DATABASE_PORT!;
+const apiUrl = process.env.API_URL || 'http://localhost';
+const pre = "/api";
 
-// Configuración de Swagger
 const swaggerOptions = {
-  definition: {
+  swaggerDefinition: {
     openapi: "3.0.0",
     info: {
-      title: "API REST",
+      title: "API LPP",
       version: "1.0.0",
-      description: "Documentación de la API REST",
+      description: "Documentación de la API de la LPP",
     },
     servers: [
       {
-        url: "http://localhost:3900",
-        description: "Servidor de desarrollo",
+        url: `${apiUrl}:${port}${pre}`,
       },
     ],
   },
-  apis: ["./src/docs/*.yml", "./src/routes/*.ts"],
-}
+  basePath: '/api',
+  apis: ["./src/docs/*.yml", "./src/routes/*.ts"]
+};
 
-const swaggerSpec = swaggerJSDoc(swaggerOptions)
-
-// Función para configurar Swagger en la aplicación
-export const setupSwagger = (app: Express) => {
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-  console.log("Documentación de Swagger disponible en /api-docs")
-}
+export { swaggerOptions }

@@ -27,7 +27,7 @@ router.put(
 router.delete("/:id", entidadController.delete)
 
 // Exportación nombrada para resolver el error
-export const entidadRoutes = router
+export const EntidadRoute = router
 
 // Exportación por defecto para mantener consistencia
 export default router

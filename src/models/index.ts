@@ -1,3 +1,2 @@
-import { EntidadModel } from "./entidad.model"
-
-export { EntidadModel }
+export * from './career.model';
+export * from './entidad.model';

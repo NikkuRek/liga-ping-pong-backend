@@ -1,12 +1,17 @@
 import { Router } from "express"
+import { CareerRoute } from "./career.routes"
+import { EntidadRoute } from "./entidad.routes"
 
 const router = Router()
 
-// Rutas de la API
-router.use("/entidad", entidadRoutes)
+// // Rutas de la API
+// router.use("/career", CareerRoutes)
+// router.use("/entidad", entidadRoutes)
+
+// export default router
 
 export {
+  CareerRoute,
+  EntidadRoute,
   router,
 }
-
-export default router

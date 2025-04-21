@@ -3,6 +3,7 @@ import dotenv from "dotenv"
 
 import {
   EntidadModel,
+  CareerModel,
 } from "../models"
 
 dotenv.config()
@@ -34,41 +35,28 @@ if (dbHost !== "localhost") {
   sequelizeOptions.port = dbPort
 }
 
-// Instanciamos el objeto Sequelize
 // Configuración de la conexión a la base de datos
-const db = new Sequelize(
-  process.env.DATABASE_NAME || "database",
-  process.env.DATABASE_USER || "user",
-  process.env.DATABASE_PASSWORD || "password",
-  {
-    host: process.env.DATABASE_HOST || "localhost",
-    dialect: (process.env.DATABASE_DIALECT as any) || "mysql",
-    port: Number.parseInt(process.env.DATABASE_PORT || "3306"),
-    logging: false,
-  },
-)
+export const db = new Sequelize(dbName, dbUser, dbPassword, sequelizeOptions);
 
 const Options = {
   timestamps: false, // Deshabilitar createdAt y updatedAt
 }
 
 // CREAMOS LAS TABLAS EN ORDEN ALFABETICO
-const EntidadDB = db.define("entidad", EntidadModel, Options)
+export const CareerDB = db.define("career", CareerModel)
+export const EntidadDB = db.define("entidad", EntidadModel, Options)
 
 // En las relaciones importa el orden de la jerarquia
 
-
-
-
-// Definición de modelos
-//export const EntidadDB = db.define("Entidad", EntidadModel)
+// PlayerDB
+// CareerDB.hasMany(PlayerDB, { foreignKey: "id_career" });
+// PlayerDB.belongsTo(CareerDB, { foreignKey: "id_career" });
 
 // Sincroniza los modelos con la base de datos
 const syncModels = async () => {
-  // Función para inicializar la base de datos
   try {
     await db.authenticate()
-    console.log("Conexión a la base de datos establecida correctamente.")
+    console.log("Conectando a la base de datos...")
     await db.sync({ alter: true })
     console.log("Base de datos sincronizada")
   } catch (error) {
@@ -76,22 +64,6 @@ const syncModels = async () => {
   }
 }
 
-export const initDB = async () => {
-  try {
-    await db.authenticate()
-    console.log("Conexión a la base de datos establecida correctamente.")
-    await db.sync({ force: false })
-    console.log("Base de datos sincronizada.")
-  } catch (error) {
-    console.error("Error al conectar con la base de datos:", error)
-  }
-}
-
 syncModels()
-
-export {
-  EntidadDB,
-  db,
-}
 
 export default db

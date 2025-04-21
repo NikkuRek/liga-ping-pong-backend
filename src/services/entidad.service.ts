@@ -45,7 +45,7 @@ class EntidadService {
 
   async create(entidad: EntidadInterface) {
     try {
-      const newEntidad = await EntidadDB.create(entidad)
+      const newEntidad = await EntidadDB.create(entidad as any)
       return {
         status: 201,
         message: "Entidad creada correctamente",

@@ -1,52 +1,67 @@
 import express, { type Application } from "express"
 import cors from "cors"
 import morgan from "morgan"
-import path from "path"
-import { router } from "../routes/index.route"
-import { setupSwagger } from "../config/swagger.config"
+import swaggerJsDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { swaggerOptions } from "../config";
+
+import {
+  CareerRoute,
+  EntidadRoute,
+} from "../routes/index.route";
+
+import { db } from "../config/sequelize.config";
 
 export class Server {
   private app: Application
   private port: string
-  private apiPaths = {
-    base: "/api",
-  }
+  private pre: string = "/api"
+  private paths: any
+  
 
   constructor() {
     this.app = express()
     this.port = process.env.PORT || "3000"
-
-    // Middlewares
+    this.paths = {
+      Career: this.pre + "/Career",
+      Entidad: this.pre + "/Entidad",
+    };
     this.middlewares()
-
-    // Rutas
     this.routes()
-
-    // Swagger
-    setupSwagger(this.app)
+    this.dbConnection();
+    this.swaggerSetup();
   }
 
   middlewares() {
-    // CORS
     this.app.use(cors())
-
-    // Lectura del body
     this.app.use(express.json())
-
-    // Carpeta pública
-    this.app.use(express.static(path.join(__dirname, "../public")))
-
-    // Morgan para logs
+    this.app.use(express.static("src/public"))
     this.app.use(morgan("dev"))
   }
 
   routes() {
-    this.app.use(this.apiPaths.base, router)
+    this.app.use(this.paths.Career, CareerRoute);
+    this.app.use(this.paths.Entidad, EntidadRoute);
   }
 
+  private async dbConnection() {
+    try {
+      await db.authenticate();
+      console.log("Conexión exitosa a la base de datos...");
+    } catch (error) {
+      console.error("No se pudo conectar a la base de datos:", error);
+    }
+  }
+  
   listen() {
     this.app.listen(this.port, () => {
       console.log(`Servidor corriendo en puerto ${this.port}`)
     })
   }
+
+  swaggerSetup() {
+    const swaggerDocs = swaggerJsDoc(swaggerOptions);
+    this.app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+  }
+
 }
