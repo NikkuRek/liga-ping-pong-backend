@@ -1,0 +1,159 @@
+paths:
+  /career:
+    get:
+      tags:
+        - Career
+      summary: Obtiene todas las carreras
+      description: Retorna un array con todas las carreras
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Career'
+        500:
+          description: Error del servidor
+    post:
+      tags:
+        - Career
+      summary: Crea una nueva carrera
+      description: Crea una nueva carrera con los datos proporcionados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Career'
+      responses:
+        201:
+          description: Carrera creada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Career'
+        400:
+          description: Datos inválidos
+        500:
+          description: Error del servidor
+  /career/{id}:
+    get:
+      tags:
+        - Career
+      summary: Obtiene una carrera por id
+      description: Retorna una carrera según el id proporcionado
+      parameters:
+        - name: id
+          in: path
+          description: id de la carrera
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Career'
+        404:
+          description: Carrera no encontrada
+        500:
+          description: Error del servidor
+    put:
+      tags:
+        - Career
+      summary: Actualiza una carrera
+      description: Actualiza los datos de una carrera según el id proporcionado
+      parameters:
+        - name: id
+          in: path
+          description: id de la carrera
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Career'
+      responses:
+        200:
+          description: Carrera actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Career'
+        404:
+          description: Carrera no encontrada
+        500:
+          description: Error del servidor
+    delete:
+      tags:
+        - Career
+      summary: Elimina una carrera
+      description: Elimina una carrera según el id proporcionado
+      parameters:
+        - name: id
+          in: path
+          description: id de la carrera
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Carrera eliminada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        404:
+          description: Carrera no encontrada
+        500:
+          description: Error del servidor
+
+components:
+  schemas:
+    Career:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID de la carrera
+        name_career:
+          type: string
+          description: Nombre de la carrera
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación
+        updatedAt:
+          type: string
+          format: date-time
+          description: Fecha de última actualización
