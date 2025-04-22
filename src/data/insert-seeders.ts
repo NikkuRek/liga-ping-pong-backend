@@ -2,7 +2,6 @@ import "dotenv/config";
 import { db } from "../config";
 import {
   careerSeed,
-  entidadSeed,
   playerSeed
 } from "../data/seeders";
 
@@ -11,8 +10,6 @@ export const insertSeeders = async () => {
     console.log("Iniciando inserción de datos de prueba...");
     await careerSeed();
     console.log("Seed de carreras ejecutado correctamente");
-    await entidadSeed();
-    console.log("Seed de entidades ejecutado correctamente");
     await playerSeed();
     console.log("Seed de jugadores ejecutado correctamente");
     console.log("Datos de prueba insertados correctamente");

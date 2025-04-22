@@ -3,7 +3,6 @@ import dotenv from "dotenv"
 
 import {
   CareerModel,
-  EntidadModel,
   PlayerModel,
 } from "../models"
 
@@ -45,7 +44,6 @@ const Options = {
 
 // CREAMOS LAS TABLAS EN ORDEN ALFABETICO
 export const CareerDB = db.define("career", CareerModel)
-export const EntidadDB = db.define("entidad", EntidadModel, Options)
 export const PlayerDB = db.define("player", PlayerModel)
 
 // En las relaciones importa el orden de la jerarquia
