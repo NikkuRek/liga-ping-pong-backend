@@ -1,4 +1,3 @@
-
-import { entidadSeed } from "./entidad.seed"
-
-export { entidadSeed }
+export * from './career.seed';
+export * from './entidad.seed';
+export * from './player.seed';

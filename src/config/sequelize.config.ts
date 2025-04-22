@@ -2,8 +2,9 @@ import { Sequelize, type Dialect } from "sequelize"
 import dotenv from "dotenv"
 
 import {
-  EntidadModel,
   CareerModel,
+  EntidadModel,
+  PlayerModel,
 } from "../models"
 
 dotenv.config()
@@ -45,12 +46,16 @@ const Options = {
 // CREAMOS LAS TABLAS EN ORDEN ALFABETICO
 export const CareerDB = db.define("career", CareerModel)
 export const EntidadDB = db.define("entidad", EntidadModel, Options)
+export const PlayerDB = db.define("player", PlayerModel)
 
 // En las relaciones importa el orden de la jerarquia
 
 // PlayerDB
-// CareerDB.hasMany(PlayerDB, { foreignKey: "id_career" });
-// PlayerDB.belongsTo(CareerDB, { foreignKey: "id_career" });
+CareerDB.hasMany(PlayerDB, { foreignKey: "id_career" });
+PlayerDB.belongsTo(CareerDB, { foreignKey: "id_career" });
+// TierDB.hasMany(PlayerDB, { foreignKey: "id_tier" });
+// PlayerDB.belongsTo(TierDB, { foreignKey: "id_tier" });
+
 
 // Sincroniza los modelos con la base de datos
 const syncModels = async () => {

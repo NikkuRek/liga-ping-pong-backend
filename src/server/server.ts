@@ -8,6 +8,7 @@ import { swaggerOptions } from "../config";
 import {
   CareerRoute,
   EntidadRoute,
+  PlayerRoute,
 } from "../routes/index.route";
 
 import { db } from "../config/sequelize.config";
@@ -25,6 +26,7 @@ export class Server {
     this.paths = {
       Career: this.pre + "/Career",
       Entidad: this.pre + "/Entidad",
+      Player: this.pre + "/Player",
     };
     this.middlewares()
     this.routes()
@@ -42,6 +44,7 @@ export class Server {
   routes() {
     this.app.use(this.paths.Career, CareerRoute);
     this.app.use(this.paths.Entidad, EntidadRoute);
+    this.app.use(this.paths.Player, PlayerRoute);
   }
 
   private async dbConnection() {
