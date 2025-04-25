@@ -1,7 +1,9 @@
 import "dotenv/config";
 import { db } from "../config";
 import {
+  availabilitySeed,
   careerSeed,
+  daySeed,
   playerSeed
 } from "../data/seeders";
 
@@ -10,8 +12,12 @@ export const insertSeeders = async () => {
     console.log("Iniciando inserción de datos de prueba...");
     await careerSeed();
     console.log("Seed de carreras ejecutado correctamente");
+    await daySeed();
+    console.log("Seed de días ejecutado correctamente");
     await playerSeed();
     console.log("Seed de jugadores ejecutado correctamente");
+    await availabilitySeed();
+    console.log("Seed de disponibilidad ejecutado correctamente");
     console.log("Datos de prueba insertados correctamente");
   } catch (error) {
     console.error("Error al insertar datos de prueba:", error);
@@ -50,7 +56,7 @@ const runSeeders = async () => {
 
 const main = async () => {
   try {
-    await resetDatabase();
+    // await resetDatabase();
     await runSeeders();
 
     console.log("Script de seeders finalizado con éxito.");

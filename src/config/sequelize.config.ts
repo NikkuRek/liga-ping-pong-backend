@@ -2,7 +2,9 @@ import { Sequelize, type Dialect } from "sequelize"
 import dotenv from "dotenv"
 
 import {
+  AvailabilityModel,
   CareerModel,
+  DayModel,
   PlayerModel,
 } from "../models"
 
@@ -43,16 +45,41 @@ const Options = {
 }
 
 // CREAMOS LAS TABLAS EN ORDEN ALFABETICO
+export const AvailabilityDB = db.define("availability", AvailabilityModel)
 export const CareerDB = db.define("career", CareerModel)
+export const DayDB = db.define("day", DayModel, Options)
 export const PlayerDB = db.define("player", PlayerModel)
 
 // En las relaciones importa el orden de la jerarquia
+
+// AvailabilityDB
+DayDB.hasMany(AvailabilityDB, { foreignKey: "id_day" })
+AvailabilityDB.belongsTo(DayDB, { foreignKey: "id_day" })
+PlayerDB.hasMany(AvailabilityDB, { foreignKey: "CI" })
+AvailabilityDB.belongsTo(PlayerDB, { foreignKey: "CI" })
+
 
 // PlayerDB
 CareerDB.hasMany(PlayerDB, { foreignKey: "id_career" });
 PlayerDB.belongsTo(CareerDB, { foreignKey: "id_career" });
 // TierDB.hasMany(PlayerDB, { foreignKey: "id_tier" });
 // PlayerDB.belongsTo(TierDB, { foreignKey: "id_tier" });
+
+// Relaciones muchos a muchos entre PlayerDB y DayDB a través de AvailabilityDB
+// Esto permite que un jugador tenga disponibilidad en varios días y un día tenga varios jugadores disponibles
+
+PlayerDB.belongsToMany(DayDB, {
+  through: AvailabilityDB,   
+  foreignKey: "CI",         
+  otherKey: "id_day"
+});
+
+DayDB.belongsToMany(PlayerDB, {
+  through: AvailabilityDB,   
+  foreignKey: "id_day",
+  otherKey: "CI"            
+});
+
 
 
 // Sincroniza los modelos con la base de datos
