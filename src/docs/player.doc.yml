@@ -1,112 +1,3 @@
-/player/active:
-  get:
-    tags:
-      - Player
-    summary: Obtiene jugadores activos
-    description: Retorna un array con todos los jugadores que están activos
-    responses:
-      200:
-        description: Operación exitosa
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                data:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Player'
-      500:
-        description: Error del servidor
-
-/player/inactive:
-  get:
-    tags:
-      - Player
-    summary: Obtiene jugadores inactivos
-    description: Retorna un array con todos los jugadores que están inactivos
-    responses:
-      200:
-        description: Operación exitosa
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                data:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Player'
-      500:
-        description: Error del servidor
-
-/player:
-  post:
-    tags:
-      - Player
-    summary: Crea un nuevo jugador
-    description: Crea un nuevo jugador con los datos proporcionados
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Player'
-    responses:
-      201:
-        description: Jugador creado
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                data:
-                  $ref: '#/components/schemas/Player'
-      400:
-        description: Datos inválidos
-      500:
-        description: Error del servidor
-
-  put:
-    tags:
-      - Player
-    summary: Actualiza un jugador
-    description: Actualiza los datos de un jugador según el CI proporcionado
-    parameters:
-      - name: CI
-        in: path
-        description: CI del jugador
-        required: true
-        schema:
-          type: string
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Player'
-    responses:
-      200:
-        description: Jugador actualizado
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                data:
-                  $ref: '#/components/schemas/Player'
-      404:
-        description: Jugador no encontrado
-      500:
-        description: Error del servidor
 paths:
   /player:
     get:
@@ -135,16 +26,47 @@ paths:
       tags:
         - Player
       summary: Crea un nuevo jugador
-      description: Crea un nuevo jugador con los datos proporcionados
+      description: Crea un nuevo jugador con los datos proporcionados, incluyendo los días disponibles
       requestBody:
         required: true
         content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Player'
+         application/json:
+          schema:
+            type: object
+            properties:
+              playerData:
+                $ref: '#/components/schemas/Player'
+              available_days:
+                type: array
+                items:
+                  type: integer
+                description: Lista de IDs de días disponibles
       responses:
         201:
-          description: Jugador creado
+         description: Jugador creado correctamente
+         content:
+          application/json:
+            schema:
+             type: object
+             properties:
+              message:
+                type: string
+              data:
+                $ref: '#/components/schemas/Player'
+        400:
+         description: Datos inválidos
+        500:
+         description: Error al crear jugador
+
+  /player/active:
+    get:
+      tags:
+        - Player
+      summary: Obtiene jugadores activos
+      description: Retorna un array con todos los jugadores que están activos
+      responses:
+        200:
+          description: Operación exitosa
           content:
             application/json:
               schema:
@@ -153,24 +75,48 @@ paths:
                   message:
                     type: string
                   data:
-                    $ref: '#/components/schemas/Player'
-        400:
-          description: Datos inválidos
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Player'
         500:
           description: Error del servidor
+
+  /player/inactive:
+    get:
+      tags:
+        - Player
+      summary: Obtiene jugadores inactivos
+      description: Retorna un array con todos los jugadores que están inactivos
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Player'
+        500:
+          description: Error del servidor
+
   /player/{CI}:
     get:
       tags:
         - Player
-      summary: Obtiene un jugador por id
-      description: Retorna un jugador según el id proporcionado
+      summary: Obtiene un jugador por CI
+      description: Retorna un jugador según el CI proporcionado
       parameters:
         - name: CI
           in: path
-          description: id del jugador
+          description: CI del jugador
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         200:
           description: Operación exitosa
@@ -187,55 +133,65 @@ paths:
           description: Jugador no encontrado
         500:
           description: Error del servidor
+    
     put:
       tags:
-        - Player
+      - Player
       summary: Actualiza un jugador
-      description: Actualiza los datos de un jugador según el id proporcionado
+      description: Actualiza los datos de un jugador según el CI proporcionado, incluyendo los días disponibles
       parameters:
-        - name: CI
-          in: path
-          description: id del jugador
-          required: true
-          schema:
-            type: integer
-      requestBody:
+      - name: CI
+        in: path
+        description: CI del jugador
         required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Player'
+        schema:
+        type: string
+      requestBody:
+      required: true
+      content:
+        application/json:
+        schema:
+          type: object
+          properties:
+          playerData:
+            $ref: '#/components/schemas/Player'
+          available_days:
+            type: array
+            description: Lista de IDs de días disponibles
       responses:
-        200:
-          description: Jugador actualizado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Player'
-        404:
-          description: Jugador no encontrado
-        500:
-          description: Error del servidor
+      200:
+        description: Jugador actualizado correctamente
+        content:
+        application/json:
+          schema:
+          type: object
+          properties:
+            message:
+            type: string
+            data:
+            $ref: '#/components/schemas/Player'
+      400:
+        description: Datos inválidos
+      404:
+        description: Jugador no encontrado
+      500:
+        description: Error al actualizar jugador
+
     delete:
       tags:
         - Player
-      summary: Elimina un jugador
-      description: Elimina un jugador según el id proporcionado. Este borrado es lógico y no elimina físicamente el registro.
+      summary: Deshabilita un jugador
+      description: Deshabilita un jugador según el CI proporcionado. Este borrado es lógico y no elimina físicamente el registro.
       parameters:
         - name: CI
           in: path
-          description: id del jugador
+          description: CI del jugador
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         200:
-          description: Jugador eliminado
+          description: Jugador deshabilitado
           content:
             application/json:
               schema:
@@ -285,6 +241,3 @@ components:
           type: string
           format: date-time
           description: Fecha de última actualización
-
-
-

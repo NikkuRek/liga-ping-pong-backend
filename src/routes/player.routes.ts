@@ -30,9 +30,7 @@ router.put(
 ) // http://localhost:3000/api/player/CI
 
 router.delete("/:CI", playerController.softDelete) // http://localhost:3000/api/player/CI
-
-// Exportación nombrada para resolver el error
+ 
 export const PlayerRoute = router
-
-// Exportación por defecto para mantener consistencia
+ 
 export default router

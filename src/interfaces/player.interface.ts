@@ -1,4 +1,7 @@
+import { Model } from "sequelize"
+
 export interface PlayerInterface {
+  addDays(dayInstances: Model<any, any>[]): unknown
   CI: string
   first_name: string
   last_name: string

@@ -1,6 +1,7 @@
 import { Router } from "express"
 import { CareerRoute } from "./career.routes"
 import { PlayerRoute } from "./player.routes"
+import { TierRoute } from "./tier.routes"
 
 const router = Router()
 
@@ -12,5 +13,6 @@ const router = Router()
 export {
   CareerRoute,
   PlayerRoute,
+  TierRoute,
   router,
 }

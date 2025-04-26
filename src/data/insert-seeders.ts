@@ -4,18 +4,17 @@ import {
   availabilitySeed,
   careerSeed,
   daySeed,
-  playerSeed
+  playerSeed,
+  tierSeed,
 } from "../data/seeders";
 
 export const insertSeeders = async () => {
   try {
     console.log("Iniciando inserción de datos de prueba...");
     await careerSeed();
-    console.log("Seed de carreras ejecutado correctamente");
     await daySeed();
-    console.log("Seed de días ejecutado correctamente");
+    await tierSeed();
     await playerSeed();
-    console.log("Seed de jugadores ejecutado correctamente");
     await availabilitySeed();
     console.log("Seed de disponibilidad ejecutado correctamente");
     console.log("Datos de prueba insertados correctamente");

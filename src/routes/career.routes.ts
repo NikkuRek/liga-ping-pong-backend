@@ -25,9 +25,7 @@ router.put(
   careerController.update,
 )
 router.delete("/:id", careerController.delete)
-
-// Exportación nombrada para resolver el error
+ 
 export const CareerRoute = router
-
-// Exportación por defecto para mantener consistencia
+ 
 export default router

@@ -81,5 +81,4 @@ export class PlayerController {
     })
   }
 }
-
-// Exportación nombrada para resolver el error
+ 

@@ -1,0 +1,159 @@
+paths:
+  /tier:
+    get:
+      tags:
+        - Tier
+      summary: Obtiene todos los niveles
+      description: Retorna un array con todos los niveles
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tier'
+        500:
+          description: Error del servidor
+    post:
+      tags:
+        - Tier
+      summary: Crea un nuevo nivel
+      description: Crea un nuevo nivel con los datos proporcionados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tier'
+      responses:
+        201:
+          description: Nivel creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Tier'
+        400:
+          description: Datos inválidos
+        500:
+          description: Error del servidor
+  /tier/{id}:
+    get:
+      tags:
+        - Tier
+      summary: Obtiene un nivel por id
+      description: Retorna un nivel según el id proporcionado
+      parameters:
+        - name: id
+          in: path
+          description: id del nivel
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Tier'
+        404:
+          description: Nivel no encontrado
+        500:
+          description: Error del servidor
+    put:
+      tags:
+        - Tier
+      summary: Actualiza un nivel
+      description: Actualiza los datos de un nivel según el id proporcionado
+      parameters:
+        - name: id
+          in: path
+          description: id del nivel
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tier'
+      responses:
+        200:
+          description: Nivel actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Tier'
+        404:
+          description: Nivel no encontrado
+        500:
+          description: Error del servidor
+    delete:
+      tags:
+        - Tier
+      summary: Elimina un nivel
+      description: Elimina un nivel según el id proporcionado
+      parameters:
+        - name: id
+          in: path
+          description: id del nivel
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Nivel eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        404:
+          description: Nivel no encontrado
+        500:
+          description: Error del servidor
+
+components:
+  schemas:
+    Tier:
+      type: object
+      properties:
+        id_tier:
+          type: integer
+          description: ID del nivel
+        range:
+          type: string
+          description: Rango del nivel
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación
+        updatedAt:
+          type: string
+          format: date-time
+          description: Fecha de última actualización
