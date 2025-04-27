@@ -16,6 +16,7 @@ import { db } from "../config/sequelize.config";
 export class Server {
   private app: Application
   private port: string
+  private apiurl: string
   private pre: string = "/api"
   private paths: any
   
@@ -23,6 +24,7 @@ export class Server {
   constructor() {
     this.app = express()
     this.port = process.env.PORT || "3000"
+    this.apiurl = process.env.API_URL || `http://localhost:${this.port}`
     this.paths = {
       Career: this.pre + "/Career",
       Player: this.pre + "/Player",
@@ -58,7 +60,8 @@ export class Server {
   
   listen() {
     this.app.listen(this.port, () => {
-      console.log(`Servidor corriendo en puerto ${this.port}`)
+      let URL = `${this.apiurl}/swagger/#`;
+      console.log(`Servidor corriendo en ${URL}`);
     })
   }
 

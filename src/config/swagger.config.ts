@@ -1,5 +1,5 @@
 const port = process.env.DATABASE_PORT!;
-const apiUrl = process.env.API_URL || 'http://localhost';
+const apiUrl = process.env.API_URL || `http://localhost:${port}`;
 const pre = "/api";
 
 const swaggerOptions = {
@@ -12,7 +12,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `${apiUrl}:${port}${pre}`,
+        url: `${apiUrl}${pre}`,
       },
     ],
   },
