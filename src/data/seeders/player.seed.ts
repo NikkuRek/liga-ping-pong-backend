@@ -51,6 +51,18 @@ export const playerSeed = async () => {
                 createdAt: new Date(),
                 updatedAt: new Date(),
             },
+            {
+                CI: "31350493",
+                first_name: "Samuel",
+                last_name: "Rosales",
+                phone: "04125120548",
+                semester: 3,
+                id_career: 1,
+                id_tier: 2,
+                status: true,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            },
         ])
         console.log("Seed de jugadores ejecutado correctamente")
     } catch (error) {

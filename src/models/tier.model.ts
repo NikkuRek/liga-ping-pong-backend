@@ -9,6 +9,7 @@ export const TierModel = {
   range: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
 }
 

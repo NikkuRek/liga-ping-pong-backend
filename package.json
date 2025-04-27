@@ -4,11 +4,13 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "build": "tsc",
     "start": "node dist/app.js",
     "dev": "tsc && node dist/app.js",
     "seeds": "node dist/data/insert-seeders",
-    "seeds-dev": "tsc && node dist/data/insert-seeders",
-    "seeds-dev-x2": "tsc && node dist/data/insert-seeders && node dist/data/insert-seeders"
+    "seeds-build": "tsc && node dist/config/sequelize.config && node dist/data/insert-seeders",
+    "seeds-dev": "tsc && node dist/config/sequelize.config && node dist/data/insert-seeders && node dist/app.js",
+    "render": "npm install && tsc && node dist/config/sequelize.config && node dist/data/insert-seeders"
   },
   "author": "NK",
   "license": "ISC",
