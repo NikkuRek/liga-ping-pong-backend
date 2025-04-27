@@ -16,23 +16,9 @@ export const insertSeeders = async () => {
     await tierSeed();
     await playerSeed();
     await availabilitySeed();
-    console.log("Seed de disponibilidad ejecutado correctamente");
     console.log("Datos de prueba insertados correctamente");
   } catch (error) {
     console.error("Error al insertar datos de prueba:", error);
-    throw error;
-  }
-};
-
-const resetDatabase = async () => {
-  try {
-    console.log("Reseteando la base de datos...");
-    await db.query('SET FOREIGN_KEY_CHECKS = 0');
-    await db.sync({ force: true });
-    await db.query('SET FOREIGN_KEY_CHECKS = 1');
-    console.log("Base de datos reseteada correctamente");
-  } catch (error) {
-    console.error("Error al resetear la base de datos:", error);
     throw error;
   }
 };
