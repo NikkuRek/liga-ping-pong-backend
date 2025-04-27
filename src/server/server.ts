@@ -9,6 +9,7 @@ import {
   CareerRoute,
   PlayerRoute,
   TierRoute,
+  HealthRoute,
 } from "../routes/index.route";
 
 import { db } from "../config/sequelize.config";
@@ -29,6 +30,7 @@ export class Server {
       Career: this.pre + "/Career",
       Player: this.pre + "/Player",
       Tier: this.pre + "/Tier",
+      Health: this.pre + "/Health",
     };
     this.middlewares()
     this.routes()
@@ -47,6 +49,7 @@ export class Server {
     this.app.use(this.paths.Career, CareerRoute);
     this.app.use(this.paths.Player, PlayerRoute);
     this.app.use(this.paths.Tier, TierRoute);
+    this.app.use(this.paths.Health, HealthRoute);
   }
 
   private async dbConnection() {

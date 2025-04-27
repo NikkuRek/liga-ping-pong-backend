@@ -1,3 +1,4 @@
+import { HealthRoute } from './health.routes';
 import { Router } from "express"
 import { CareerRoute } from "./career.routes"
 import { PlayerRoute } from "./player.routes"
@@ -14,5 +15,6 @@ export {
   CareerRoute,
   PlayerRoute,
   TierRoute,
+  HealthRoute,
   router,
 }

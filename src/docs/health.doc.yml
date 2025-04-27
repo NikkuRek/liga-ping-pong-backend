@@ -1,0 +1,35 @@
+# DESCRIPTION: Endpoint para verificar el estado de la aplicación y la conexión a la base de datos.
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Verifica el estado de la aplicación
+      description: Retorna el estado de la aplicación y la conexión a la base de datos.
+      responses:
+        200:
+          description: La aplicación está funcionando correctamente y la base de datos está conectada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Estado de la aplicación.
+                  database:
+                    type: string
+                    description: Estado de la conexión a la base de datos.
+        500:
+          description: Error en la conexión a la base de datos.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Estado de la aplicación.
+                  database:
+                    type: string
+                    description: Estado de la conexión a la base de datos.
