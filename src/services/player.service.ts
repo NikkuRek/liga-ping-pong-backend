@@ -2,12 +2,15 @@ import { PlayerDB, DayDB } from "../config/sequelize.config"
 import { ValidationError } from "sequelize";
 import type { PlayerInterface } from "../interfaces"
 
-interface PlayerUpdateData extends Partial<PlayerInterface> {
-  available_days?: number[];
+// Define la interfaz para el OBJETO COMPLETO que viene en el body
+// con la propiedad 'playerData' y 'available_days' a nivel RAÍZ
+interface CreateRequestBody {
+  playerData: PlayerInterface; // 'playerData' contiene los campos del jugador (sin available_days anidado aquí)
+  available_days?: number[]; // 'available_days' es un array de IDs de días a nivel RAÍZ
 }
 
-interface PlayerCreateData extends PlayerInterface {
-  available_days?: number[];
+interface PlayerUpdateData extends Partial<PlayerInterface> {
+  available_days?: number[]; // Para la actualización, también esperamos available_days a nivel raíz
 }
 
 class PlayerService {
@@ -30,7 +33,15 @@ class PlayerService {
 
   async getOne(CI: string) {
     try {
-      const player = await PlayerDB.findByPk(CI, { include: DayDB });
+      // Incluir la disponibilidad en la respuesta usando el alias de asociación 'Days'
+      // Si definiste un alias diferente con 'as' en tu belongsToMany, usa ese alias aquí.
+      const player = await PlayerDB.findByPk(CI, {
+        include: {
+          model: DayDB, // El modelo a incluir
+          as: 'Days', // *** Usa el alias de asociación correcto (por defecto es 'Days') ***
+          through: { attributes: [] } // Opcional: No incluir los campos de la tabla intermedia (createdAt, updatedAt, etc.)
+        }
+      });
 
       if (!player) {
         return {
@@ -87,71 +98,74 @@ class PlayerService {
     }
   }
 
-  async create(requestBody: { playerData: PlayerCreateData }) { 
+  // *** Lógica de CREACIÓN con Disponibilidad (CORREGIDA para payload raíz) ***
+  // La función ahora espera el OBJETO COMPLETO del body con 'playerData' y 'available_days' a nivel raíz
+  async create(requestBody: CreateRequestBody) { // <-- Usar la interfaz CreateRequestBody definida arriba
     try {
-        // 1. Acceder al objeto anidado que contiene los datos del jugador y la disponibilidad
-        const playerDataWithAvailability = requestBody.playerData;
+      // *** CORREGIDO: Desestructurar playerData y available_days directamente del objeto recibido ***
+      const { playerData, available_days } = requestBody; // <-- Desestructurar a nivel raíz
 
-        console.log("Service Create: Objeto completo recibido en el servicio:", requestBody); // Log del objeto completo
-        console.log("Service Create: Datos de jugador + disponibilidad (objeto anidado):", playerDataWithAvailability); // Log del objeto anidado
+      console.log("Service Create: Objeto completo recibido en el servicio:", requestBody); // Log del objeto completo
+      console.log("Service Create: Datos de jugador (para crear registro):", playerData); // Log de playerData
+      console.log("Service Create: Datos de disponibilidad (array):", available_days); // Log de available_days
 
-        // 2. Separar la disponibilidad de los datos principales del jugador DESDE EL OBJETO ANIDADO
-        const { available_days, ...playerData } = playerDataWithAvailability;
-
-         console.log("Service Create: Datos de jugador (para crear registro):", playerData); // Log después de desestructurar (debería tener CI, nombre, etc.)
-         console.log("Service Create: Datos de disponibilidad (array):", available_days); // Log después de desestructurar (debería ser el array [1, 3, 4])
-
-
-        // 3. Crear el registro principal del jugador con los datos SIN la disponibilidad
-        const newPlayer = await PlayerDB.create(playerData as any) as unknown as PlayerInterface;
-        console.log("Service Create: Jugador principal creado exitosamente. CI:", newPlayer.CI);
+      // 2. Crear el registro principal del jugador con los datos de playerData
+      // Asegúrate de que playerData contiene todos los campos NOT NULL (CI, first_name, etc.)
+      const newPlayer = await PlayerDB.create(playerData as any) as unknown as PlayerInterface;
+      console.log("Service Create: Jugador principal creado exitosamente. CI:", newPlayer.CI);
 
 
-        // 4. Manejar la disponibilidad si se proporcionó un array de IDs
-        if (available_days && Array.isArray(available_days) && available_days.length > 0) {
-             console.log("Service Create: Procesando disponibilidad para IDs:", available_days);
+      // 3. Manejar la disponibilidad si se proporcionó un array de IDs
+      // available_days ahora es el array que viene a nivel raíz
+      if (available_days && Array.isArray(available_days) && available_days.length > 0) {
+        console.log("Service Create: Procesando disponibilidad para IDs:", available_days);
 
-             // Buscar las instancias de DayDB
-             const dayInstances = await DayDB.findAll({
-                 where: { id_day: available_days } // Cambiado de 'id' a 'id_day'
-             });
-             console.log("Service Create: Instancias de DayDB encontradas:", dayInstances.map(d => d.get()));
+        // Buscar las instancias de DayDB
+        // *** VERIFICA AQUÍ EL NOMBRE DE LA CLAVE PRIMARIA DE TU DayDB (id o id_day) ***
+        console.log("Service Create: Buscando instancias de DayDB con IDs:", available_days);
+        const dayInstances = await DayDB.findAll({
+          where: { id_day: available_days } // <-- Usa 'id_day' si esa es la PK en tu tabla days
+          // where: { id: available_days } // <-- Usa 'id' si esa es la PK en tu tabla days
+        });
+        console.log("Service Create: Instancias de DayDB encontradas:", dayInstances.map(d => d.get()));
 
-             // Usar el método de asociación addDays
-             console.log("Service Create: Añadiendo asociación de días...");
-             await newPlayer.addDays(dayInstances);
-             console.log("Service Create: Asociación de días añadida exitosamente.");
+        // Usar el método de asociación addDays para vincular el nuevo jugador con los días.
+        // Sequelize insertará las filas correspondientes en la tabla AvailabilityDB.
+        console.log("Service Create: Añadiendo asociación de días...");
+        // Asegúrate de que newPlayer tiene el método addDays disponible (tipado o asercion)
+        await (newPlayer as any).addDays(dayInstances); // addDays uses the association alias internally
+        console.log("Service Create: Asociación de días añadida exitosamente.");
 
-         } else {
-             console.log("Service Create: No se proporcionaron datos de disponibilidad válidos.");
-         }
+      } else {
+        console.log("Service Create: No se proporcionaron datos de disponibilidad válidos.");
+      }
 
-        console.log("Service Create: Lógica de creación y disponibilidad completada.");
+      console.log("Service Create: Lógica de creación y disponibilidad completada.");
 
-        return {
-            status: 201,
-            message: "Jugador creado correctamente",
-            data: newPlayer, // Podrías volver a buscarlo con include si quieres la disponibilidad en la respuesta
-        };
+      return {
+        status: 201,
+        message: "Jugador creado correctamente",
+        data: newPlayer, // Por defecto, retorna la instancia sin los días incluidos. Si quieres incluirlos, refetch con include.
+      };
     } catch (error) {
-        console.error("Error al crear jugador (servicio create):", error);
-        if ((error as any).parent) {
-             console.error("Detalles del error SQL/DB:", (error as any).parent);
-             console.error("Sentencia SQL:", (error as any).sql);
-        }
-        // Log errores de validación de Sequelize más detalladamente
-        if (error instanceof ValidationError) {
-            console.error("Errores de validación de Sequelize:", error.errors.map(err => err.message));
-        }
+      console.error("Error al crear jugador (servicio create):", error);
+      if ((error as any).parent) {
+        console.error("Detalles del error SQL/DB:", (error as any).parent);
+        console.error("Sentencia SQL:", (error as any).sql);
+      }
+      // Log errores de validación de Sequelize más detalladamente
+      if (error instanceof ValidationError) {
+        console.error("Errores de validación de Sequelize:", error.errors.map(err => err.message));
+      }
 
 
-        return {
-            status: 500,
-            message: "Error al crear jugador",
-            data: null,
-        };
+      return {
+        status: 500,
+        message: "Error al crear jugador",
+        data: null,
+      };
     }
-}
+  }
 
   async update(CI: string, updateDataWithAvailability: PlayerUpdateData) {
     try {
