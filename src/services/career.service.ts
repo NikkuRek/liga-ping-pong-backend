@@ -45,7 +45,9 @@ class CareerService {
 
   async create(career: CareerInterface) {
     try {
-      const newCareer = await CareerDB.create(career as any)
+      // Eliminamos cualquier intento de establecer createdAt o updatedAt manualmente
+      const { createdAt, updatedAt, ...careerData } = career
+      const newCareer = await CareerDB.create(careerData as any)
       return {
         status: 201,
         message: "Carrera creada correctamente",
@@ -70,7 +72,9 @@ class CareerService {
           data: null,
         }
       }
-      await CareerDB.update(career, { where: { id } })
+      // Eliminamos cualquier intento de establecer createdAt o updatedAt manualmente
+      const { createdAt, updatedAt, ...careerData } = career
+      await CareerDB.update(careerData, { where: { id } })
       const updatedCareer = await CareerDB.findByPk(id)
       return {
         status: 200,

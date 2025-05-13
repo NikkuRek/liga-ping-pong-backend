@@ -1,0 +1,357 @@
+tags:
+  - name: TournamentPlayerStats
+    description: API para operaciones con estadísticas de jugadores en torneos
+
+paths:
+  /tournament-player-stats:
+    get:
+      tags:
+        - TournamentPlayerStats
+      summary: Obtiene todas las estadísticas de jugadores en torneos
+      description: Retorna un array con todas las estadísticas de jugadores en torneos registradas
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  stats:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TournamentPlayerStats'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tournament-player-stats/{id}:
+    get:
+      tags:
+        - TournamentPlayerStats
+      summary: Obtiene estadísticas por ID de inscripción
+      description: Retorna las estadísticas de un jugador en un torneo específico según el ID de inscripción
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de inscripción
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  stats:
+                    $ref: '#/components/schemas/TournamentPlayerStats'
+        404:
+          description: Estadísticas no encontradas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - TournamentPlayerStats
+      summary: Actualiza estadísticas de jugador en torneo
+      description: Actualiza las estadísticas de un jugador en un torneo específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de inscripción
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TournamentPlayerStatsInput'
+      responses:
+        200:
+          description: Estadísticas actualizadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  stats:
+                    $ref: '#/components/schemas/TournamentPlayerStats'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Estadísticas no encontradas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tournament-player-stats/tournament/{id}:
+    get:
+      tags:
+        - TournamentPlayerStats
+      summary: Obtiene estadísticas por torneo
+      description: Retorna todas las estadísticas de jugadores en un torneo específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del torneo
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  stats:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TournamentPlayerStats'
+        404:
+          description: Torneo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tournament-player-stats/player/{CI}:
+    get:
+      tags:
+        - TournamentPlayerStats
+      summary: Obtiene estadísticas por jugador
+      description: Retorna todas las estadísticas de un jugador específico en diferentes torneos
+      parameters:
+        - name: CI
+          in: path
+          required: true
+          description: CI del jugador
+          schema:
+            type: string
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  stats:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TournamentPlayerStats'
+        404:
+          description: Jugador no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tournament-player-stats/update-from-match/{id}:
+    post:
+      tags:
+        - TournamentPlayerStats
+      summary: Actualiza estadísticas desde un partido
+      description: Actualiza automáticamente las estadísticas de los jugadores involucrados en un partido
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del partido
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Estadísticas actualizadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Estadísticas actualizadas correctamente
+        404:
+          description: Partido no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    TournamentPlayerStats:
+      type: object
+      properties:
+        id_inscription:
+          type: integer
+          example: 1
+        games_played:
+          type: integer
+          example: 5
+        wins:
+          type: integer
+          example: 3
+        losses:
+          type: integer
+          example: 2
+        points_for:
+          type: integer
+          example: 55
+        points_against:
+          type: integer
+          example: 45
+        sets_for:
+          type: integer
+          example: 9
+        sets_against:
+          type: integer
+          example: 6
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        inscription:
+          $ref: '#/components/schemas/Inscription'
+      required:
+        - id_inscription
+    
+    TournamentPlayerStatsInput:
+      type: object
+      properties:
+        games_played:
+          type: integer
+          example: 5
+        wins:
+          type: integer
+          example: 3
+        losses:
+          type: integer
+          example: 2
+        points_for:
+          type: integer
+          example: 55
+        points_against:
+          type: integer
+          example: 45
+        sets_for:
+          type: integer
+          example: 9
+        sets_against:
+          type: integer
+          example: 6
+    
+    Inscription:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        CI:
+          type: string
+          example: "V12345678"
+        id_tournament:
+          type: integer
+          example: 1
+        player:
+          $ref: '#/components/schemas/Player'
+        tournament:
+          $ref: '#/components/schemas/Tournament'
+    
+    Player:
+      type: object
+      properties:
+        CI:
+          type: string
+          example: "V12345678"
+        first_name:
+          type: string
+          example: "Juan"
+        last_name:
+          type: string
+          example: "Pérez"
+    
+    Tournament:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Torneo de Primavera 2023"
+    
+    Error:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Mensaje de error"

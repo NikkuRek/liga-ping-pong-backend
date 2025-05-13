@@ -1,0 +1,456 @@
+tags:
+  - name: Match
+    description: API para operaciones con partidos
+
+paths:
+  /match:
+    get:
+      tags:
+        - Match
+      summary: Obtiene todos los partidos
+      description: Retorna un array con todos los partidos registrados
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  matches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Match'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Match
+      summary: Crea un nuevo partido
+      description: Crea un nuevo partido con los datos proporcionados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MatchInput'
+      responses:
+        201:
+          description: Partido creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  match:
+                    $ref: '#/components/schemas/Match'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /match/{id}:
+    get:
+      tags:
+        - Match
+      summary: Obtiene un partido por ID
+      description: Retorna un partido específico según su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del partido
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  match:
+                    $ref: '#/components/schemas/Match'
+        404:
+          description: Partido no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - Match
+      summary: Actualiza un partido
+      description: Actualiza los datos de un partido existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del partido
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MatchInput'
+      responses:
+        200:
+          description: Partido actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  match:
+                    $ref: '#/components/schemas/Match'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Partido no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Match
+      summary: Elimina un partido
+      description: Elimina un partido existente según su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del partido
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Partido eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Partido eliminado correctamente
+        404:
+          description: Partido no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /match/tournament/{id}:
+    get:
+      tags:
+        - Match
+      summary: Obtiene partidos por torneo
+      description: Retorna todos los partidos de un torneo específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del torneo
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  matches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Match'
+        404:
+          description: Torneo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /match/set-winner/{id}:
+    put:
+      tags:
+        - Match
+      summary: Establece el ganador de un partido
+      description: Actualiza un partido para establecer el equipo ganador y perdedor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del partido
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                winner_team_inscription_id:
+                  type: integer
+                  example: 1
+              required:
+                - winner_team_inscription_id
+      responses:
+        200:
+          description: Ganador establecido exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  match:
+                    $ref: '#/components/schemas/Match'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Partido no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Match:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        id_tournament:
+          type: integer
+          example: 1
+        match_date_time:
+          type: string
+          format: date-time
+          example: "2023-05-15T14:00:00Z"
+        round:
+          type: string
+          example: "Cuartos de final"
+        id_team_inscription1:
+          type: integer
+          example: 1
+        id_team_inscription2:
+          type: integer
+          example: 2
+        winner_team_inscription_id:
+          type: integer
+          example: 1
+        loser_team_inscription_id:
+          type: integer
+          example: 2
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        tournament:
+          $ref: '#/components/schemas/Tournament'
+        team_inscription1:
+          $ref: '#/components/schemas/TeamInscription'
+        team_inscription2:
+          $ref: '#/components/schemas/TeamInscription'
+        winner_team_inscription:
+          $ref: '#/components/schemas/TeamInscription'
+        loser_team_inscription:
+          $ref: '#/components/schemas/TeamInscription'
+        sets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sets'
+      required:
+        - id_tournament
+        - match_date_time
+        - round
+        - id_team_inscription1
+        - id_team_inscription2
+    
+    MatchInput:
+      type: object
+      properties:
+        id_tournament:
+          type: integer
+          example: 1
+        match_date_time:
+          type: string
+          format: date-time
+          example: "2023-05-15T14:00:00Z"
+        round:
+          type: string
+          example: "Cuartos de final"
+        id_team_inscription1:
+          type: integer
+          example: 1
+        id_team_inscription2:
+          type: integer
+          example: 2
+        winner_team_inscription_id:
+          type: integer
+          example: 1
+        loser_team_inscription_id:
+          type: integer
+          example: 2
+      required:
+        - id_tournament
+        - match_date_time
+        - round
+        - id_team_inscription1
+        - id_team_inscription2
+    
+    Tournament:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Torneo de Primavera 2023"
+    
+    TeamInscription:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        team:
+          $ref: '#/components/schemas/Team'
+    
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        team_name:
+          type: string
+          example: "Los Campeones"
+        player1:
+          $ref: '#/components/schemas/Player'
+        player2:
+          $ref: '#/components/schemas/Player'
+    
+    Player:
+      type: object
+      properties:
+        CI:
+          type: string
+          example: "V12345678"
+        first_name:
+          type: string
+          example: "Juan"
+        last_name:
+          type: string
+          example: "Pérez"
+    
+    Sets:
+      type: object
+      properties:
+        id_sets:
+          type: integer
+          example: 1
+        match_id:
+          type: integer
+          example: 1
+        number:
+          type: integer
+          example: 1
+        score1:
+          type: integer
+          example: 11
+        score2:
+          type: integer
+          example: 9
+    
+    Error:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Mensaje de error"

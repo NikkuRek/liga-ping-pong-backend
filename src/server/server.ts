@@ -1,26 +1,20 @@
 import express, { type Application } from "express"
 import cors from "cors"
 import morgan from "morgan"
-import swaggerJsDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
-import { swaggerOptions } from "../config";
+import swaggerJsDoc from "swagger-jsdoc"
+import swaggerUi from "swagger-ui-express"
+import { swaggerOptions } from "../config"
 
-import {
-  CareerRoute,
-  PlayerRoute,
-  TierRoute,
-  HealthRoute,
-} from "../routes/index.route";
-
-import { db } from "../config/sequelize.config";
+import { CareerRoute, PlayerRoute, TierRoute, HealthRoute, TournamentRoute, TeamRoute,
+  InscriptionRoute, TeamInscriptionRoute, MatchRoute, SetsRoute, TournamentPlayerStatsRoute,
+  } from "../routes/index.route"
 
 export class Server {
   private app: Application
   private port: string
   private apiurl: string
-  private pre: string = "/api"
+  private pre = "/api"
   private paths: any
-  
 
   constructor() {
     this.app = express()
@@ -31,11 +25,17 @@ export class Server {
       Player: this.pre + "/Player",
       Tier: this.pre + "/Tier",
       Health: this.pre + "/Health",
-    };
+      Tournament: this.pre + "/Tournament",
+      Team: this.pre + "/Team",
+      Inscription: this.pre + "/Inscription",
+      TeamInscription: this.pre + "/TeamInscription",
+      Match: this.pre + "/Match",
+      Sets: this.pre + "/Sets",
+      TournamentPlayerStats: this.pre + "/TournamentPlayerStats",
+    }
     this.middlewares()
     this.routes()
-    this.dbConnection();
-    this.swaggerSetup();
+    this.swaggerSetup()
   }
 
   middlewares() {
@@ -46,31 +46,28 @@ export class Server {
   }
 
   routes() {
-    this.app.use(this.paths.Career, CareerRoute);
-    this.app.use(this.paths.Player, PlayerRoute);
-    this.app.use(this.paths.Tier, TierRoute);
-    this.app.use(this.paths.Health, HealthRoute);
+    this.app.use(this.paths.Career, CareerRoute)
+    this.app.use(this.paths.Player, PlayerRoute)
+    this.app.use(this.paths.Tier, TierRoute)
+    this.app.use(this.paths.Health, HealthRoute)
+    this.app.use(this.paths.Tournament, TournamentRoute)
+    this.app.use(this.paths.Team, TeamRoute)
+    this.app.use(this.paths.Inscription, InscriptionRoute)
+    this.app.use(this.paths.TeamInscription, TeamInscriptionRoute)
+    this.app.use(this.paths.Match, MatchRoute)
+    this.app.use(this.paths.Sets, SetsRoute)
+    this.app.use(this.paths.TournamentPlayerStats, TournamentPlayerStatsRoute)
   }
 
-  private async dbConnection() {
-    try {
-      await db.authenticate();
-      console.log("Conexión exitosa a la base de datos...");
-    } catch (error) {
-      console.error("No se pudo conectar a la base de datos:", error);
-    }
-  }
-  
   listen() {
     this.app.listen(this.port, () => {
-      let URL = `${this.apiurl}/swagger/#`;
-      console.log(`Servidor corriendo en ${URL}`);
+      const URL = `${this.apiurl}/swagger/#`
+      console.log(`Servidor corriendo en ${URL}`)
     })
   }
 
   swaggerSetup() {
-    const swaggerDocs = swaggerJsDoc(swaggerOptions);
-    this.app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+    const swaggerDocs = swaggerJsDoc(swaggerOptions)
+    this.app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocs))
   }
-
 }

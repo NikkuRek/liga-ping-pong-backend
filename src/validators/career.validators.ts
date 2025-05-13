@@ -3,51 +3,93 @@ import type { NextFunction, Request, Response } from "express"
 import { CareerDB } from "../config/sequelize.config"
 
 export class CareerValidator {
-  validateCareer = [
+  validateFields = [
     check("name_career", "El nombre de la carrera es obligatorio").not().isEmpty(),
     check("name_career", "El nombre de la carrera debe ser una cadena de texto").isString(),
-    check("name_career", "El nombre de la carrera debe contener solo letras y espacios").matches(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/),
+    check("name_career", "El nombre de la carrera debe contener solo letras, espacios y acentos").matches(
+      /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
+    ),
   ]
 
-  validateIfIdExist = async (req: Request, res: Response, next: NextFunction) => {
+  validateNameExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id } = req.params
-      const career = await CareerDB.findByPk(id)
-      if (!career) {
-        return res.status(404).json({
-          message: "La carrera no existe",
-        })
+      const nameCareerFromBody = req.body.name_career
+      const idFromParams = req.params.id
+
+      if (!nameCareerFromBody) {
+        return next()
       }
-      next()
+
+      const existingCareer = await CareerDB.findOne({ where: { name_career: nameCareerFromBody } })
+
+      if (existingCareer) {
+        if (idFromParams) {
+          const paramIdNum = Number.parseInt(idFromParams, 10)
+          if (existingCareer.getDataValue("id") !== paramIdNum) {
+            return res.status(400).json({
+              message: `El nombre de carrera "${nameCareerFromBody}" ya está en uso.`,
+            })
+          } else {
+            return next()
+          }
+        } else {
+          return res.status(400).json({
+            message: `El nombre de carrera "${nameCareerFromBody}" ya está registrado.`,
+          })
+        }
+      } else {
+        next()
+      }
     } catch (error) {
-      console.error("Error en validateIfIdExist:", error)
       return res.status(500).json({
-        message: "Error interno del servidor al validar ID",
+        message: "Error interno del servidor al validar el nombre de la carrera",
       })
     }
   }
 
-  validateIfNameIsUse = async (req: Request, res: Response, next: NextFunction) => {
+  validateIdExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name_career } = req.body
-      const { id } = req.params
+      const idFromParams = req.params.id
+      const idFromBody = req.body.id
 
-      if (!name_career) {
+      let idToCheck: number | undefined
+
+      if (idFromParams) {
+        idToCheck = Number.parseInt(idFromParams, 10)
+      } else if (idFromBody !== undefined) {
+        idToCheck = Number.parseInt(idFromBody, 10)
+      } else {
         return next()
       }
 
-      const career = await CareerDB.findOne({ where: { name_career } })
-
-      if (career && career.getDataValue("id").toString() !== id) {
+      if (isNaN(idToCheck)) {
         return res.status(400).json({
-          message: `El nombre de la carrera "${name_career}" ya está en uso`,
+          message: `El ID proporcionado "${idFromParams || idFromBody}" no es un número válido.`,
         })
       }
-      next()
+
+      const existingCareer = await CareerDB.findByPk(idToCheck)
+
+      if (!existingCareer) {
+        if (idFromParams) {
+          return res.status(404).json({
+            message: `Carrera con ID ${idToCheck} no encontrada.`,
+          })
+        } else {
+          return next()
+        }
+      } else {
+        if (idFromParams) {
+          return next()
+        } else {
+          return res.status(400).json({
+            message: `Encontrada la carrera con ID ${idToCheck}. Es un duplicado de otra carrera.`,
+          })
+        }
+      }
     } catch (error) {
-      console.error("Error en validateIfNameIsUse:", error)
       return res.status(500).json({
-        message: "Error interno del servidor al validar nombre de la carrera",
+        message: "Error interno del servidor al validar el ID de la carrera",
       })
     }
   }

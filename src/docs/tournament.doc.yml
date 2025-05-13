@@ -1,0 +1,285 @@
+tags:
+  - name: Tournament
+    description: API para operaciones con torneos
+
+paths:
+  /tournament:
+    get:
+      tags:
+        - Tournament
+      summary: Obtiene todos los torneos
+      description: Retorna un array con todos los torneos registrados
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  tournaments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tournament'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Tournament
+      summary: Crea un nuevo torneo
+      description: Crea un nuevo torneo con los datos proporcionados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TournamentInput'
+      responses:
+        201:
+          description: Torneo creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  tournament:
+                    $ref: '#/components/schemas/Tournament'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tournament/{id}:
+    get:
+      tags:
+        - Tournament
+      summary: Obtiene un torneo por ID
+      description: Retorna un torneo específico según su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del torneo
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  tournament:
+                    $ref: '#/components/schemas/Tournament'
+        404:
+          description: Torneo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - Tournament
+      summary: Actualiza un torneo
+      description: Actualiza los datos de un torneo existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del torneo
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TournamentInput'
+      responses:
+        200:
+          description: Torneo actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  tournament:
+                    $ref: '#/components/schemas/Tournament'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Torneo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Tournament
+      summary: Elimina un torneo
+      description: Elimina un torneo existente según su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del torneo
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Torneo eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Torneo eliminado correctamente
+        404:
+          description: Torneo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Tournament:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Torneo de Primavera 2023"
+        description:
+          type: string
+          example: "Torneo semestral de ping pong"
+        format:
+          type: string
+          example: "Eliminación directa"
+        type:
+          type: string
+          example: "Individual"
+          enum: ["Individual", "Dobles"]
+        start_date:
+          type: string
+          format: date
+          example: "2023-05-15"
+        end_date:
+          type: string
+          format: date
+          example: "2023-05-30"
+        status:
+          type: string
+          example: "Próximo"
+          enum: ["Próximo", "En curso", "Finalizado", "Cancelado"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - name
+        - format
+        - type
+        - start_date
+        - status
+    
+    TournamentInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Torneo de Primavera 2023"
+        description:
+          type: string
+          example: "Torneo semestral de ping pong"
+        format:
+          type: string
+          example: "Eliminación directa"
+        type:
+          type: string
+          example: "Individual"
+          enum: ["Individual", "Dobles"]
+        start_date:
+          type: string
+          format: date
+          example: "2023-05-15"
+        end_date:
+          type: string
+          format: date
+          example: "2023-05-30"
+        status:
+          type: string
+          example: "Próximo"
+          enum: ["Próximo", "En curso", "Finalizado", "Cancelado"]
+      required:
+        - name
+        - format
+        - type
+        - start_date
+        - status
+    
+    Error:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Mensaje de error"

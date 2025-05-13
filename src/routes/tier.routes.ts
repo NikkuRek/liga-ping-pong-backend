@@ -11,21 +11,22 @@ router.get("/", tierController.all) // http://localhost:3000/api/tier
 router.get("/:id", tierController.one)
 router.post(
   "/",
-  tierValidator.validateTier,
-  tierValidator.validateIfNameIsUse,
+  tierValidator.validateFields,
+  tierValidator.validateNameExists,
+  tierValidator.validateIdExists,
   validateFields,
   tierController.create,
 )
 router.put(
   "/:id",
-  tierValidator.validateTier,
-  tierValidator.validateIfIdExist,
-  tierValidator.validateIfNameIsUse,
+  tierValidator.validateFields,
+  tierValidator.validateIdExists,
+  tierValidator.validateNameExists,
   validateFields,
   tierController.update,
 )
 router.delete("/:id", tierController.delete)
- 
+
 export const TierRoute = router
- 
+
 export default router

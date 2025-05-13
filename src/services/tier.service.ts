@@ -13,7 +13,7 @@ class TierService {
     } catch (error) {
       return {
         status: 500,
-        message: "Error al obtener carreras",
+        message: "Error al obtener niveles",
         data: null,
       }
     }
@@ -37,7 +37,7 @@ class TierService {
     } catch (error) {
       return {
         status: 500,
-        message: "Error al obtener carrera",
+        message: "Error al obtener nivel",
         data: null,
       }
     }
@@ -45,6 +45,7 @@ class TierService {
 
   async create(tier: TierInterface) {
     try {
+      // Usar directamente los datos del tier sin intentar desestructurar createdAt/updatedAt
       const newTier = await TierDB.create(tier as any)
       return {
         status: 201,
@@ -54,15 +55,16 @@ class TierService {
     } catch (error) {
       return {
         status: 500,
-        message: "Error al crear carrera",
+        message: "Error al crear nivel",
         data: null,
       }
     }
   }
 
-  async update(id: number, tier: TierInterface) {
+  async update(id: number, updateData: { range?: string }) {
     try {
       const existingTier = await TierDB.findByPk(id)
+
       if (!existingTier) {
         return {
           status: 404,
@@ -70,17 +72,22 @@ class TierService {
           data: null,
         }
       }
-      await TierDB.update(tier, { where: { id } })
+
+      // Usar directamente los datos de actualización sin intentar desestructurar createdAt/updatedAt
+      await existingTier.update(updateData)
+
       const updatedTier = await TierDB.findByPk(id)
+
       return {
         status: 200,
         message: "Nivel actualizado correctamente",
         data: updatedTier,
       }
     } catch (error) {
+      console.error("Error al actualizar nivel (servicio):", error)
       return {
         status: 500,
-        message: "Error al actualizar carrera",
+        message: "Error al actualizar nivel",
         data: null,
       }
     }

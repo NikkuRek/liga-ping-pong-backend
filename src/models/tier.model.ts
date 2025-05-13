@@ -12,4 +12,3 @@ export const TierModel = {
     unique: true,
   },
 }
-

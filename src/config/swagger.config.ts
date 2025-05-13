@@ -1,6 +1,6 @@
-const port = process.env.DATABASE_PORT!;
-const apiUrl = process.env.API_URL || `http://localhost:${port}`;
-const pre = "/api";
+const port = process.env.DATABASE_PORT!
+const apiUrl = process.env.API_URL || `http://localhost:${port}`
+const pre = "/api"
 
 const swaggerOptions = {
   swaggerDefinition: {
@@ -16,8 +16,8 @@ const swaggerOptions = {
       },
     ],
   },
-  basePath: '/api',
-  apis: ["./src/docs/*.yml", "./src/routes/*.ts"]
-};
+  basePath: "/api",
+  apis: ["./src/docs/*.yml", "./src/routes/*.ts"],
+}
 
 export { swaggerOptions }

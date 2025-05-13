@@ -11,5 +11,4 @@ export const DayModel = {
     allowNull: false,
     unique: true,
   },
-};
-
+}

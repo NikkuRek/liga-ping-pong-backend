@@ -1,0 +1,374 @@
+tags:
+  - name: TeamInscription
+    description: API para operaciones con inscripciones de equipos a torneos
+
+paths:
+  /team-inscription:
+    get:
+      tags:
+        - TeamInscription
+      summary: Obtiene todas las inscripciones de equipos
+      description: Retorna un array con todas las inscripciones de equipos registradas
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  teamInscriptions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TeamInscription'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - TeamInscription
+      summary: Crea una nueva inscripción de equipo
+      description: Crea una nueva inscripción de equipo con los datos proporcionados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamInscriptionInput'
+      responses:
+        201:
+          description: Inscripción de equipo creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  teamInscription:
+                    $ref: '#/components/schemas/TeamInscription'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /team-inscription/{id}:
+    get:
+      tags:
+        - TeamInscription
+      summary: Obtiene una inscripción de equipo por ID
+      description: Retorna una inscripción de equipo específica según su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la inscripción de equipo
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  teamInscription:
+                    $ref: '#/components/schemas/TeamInscription'
+        404:
+          description: Inscripción de equipo no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - TeamInscription
+      summary: Actualiza una inscripción de equipo
+      description: Actualiza los datos de una inscripción de equipo existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la inscripción de equipo
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamInscriptionInput'
+      responses:
+        200:
+          description: Inscripción de equipo actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  teamInscription:
+                    $ref: '#/components/schemas/TeamInscription'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Inscripción de equipo no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - TeamInscription
+      summary: Elimina una inscripción de equipo
+      description: Elimina una inscripción de equipo existente según su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID de la inscripción de equipo
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Inscripción de equipo eliminada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Inscripción de equipo eliminada correctamente
+        404:
+          description: Inscripción de equipo no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /team-inscription/tournament/{id}:
+    get:
+      tags:
+        - TeamInscription
+      summary: Obtiene inscripciones de equipos por torneo
+      description: Retorna todas las inscripciones de equipos de un torneo específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del torneo
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  teamInscriptions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TeamInscription'
+        404:
+          description: Torneo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /team-inscription/team/{id}:
+    get:
+      tags:
+        - TeamInscription
+      summary: Obtiene inscripciones por equipo
+      description: Retorna todas las inscripciones de un equipo específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del equipo
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  teamInscriptions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TeamInscription'
+        404:
+          description: Equipo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    TeamInscription:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        id_team:
+          type: integer
+          example: 1
+        id_tournament:
+          type: integer
+          example: 1
+        inscription_date:
+          type: string
+          format: date-time
+          example: "2023-05-10T14:30:00Z"
+        seed:
+          type: integer
+          example: 3
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        team:
+          $ref: '#/components/schemas/Team'
+        tournament:
+          $ref: '#/components/schemas/Tournament'
+      required:
+        - id_team
+        - id_tournament
+    
+    TeamInscriptionInput:
+      type: object
+      properties:
+        id_team:
+          type: integer
+          example: 1
+        id_tournament:
+          type: integer
+          example: 1
+        seed:
+          type: integer
+          example: 3
+      required:
+        - id_team
+        - id_tournament
+    
+    Team:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        team_name:
+          type: string
+          example: "Los Campeones"
+        player1:
+          $ref: '#/components/schemas/Player'
+        player2:
+          $ref: '#/components/schemas/Player'
+    
+    Player:
+      type: object
+      properties:
+        CI:
+          type: string
+          example: "V12345678"
+        first_name:
+          type: string
+          example: "Juan"
+        last_name:
+          type: string
+          example: "Pérez"
+    
+    Tournament:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Torneo de Primavera 2023"
+    
+    Error:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Mensaje de error"
