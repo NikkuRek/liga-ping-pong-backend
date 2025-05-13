@@ -13,24 +13,25 @@ router.get("/inactive", playerController.inactive) // http://localhost:3000/api/
 router.get("/:CI", playerController.one) // http://localhost:3000/api/player/CI
 router.post(
   "/",
-  playerValidator.validatePlayer,
-  playerValidator.validateIfCIExist,
-  playerValidator.validateIfPhoneIsUse, 
+  playerValidator.validateFields,
+  playerValidator.validateCIExists,
+  playerValidator.validatePhoneExists,
   validateFields,
-  playerController.create, 
+  playerController.create,
 ) // http://localhost:3000/api/player
 
 router.put(
   "/:CI",
-  playerValidator.validatePlayer,
-  playerValidator.validateIfCIExist,
-  playerValidator.validateIfPhoneIsUse,
+  playerValidator.validateFields,
+  playerValidator.validateCIExists,
+  playerValidator.validatePhoneExists,
   validateFields,
   playerController.update,
 ) // http://localhost:3000/api/player/CI
 
 router.delete("/:CI", playerController.softDelete) // http://localhost:3000/api/player/CI
- 
+router.delete("/delete/:CI", playerController.delete) // http://localhost:3000/api/player/delete/CI
+
 export const PlayerRoute = router
- 
+
 export default router

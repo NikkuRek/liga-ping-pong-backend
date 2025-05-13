@@ -37,10 +37,7 @@ paths:
               playerData:
                 $ref: '#/components/schemas/Player'
               available_days:
-                type: array
-                items:
-                  type: integer
-                description: Lista de IDs de días disponibles
+                $ref: '#/components/schemas/available_days'
       responses:
         201:
          description: Jugador creado correctamente
@@ -136,46 +133,45 @@ paths:
     
     put:
       tags:
-      - Player
+        - Player
       summary: Actualiza un jugador
       description: Actualiza los datos de un jugador según el CI proporcionado, incluyendo los días disponibles
       parameters:
-      - name: CI
-        in: path
-        description: CI del jugador
-        required: true
-        schema:
-        type: string
-      requestBody:
-      required: true
-      content:
-        application/json:
-        schema:
-          type: object
-          properties:
-          playerData:
-            $ref: '#/components/schemas/Player'
-          available_days:
-            type: array
-            description: Lista de IDs de días disponibles
-      responses:
-      200:
-        description: Jugador actualizado correctamente
-        content:
-        application/json:
+        - name: CI
+          in: path
+          description: CI del jugador
+          required: true
           schema:
-          type: object
-          properties:
-            message:
             type: string
-            data:
-            $ref: '#/components/schemas/Player'
-      400:
-        description: Datos inválidos
-      404:
-        description: Jugador no encontrado
-      500:
-        description: Error al actualizar jugador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                playerData:
+                  $ref: '#/components/schemas/Player'
+                available_days:
+                  $ref: '#/components/schemas/available_days'
+      responses:
+        200:
+          description: Jugador actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Player'
+        400:
+          description: Datos inválidos
+        404:
+          description: Jugador no encontrado
+        500:
+          description: Error al actualizar jugador
 
     delete:
       tags:
@@ -192,6 +188,34 @@ paths:
       responses:
         200:
           description: Jugador deshabilitado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        404:
+          description: Jugador no encontrado
+        500:
+          description: Error del servidor
+
+  /player/delete/{CI}:
+    delete:
+      tags:
+        - Player
+      summary: Elimina físicamente un jugador
+      description: Elimina físicamente un jugador según el CI proporcionado.
+      parameters:
+        - name: CI
+          in: path
+          description: CI del jugador
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Jugador eliminado físicamente
           content:
             application/json:
               schema:
@@ -241,3 +265,8 @@ components:
           type: string
           format: date-time
           description: Fecha de última actualización
+    available_days:
+                type: array
+                items:
+                  type: integer
+                description: Lista de IDs de días disponibles
