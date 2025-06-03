@@ -39,6 +39,6 @@ export const inscriptionSeed = async () => {
         console.log("Seed de inscripciones ejecutado correctamente");
     } catch (error) {
         console.error("Error al ejecutar seed de inscripciones:", error);
-        throw error; // *** Re-lanzar el error ***
+        throw error; 
     }
 };

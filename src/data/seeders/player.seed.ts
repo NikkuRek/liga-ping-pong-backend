@@ -10,8 +10,8 @@ export const playerSeed = async () => {
         last_name: "Piña",
         phone: "04122886568",
         semester: 5,
-        id_career: 1, // Asegúrate que esta carrera exista
-        id_tier: 3,   // Asegúrate que este nivel exista
+        id_career: 1, 
+        id_tier: 3,   
         status: true,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -20,7 +20,7 @@ export const playerSeed = async () => {
         CI: "29909792",
         first_name: "Pedro",
         last_name: "Riera",
-        phone: "04145121252", // Asegúrate que no haya espacios extra si phone es UNIQUE
+        phone: "04145121252", 
         semester: 4,
         id_career: 1,
         id_tier: 3,
@@ -71,6 +71,6 @@ export const playerSeed = async () => {
 
   } catch (error) {
     console.error("Error al ejecutar seed de jugadores:", error);
-    throw error; // *** Re-lanzar el error ***
+    throw error;
   }
 };
