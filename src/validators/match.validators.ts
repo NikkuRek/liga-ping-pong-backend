@@ -90,9 +90,9 @@ export class MatchValidator {
     }
   };
 
-  validateWinnerInscription = async (req: Request, res: Response, next: NextFunction) => {
+  validateWinnerLosserInscription = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { winner_inscription_id } = req.body;
+      const { winner_inscription_id, loser_inscription_id } = req.body;
       const matchId = req.params.id;
 
       const match = await MatchDB.findByPk(matchId);
@@ -116,10 +116,27 @@ export class MatchValidator {
         });
       }
 
+      // Verificar que el perdedor exista y sea una de las inscripciones del partido
+      if (
+        loser_inscription_id !== inscription1 &&
+        loser_inscription_id !== inscription2
+      ) {
+        return res.status(400).json({
+          message: "La inscripción perdedora debe ser una de las inscripciones del partido",
+        });
+      }
+
+      // Verificar que ganador y perdedor sean diferentes
+      if (winner_inscription_id === loser_inscription_id) {
+        return res.status(400).json({
+          message: "La inscripción ganadora y la perdedora deben ser diferentes",
+        });
+      }
+
       next();
     } catch (error) {
       return res.status(500).json({
-        message: "Error interno del servidor al validar la inscripción ganadora",
+        message: "Error interno del servidor al validar la inscripción ganadora y perdedora",
       });
     }
   };

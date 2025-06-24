@@ -193,14 +193,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /team/player/{ci}:
+  /team/player/{CI}:
     get:
       tags:
         - Team
       summary: Obtiene equipos por jugador
       description: Retorna todos los equipos donde participa un jugador específico
       parameters:
-        - name: ci
+        - name: CI
           in: path
           required: true
           description: CI del jugador

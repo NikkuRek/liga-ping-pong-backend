@@ -12,7 +12,7 @@ router.get("/tournament/:id_tournament", matchController.all); // Assuming this 
 router.post(
   "/",
   matchValidators.validateFields,
-  matchValidators.validateTournamentAndTeamsExist,
+  matchValidators.validateTournamentAndInscriptionsExist,
   validateFields,
   matchController.create
 );
@@ -20,14 +20,14 @@ router.put(
   "/:id",
   matchValidators.validateFields,
   matchValidators.validateMatchIdExists,
-  matchValidators.validateTournamentAndTeamsExist,
+  matchValidators.validateTournamentAndInscriptionsExist,
   validateFields,
   matchController.update
 );
 router.put(
   "/:id/result",
   matchValidators.validateMatchIdExists,
-  matchValidators.validateWinnerAndLoser,
+  matchValidators.validateWinnerLosserInscription,
   validateFields,
   matchController.update
 );

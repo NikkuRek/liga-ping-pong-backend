@@ -66,6 +66,13 @@ class InscriptionService {
           { model: TeamDB }
         ],
       })
+      if (!inscriptions || inscriptions.length === 0) {
+        return {
+          status: 404,
+          message: "No se encontraron inscripciones para el torneo",
+          data: null,
+        }
+      }
       return {
         status: 200,
         message: "Inscripciones del torneo obtenidas correctamente",
@@ -90,6 +97,13 @@ class InscriptionService {
           { model: TeamDB }
         ],
       })
+      if (!inscriptions || inscriptions.length === 0) {
+        return {
+          status: 404,
+          message: "No se encontraron inscripciones para el jugador",
+          data: null,
+        }
+      }
       return {
         status: 200,
         message: "Inscripciones del jugador obtenidas correctamente",
@@ -114,6 +128,13 @@ class InscriptionService {
           { model: TeamDB }
         ],
       })
+      if (!inscriptions || inscriptions.length === 0) {
+        return {
+          status: 404,
+          message: "No se encontraron inscripciones para el equipo",
+          data: null,
+        }
+      }
       return {
         status: 200,
         message: "Inscripciones del equipo obtenidas correctamente",

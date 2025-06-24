@@ -38,6 +38,15 @@ export class InscriptionController {
       data,
     });
   };
+  
+  getByTeam = async (req: Request, res: Response) => {
+    const { teamId } = req.params;
+    const { status, message, data } = await InscriptionServices.getByTeam(Number(teamId));
+    return res.status(status).json({
+      message,
+      data,
+    });
+  };
 
   create = async (req: Request, res: Response) => {
     const { status, message, data } = await InscriptionServices.create(req.body);
