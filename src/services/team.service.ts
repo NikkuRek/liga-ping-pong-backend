@@ -1,6 +1,6 @@
 import { TeamDB, PlayerDB } from "../config/sequelize.config"
 import type { TeamInterface } from "../interfaces"
-import { Op } from "sequelize" // Importar Op directamente de sequelize
+import { Op } from "sequelize"
 
 class TeamService {
   async getAll() {
@@ -26,9 +26,9 @@ class TeamService {
     }
   }
 
-  async getOne(id: number) {
+  async getOne(team_id: number) {
     try {
-      const team = await TeamDB.findByPk(id, {
+      const team = await TeamDB.findByPk(team_id, {
         include: [
           { model: PlayerDB, as: "Player1" },
           { model: PlayerDB, as: "Player2" },
@@ -56,11 +56,11 @@ class TeamService {
     }
   }
 
-  async getByPlayer(CI: string) {
+  async getByPlayer(ci: string) {
     try {
       const teams = await TeamDB.findAll({
         where: {
-          [Op.or]: [{ player1_CI: CI }, { player2_CI: CI }], // Usar Op directamente
+          [Op.or]: [{ player1_ci: ci }, { player2_ci: ci }],
         },
         include: [
           { model: PlayerDB, as: "Player1" },
@@ -85,7 +85,7 @@ class TeamService {
   async create(team: TeamInterface) {
     try {
       // Verificar que los jugadores existan
-      const player1 = await PlayerDB.findByPk(team.player1_CI)
+      const player1 = await PlayerDB.findByPk(team.player1_ci)
       if (!player1) {
         return {
           status: 404,
@@ -94,7 +94,7 @@ class TeamService {
         }
       }
 
-      const player2 = await PlayerDB.findByPk(team.player2_CI)
+      const player2 = await PlayerDB.findByPk(team.player2_ci)
       if (!player2) {
         return {
           status: 404,
@@ -104,7 +104,7 @@ class TeamService {
       }
 
       // Verificar que los jugadores sean diferentes
-      if (team.player1_CI === team.player2_CI) {
+      if (team.player1_ci === team.player2_ci) {
         return {
           status: 400,
           message: "Los jugadores en un equipo deben ser diferentes",
@@ -112,18 +112,17 @@ class TeamService {
         }
       }
 
-      // Verificar si ya existe un equipo con estos jugadores
+      // Verificar si ya existe un equipo con estos jugadores (en cualquier orden)
       const existingTeam = await TeamDB.findOne({
         where: {
           [Op.or]: [
-            // Usar Op directamente
             {
-              player1_CI: team.player1_CI,
-              player2_CI: team.player2_CI,
+              player1_ci: team.player1_ci,
+              player2_ci: team.player2_ci,
             },
             {
-              player1_CI: team.player2_CI,
-              player2_CI: team.player1_CI,
+              player1_ci: team.player2_ci,
+              player2_ci: team.player1_ci,
             },
           ],
         },
@@ -141,7 +140,7 @@ class TeamService {
       const { createdAt, updatedAt, ...teamData } = team as any
       const newTeam = await TeamDB.create(teamData)
 
-      const createdTeam = await TeamDB.findByPk(newTeam.getDataValue("id"), {
+      const createdTeam = await TeamDB.findByPk(newTeam.getDataValue("team_id"), {
         include: [
           { model: PlayerDB, as: "Player1" },
           { model: PlayerDB, as: "Player2" },
@@ -163,9 +162,9 @@ class TeamService {
     }
   }
 
-  async update(id: number, team: TeamInterface) {
+  async update(team_id: number, team: TeamInterface) {
     try {
-      const existingTeam = await TeamDB.findByPk(id)
+      const existingTeam = await TeamDB.findByPk(team_id)
       if (!existingTeam) {
         return {
           status: 404,
@@ -175,9 +174,9 @@ class TeamService {
       }
 
       // Si se están cambiando los jugadores, realizar validaciones
-      if (team.player1_CI && team.player2_CI) {
+      if (team.player1_ci && team.player2_ci) {
         // Verificar que los jugadores existan
-        const player1 = await PlayerDB.findByPk(team.player1_CI)
+        const player1 = await PlayerDB.findByPk(team.player1_ci)
         if (!player1) {
           return {
             status: 404,
@@ -186,7 +185,7 @@ class TeamService {
           }
         }
 
-        const player2 = await PlayerDB.findByPk(team.player2_CI)
+        const player2 = await PlayerDB.findByPk(team.player2_ci)
         if (!player2) {
           return {
             status: 404,
@@ -196,7 +195,7 @@ class TeamService {
         }
 
         // Verificar que los jugadores sean diferentes
-        if (team.player1_CI === team.player2_CI) {
+        if (team.player1_ci === team.player2_ci) {
           return {
             status: 400,
             message: "Los jugadores en un equipo deben ser diferentes",
@@ -207,16 +206,15 @@ class TeamService {
         // Verificar si ya existe otro equipo con estos jugadores
         const existingTeamWithPlayers = await TeamDB.findOne({
           where: {
-            id: { [Op.ne]: id }, // Usar Op directamente
+            team_id: { [Op.ne]: team_id },
             [Op.or]: [
-              // Usar Op directamente
               {
-                player1_CI: team.player1_CI,
-                player2_CI: team.player2_CI,
+                player1_ci: team.player1_ci,
+                player2_ci: team.player2_ci,
               },
               {
-                player1_CI: team.player2_CI,
-                player2_CI: team.player1_CI,
+                player1_ci: team.player2_ci,
+                player2_ci: team.player1_ci,
               },
             ],
           },
@@ -233,9 +231,9 @@ class TeamService {
 
       // Eliminar propiedades de timestamp si existen
       const { createdAt, updatedAt, ...teamData } = team as any
-      await TeamDB.update(teamData, { where: { id } })
+      await TeamDB.update(teamData, { where: { team_id } })
 
-      const updatedTeam = await TeamDB.findByPk(id, {
+      const updatedTeam = await TeamDB.findByPk(team_id, {
         include: [
           { model: PlayerDB, as: "Player1" },
           { model: PlayerDB, as: "Player2" },
@@ -257,16 +255,16 @@ class TeamService {
     }
   }
 
-  async delete(id: number) {
+  async delete(team_id: number) {
     try {
-      const team = await TeamDB.findByPk(id)
+      const team = await TeamDB.findByPk(team_id)
       if (!team) {
         return {
           status: 404,
           message: "Equipo no encontrado",
         }
       }
-      await TeamDB.destroy({ where: { id } })
+      await TeamDB.destroy({ where: { team_id } })
       return {
         status: 200,
         message: "Equipo eliminado correctamente",

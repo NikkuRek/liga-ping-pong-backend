@@ -123,7 +123,7 @@ class PlayerService {
 
       // 3. Crear el registro principal del jugador con los datos SIN la disponibilidad
       const newPlayer = await PlayerDB.create(playerData as any) as unknown as PlayerInterface;
-      console.log("Service Create: Jugador principal creado exitosamente. CI:", newPlayer.CI);
+      console.log("Service Create: Jugador principal creado exitosamente. CI:", newPlayer.ci);
 
 
       // 4. Manejar la disponibilidad si se proporcionó un array de IDs

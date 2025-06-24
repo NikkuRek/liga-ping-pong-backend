@@ -5,33 +5,38 @@ export const inscriptionSeed = async () => {
         console.log("Iniciando seed de inscripciones...");
         const inscriptionsToCreate = [
             {
-                CI: "29944901", // Debe existir en players
-                id_tournament: 1, // Debe existir en tournament
-                inscription_date: "2025-05-01",
+                player_ci: "29944901", // Debe existir en players
+                tournament_id: 1,      // Debe existir en tournaments
+                team_id: null,         // Solo para dobles, null aquí
+                inscription_date: "2025-05-01 00:00:00",
                 seed: null,
             },
             {
-                CI: "29909792", // Debe existir en players
-                id_tournament: 1, // Debe existir en tournament
-                inscription_date: "2025-05-01",
+                player_ci: "29909792",
+                tournament_id: 1,
+                team_id: null,
+                inscription_date: "2025-05-01 00:00:00",
                 seed: null,
             },
             {
-                CI: "30353315", // Debe existir en players
-                id_tournament: 1, // Debe existir en tournament
-                inscription_date: "2025-05-01",
+                player_ci: "30353315",
+                tournament_id: 1,
+                team_id: null,
+                inscription_date: "2025-05-01 00:00:00",
                 seed: null,
             },
             {
-                CI: "31366298", // Debe existir en players
-                id_tournament: 1, // Debe existir en tournament
-                inscription_date: "2025-05-01",
+                player_ci: "31366298",
+                tournament_id: 1,
+                team_id: null,
+                inscription_date: "2025-05-01 00:00:00",
                 seed: null,
             },
             {
-                CI: "31350493", // Debe existir en players
-                id_tournament: 1, // Debe existir en tournament
-                inscription_date: "2025-05-01",
+                player_ci: "31350493",
+                tournament_id: 1,
+                team_id: null,
+                inscription_date: "2025-05-01 00:00:00",
                 seed: null,
             },
         ];

@@ -1,11 +1,15 @@
-import { InscriptionDB, PlayerDB, TournamentDB, TournamentPlayerStatsDB } from "../config/sequelize.config"
+import { InscriptionDB, PlayerDB, TournamentDB, TeamDB } from "../config/sequelize.config"
 import type { InscriptionInterface } from "../interfaces"
 
 class InscriptionService {
   async getAll() {
     try {
       const inscriptions = await InscriptionDB.findAll({
-        include: [{ model: PlayerDB }, { model: TournamentDB }],
+        include: [
+          { model: PlayerDB },
+          { model: TeamDB },
+          { model: TournamentDB }
+        ],
       })
       return {
         status: 200,
@@ -22,10 +26,14 @@ class InscriptionService {
     }
   }
 
-  async getOne(id: number) {
+  async getOne(inscription_id: number) {
     try {
-      const inscription = await InscriptionDB.findByPk(id, {
-        include: [{ model: PlayerDB }, { model: TournamentDB }, { model: TournamentPlayerStatsDB }],
+      const inscription = await InscriptionDB.findByPk(inscription_id, {
+        include: [
+          { model: PlayerDB },
+          { model: TeamDB },
+          { model: TournamentDB }
+        ],
       })
       if (!inscription) {
         return {
@@ -49,11 +57,14 @@ class InscriptionService {
     }
   }
 
-  async getByTournament(tournamentId: number) {
+  async getByTournament(tournament_id: number) {
     try {
       const inscriptions = await InscriptionDB.findAll({
-        where: { id_tournament: tournamentId },
-        include: [{ model: PlayerDB }, { model: TournamentPlayerStatsDB }],
+        where: { tournament_id },
+        include: [
+          { model: PlayerDB },
+          { model: TeamDB }
+        ],
       })
       return {
         status: 200,
@@ -70,11 +81,14 @@ class InscriptionService {
     }
   }
 
-  async getByPlayer(CI: string) {
+  async getByPlayer(player_ci: string) {
     try {
       const inscriptions = await InscriptionDB.findAll({
-        where: { CI: CI },
-        include: [{ model: TournamentDB }, { model: TournamentPlayerStatsDB }],
+        where: { player_ci },
+        include: [
+          { model: TournamentDB },
+          { model: TeamDB }
+        ],
       })
       return {
         status: 200,
@@ -91,55 +105,79 @@ class InscriptionService {
     }
   }
 
+  async getByTeam(team_id: number) {
+    try {
+      const inscriptions = await InscriptionDB.findAll({
+        where: { team_id },
+        include: [
+          { model: TournamentDB },
+          { model: TeamDB }
+        ],
+      })
+      return {
+        status: 200,
+        message: "Inscripciones del equipo obtenidas correctamente",
+        data: inscriptions,
+      }
+    } catch (error) {
+      console.error("Error al obtener inscripciones del equipo:", error)
+      return {
+        status: 500,
+        message: "Error al obtener inscripciones del equipo",
+        data: null,
+      }
+    }
+  }
+
   async create(inscription: InscriptionInterface) {
     try {
-      // Verificar si el jugador existe
-      const player = await PlayerDB.findByPk(inscription.CI)
-      if (!player) {
-        return {
-          status: 404,
-          message: "Jugador no encontrado",
-          data: null,
-        }
-      }
+      const { createdAt, updatedAt, ...inscriptionData } = inscription
 
-      // Verificar si el torneo existe
-      const tournament = await TournamentDB.findByPk(inscription.id_tournament)
-      if (!tournament) {
-        return {
-          status: 404,
-          message: "Torneo no encontrado",
-          data: null,
-        }
-      }
-
-      // Verificar si ya existe una inscripción para este jugador en este torneo
-      const existingInscription = await InscriptionDB.findOne({
-        where: {
-          CI: inscription.CI,
-          id_tournament: inscription.id_tournament,
-        },
-      })
-
-      if (existingInscription) {
+      // Validación: solo uno de player_ci o team_id debe estar presente
+      if (
+        (!inscriptionData.player_ci && !inscriptionData.team_id) ||
+        (inscriptionData.player_ci && inscriptionData.team_id)
+      ) {
         return {
           status: 400,
-          message: "El jugador ya está inscrito en este torneo",
+          message: "Una inscripción debe ser para un jugador o para un equipo, pero no para ambos o ninguno.",
           data: null,
         }
       }
 
-      const { createdAt, updatedAt, ...inscriptionData } = inscription
+      // Validar duplicados según tipo de inscripción
+      let duplicateInscription = null
+      if (inscriptionData.player_ci) {
+        duplicateInscription = await InscriptionDB.findOne({
+          where: {
+            tournament_id: inscriptionData.tournament_id,
+            player_ci: inscriptionData.player_ci,
+          },
+        })
+      } else if (inscriptionData.team_id) {
+        duplicateInscription = await InscriptionDB.findOne({
+          where: {
+            tournament_id: inscriptionData.tournament_id,
+            team_id: inscriptionData.team_id,
+          },
+        })
+      }
+      if (duplicateInscription) {
+        return {
+          status: 400,
+          message: "Ya existe una inscripción para este jugador o equipo en el torneo.",
+          data: null,
+        }
+      }
+
       const newInscription = await InscriptionDB.create(inscriptionData as any)
 
-      // Crear estadísticas iniciales para el jugador en este torneo
-      await TournamentPlayerStatsDB.create({
-        id_inscription: newInscription.getDataValue("id"),
-      })
-
-      // Obtener la inscripción con sus relaciones
-      const createdInscription = await InscriptionDB.findByPk(newInscription.getDataValue("id"), {
-        include: [{ model: PlayerDB }, { model: TournamentDB }, { model: TournamentPlayerStatsDB }],
+      const createdInscription = await InscriptionDB.findByPk(newInscription.getDataValue("inscription_id"), {
+        include: [
+          { model: PlayerDB },
+          { model: TeamDB },
+          { model: TournamentDB }
+        ],
       })
 
       return {
@@ -157,9 +195,9 @@ class InscriptionService {
     }
   }
 
-  async update(id: number, inscription: InscriptionInterface) {
+  async update(inscription_id: number, inscription: InscriptionInterface) {
     try {
-      const existingInscription = await InscriptionDB.findByPk(id)
+      const existingInscription = await InscriptionDB.findByPk(inscription_id)
       if (!existingInscription) {
         return {
           status: 404,
@@ -168,34 +206,63 @@ class InscriptionService {
         }
       }
 
-      // Si se está cambiando el jugador o el torneo, verificar que no exista ya una inscripción
-      if (inscription.CI && inscription.id_tournament) {
-        const currentCI = existingInscription.getDataValue("CI")
-        const currentTournament = existingInscription.getDataValue("id_tournament")
+      const { createdAt, updatedAt, ...inscriptionData } = inscription
 
-        if (inscription.CI !== currentCI || inscription.id_tournament !== currentTournament) {
-          const duplicateInscription = await InscriptionDB.findOne({
-            where: {
-              CI: inscription.CI,
-              id_tournament: inscription.id_tournament,
-            },
-          })
-
-          if (duplicateInscription) {
-            return {
-              status: 400,
-              message: "El jugador ya está inscrito en este torneo",
-              data: null,
-            }
-          }
+      // Validación: solo uno de player_ci o team_id debe estar presente
+      if (
+        (!inscriptionData.player_ci && !inscriptionData.team_id) ||
+        (inscriptionData.player_ci && inscriptionData.team_id)
+      ) {
+        return {
+          status: 400,
+          message: "Una inscripción debe ser para un jugador o para un equipo, pero no para ambos o ninguno.",
+          data: null,
         }
       }
 
-      const { createdAt, updatedAt, ...inscriptionData } = inscription
-      await InscriptionDB.update(inscriptionData, { where: { id } })
+      // Si se está cambiando el jugador o el equipo, verificar duplicados
+      let duplicateInscription = null
+      if (inscriptionData.player_ci) {
+        if (
+          inscriptionData.player_ci !== existingInscription.getDataValue("player_ci") ||
+          inscriptionData.tournament_id !== existingInscription.getDataValue("tournament_id")
+        ) {
+          duplicateInscription = await InscriptionDB.findOne({
+            where: {
+              tournament_id: inscriptionData.tournament_id,
+              player_ci: inscriptionData.player_ci,
+            },
+          })
+        }
+      } else if (inscriptionData.team_id) {
+        if (
+          inscriptionData.team_id !== existingInscription.getDataValue("team_id") ||
+          inscriptionData.tournament_id !== existingInscription.getDataValue("tournament_id")
+        ) {
+          duplicateInscription = await InscriptionDB.findOne({
+            where: {
+              tournament_id: inscriptionData.tournament_id,
+              team_id: inscriptionData.team_id,
+            },
+          })
+        }
+      }
+      if (duplicateInscription) {
+        return {
+          status: 400,
+          message: "Ya existe una inscripción para este jugador o equipo en el torneo.",
+          data: null,
+        }
+      }
 
-      const updatedInscription = await InscriptionDB.findByPk(id, {
-        include: [{ model: PlayerDB }, { model: TournamentDB }, { model: TournamentPlayerStatsDB }],
+      await InscriptionDB.update(inscriptionData, { where: { inscription_id } })
+
+      const updatedInscription = await InscriptionDB.findByPk(inscription_id, {
+        include: [
+          { model: PlayerDB },
+          { model: TeamDB },
+          { model: TournamentDB }
+        ],
       })
 
       return {
@@ -213,16 +280,16 @@ class InscriptionService {
     }
   }
 
-  async delete(id: number) {
+  async delete(inscription_id: number) {
     try {
-      const inscription = await InscriptionDB.findByPk(id)
+      const inscription = await InscriptionDB.findByPk(inscription_id)
       if (!inscription) {
         return {
           status: 404,
           message: "Inscripción no encontrada",
         }
       }
-      await InscriptionDB.destroy({ where: { id } })
+      await InscriptionDB.destroy({ where: { inscription_id } })
       return {
         status: 200,
         message: "Inscripción eliminada correctamente",

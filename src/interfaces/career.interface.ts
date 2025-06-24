@@ -1,6 +1,6 @@
 export interface CareerInterface {
-  id: number
+  career_id: number
   name_career: string
-  createdAt?: Date
-  updatedAt?: Date
+  createdAt: Date
+  updatedAt: Date
 }

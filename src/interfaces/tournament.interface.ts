@@ -1,12 +1,12 @@
 export interface TournamentInterface {
-  id?: number
+  tournament_id?: number
   name: string
-  description?: string
+  description?: string | null
+  tournament_type: 'Individual' | 'Dobles'
   format: string
-  type: string
   start_date: Date
-  end_date?: Date
-  status: string
+  end_date?: Date | null
+  status: 'Próximo' | 'En Curso' | 'Finalizado' | 'Cancelado'
   createdAt?: Date
   updatedAt?: Date
 }

@@ -1,6 +1,6 @@
 tags:
   - name: Inscription
-    description: API para operaciones con inscripciones individuales a torneos
+    description: API para operaciones con inscripciones individuales o de equipos a torneos
 
 paths:
   /inscription:
@@ -34,7 +34,7 @@ paths:
       tags:
         - Inscription
       summary: Crea una nueva inscripción
-      description: Crea una nueva inscripción con los datos proporcionados
+      description: Crea una nueva inscripción con los datos proporcionados (jugador o equipo)
       requestBody:
         required: true
         content:
@@ -275,26 +275,73 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /inscription/team/{id}:
+    get:
+      tags:
+        - Inscription
+      summary: Obtiene inscripciones por equipo
+      description: Retorna todas las inscripciones de un equipo específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del equipo
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  inscriptions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Inscription'
+        404:
+          description: Equipo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   schemas:
     Inscription:
       type: object
       properties:
-        id:
+        inscription_id:
           type: integer
           example: 1
-        CI:
+        tournament_id:
+          type: integer
+          example: 1
+        player_ci:
           type: string
+          nullable: true
           example: "V12345678"
-        id_tournament:
+        team_id:
           type: integer
-          example: 1
+          nullable: true
+          example: 2
         inscription_date:
           type: string
           format: date-time
           example: "2023-05-10T14:30:00Z"
         seed:
           type: integer
+          nullable: true
           example: 3
         createdAt:
           type: string
@@ -304,32 +351,41 @@ components:
           format: date-time
         player:
           $ref: '#/components/schemas/Player'
+        team:
+          $ref: '#/components/schemas/Team'
         tournament:
           $ref: '#/components/schemas/Tournament'
       required:
-        - CI
-        - id_tournament
-    
+        - tournament_id
+
     InscriptionInput:
       type: object
       properties:
-        CI:
-          type: string
-          example: "V12345678"
-        id_tournament:
+        tournament_id:
           type: integer
           example: 1
+        player_ci:
+          type: string
+          nullable: true
+          example: "V12345678"
+        team_id:
+          type: integer
+          nullable: true
+          example: 2
         seed:
           type: integer
+          nullable: true
           example: 3
       required:
-        - CI
-        - id_tournament
-    
+        - tournament_id
+      oneOf:
+        - required: [player_ci]
+        - required: [team_id]
+
     Player:
       type: object
       properties:
-        CI:
+        ci:
           type: string
           example: "V12345678"
         first_name:
@@ -338,17 +394,91 @@ components:
         last_name:
           type: string
           example: "Pérez"
-    
+        phone:
+          type: string
+          example: "04141234567"
+        semester:
+          type: integer
+          example: 5
+        career_id:
+          type: integer
+          example: 1
+        tier_id:
+          type: integer
+          example: 2
+        status:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Team:
+      type: object
+      properties:
+        team_id:
+          type: integer
+          example: 2
+        player1_ci:
+          type: string
+          example: "V12345678"
+        player2_ci:
+          type: string
+          example: "V87654321"
+        team_name:
+          type: string
+          nullable: true
+          example: "Los PingPongStars"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
     Tournament:
       type: object
       properties:
-        id:
+        tournament_id:
           type: integer
           example: 1
         name:
           type: string
           example: "Torneo de Primavera 2023"
-    
+        description:
+          type: string
+          nullable: true
+          example: "Torneo anual de primavera"
+        tournament_type:
+          type: string
+          enum: [Individual, Dobles]
+          example: "Individual"
+        format:
+          type: string
+          example: "Eliminación directa"
+        start_date:
+          type: string
+          format: date
+          example: "2023-05-01"
+        end_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2023-05-10"
+        status:
+          type: string
+          enum: [Próximo, En Curso, Finalizado, Cancelado]
+          example: "Próximo"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
     Error:
       type: object
       properties:

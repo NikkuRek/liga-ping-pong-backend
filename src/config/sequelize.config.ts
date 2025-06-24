@@ -10,10 +10,8 @@ import {
   TournamentModel,
   InscriptionModel,
   TeamModel,
-  TeamInscriptionModel,
   MatchModel, 
   SetsModel,
-  TournamentPlayerStatsModel,
 } from "../models"
 
 dotenv.config()
@@ -50,173 +48,118 @@ const noTimestampsOptions = {
   timestamps: false,
 }
 
-export const AvailabilityDB = db.define("availability", AvailabilityModel, { timestamps: true })
-export const CareerDB = db.define("career", CareerModel, { timestamps: true })
-export const DayDB = db.define("day", DayModel, noTimestampsOptions)
-export const PlayerDB = db.define("player", PlayerModel, { timestamps: true })
-export const TierDB = db.define("tier", TierModel, noTimestampsOptions)
-export const TournamentDB = db.define("tournament", TournamentModel, { timestamps: true })
-export const InscriptionDB = db.define("inscription", InscriptionModel, { timestamps: true })
-export const TeamDB = db.define("team", TeamModel, { timestamps: true })
-export const TeamInscriptionDB = db.define("team_inscription", TeamInscriptionModel, { timestamps: true })
-
-export const MatchDB = db.define("match", {
-  ...MatchModel,
-  id_team_inscription1: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: TeamInscriptionDB,
-      key: 'id',
-    }
-  },
-  id_team_inscription2: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: TeamInscriptionDB,
-      key: 'id',
-    }
-  },
-  winner_team_inscription_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: TeamInscriptionDB,
-      key: 'id',
-    }
-  },
-  loser_team_inscription_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: TeamInscriptionDB,
-      key: 'id',
-    }
-  },
-  id_inscription_player1: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: InscriptionDB,
-      key: 'id',
-    }
-  },
-  id_inscription_player2: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: InscriptionDB,
-      key: 'id',
-    }
-  },
-  winner_id_inscription: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: InscriptionDB,
-      key: 'id',
-    }
-  },
-  loser_id_inscription: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: InscriptionDB,
-      key: 'id',
-    }
-  },
-}, {
-  timestamps: true,
-  tableName: 'match'
+// Modelos
+export const DayDB = db.define("days", DayModel, {
+  timestamps: false,
+  tableName: "days",
 })
 
-export const SetsDB = db.define("sets", SetsModel, { timestamps: true })
-export const TournamentPlayerStatsDB = db.define("tournament_player_stats", TournamentPlayerStatsModel, {
+export const CareerDB = db.define("careers", CareerModel, {
   timestamps: true,
+  tableName: "careers",
 })
 
+export const TierDB = db.define("tiers", TierModel, {
+  timestamps: false,
+  tableName: "tiers",
+})
+
+export const PlayerDB = db.define("players", PlayerModel, {
+  timestamps: true,
+  tableName: "players",
+})
+
+export const AvailabilityDB = db.define("availabilities", AvailabilityModel, {
+  timestamps: true,
+  tableName: "availabilities"
+})
+
+export const TeamDB = db.define("teams", TeamModel, {
+  timestamps: true,
+  tableName: "teams",
+})
+
+export const TournamentDB = db.define("tournaments", TournamentModel, {
+  timestamps: true,
+  tableName: "tournaments",
+})
+
+export const InscriptionDB = db.define("inscriptions", InscriptionModel, {
+  timestamps: true,
+  tableName: "inscriptions",
+})
+
+export const MatchDB = db.define("matches", MatchModel, {
+  timestamps: true,
+  tableName: "matches",
+})
+
+export const SetsDB = db.define("sets", SetsModel, {
+  timestamps: true,
+  tableName: "sets",
+})
+
+// Relaciones
+
+// Player <-> Day (Availability)
 PlayerDB.belongsToMany(DayDB, {
   through: AvailabilityDB,
-  foreignKey: "CI",
-  otherKey: "id_day",
+  foreignKey: "player_ci",
+  otherKey: "day_id",
   as: 'Days'
 })
 
 DayDB.belongsToMany(PlayerDB, {
   through: AvailabilityDB,
-  foreignKey: "id_day",
-  otherKey: "CI",
+  foreignKey: "day_id",
+  otherKey: "player_ci",
   as: 'Players'
 })
 
-PlayerDB.belongsTo(CareerDB, { foreignKey: "id_career" })
-CareerDB.hasMany(PlayerDB, { foreignKey: "id_career" })
+// Player -> Career
+PlayerDB.belongsTo(CareerDB, { foreignKey: "career_id" })
+CareerDB.hasMany(PlayerDB, { foreignKey: "career_id" })
 
-PlayerDB.belongsTo(TierDB, { foreignKey: "id_tier" })
-TierDB.hasMany(PlayerDB, { foreignKey: "id_tier" })
+// Player -> Tier
+PlayerDB.belongsTo(TierDB, { foreignKey: "tier_id" })
+TierDB.hasMany(PlayerDB, { foreignKey: "tier_id" })
 
-InscriptionDB.belongsTo(PlayerDB, { foreignKey: "CI_player" })
-PlayerDB.hasMany(InscriptionDB, { foreignKey: "CI_player" })
+// Team -> Player (player1, player2)
+TeamDB.belongsTo(PlayerDB, { foreignKey: "player1_ci", as: "Player1" })
+PlayerDB.hasMany(TeamDB, { foreignKey: "player1_ci", as: "TeamsAsPlayer1" })
 
-InscriptionDB.belongsTo(TournamentDB, { foreignKey: "id_tournament" })
-TournamentDB.hasMany(InscriptionDB, { foreignKey: "id_tournament" })
+TeamDB.belongsTo(PlayerDB, { foreignKey: "player2_ci", as: "Player2" })
+PlayerDB.hasMany(TeamDB, { foreignKey: "player2_ci", as: "TeamsAsPlayer2" })
 
-TeamDB.belongsTo(PlayerDB, { foreignKey: "player1_CI", as: "Player1" })
-PlayerDB.hasMany(TeamDB, { foreignKey: "player1_CI", as: "TeamsAsPlayer1" })
+// Inscription -> Tournament
+InscriptionDB.belongsTo(TournamentDB, { foreignKey: "tournament_id" })
+TournamentDB.hasMany(InscriptionDB, { foreignKey: "tournament_id" })
 
-TeamDB.belongsTo(PlayerDB, { foreignKey: "player2_CI", as: "Player2" })
-PlayerDB.hasMany(TeamDB, { foreignKey: "player2_CI", as: "TeamsAsPlayer2" })
+// Inscription -> Player (puede ser null)
+InscriptionDB.belongsTo(PlayerDB, { foreignKey: "player_ci" })
+PlayerDB.hasMany(InscriptionDB, { foreignKey: "player_ci" })
 
-TeamInscriptionDB.belongsTo(TeamDB, { foreignKey: "id_team" })
-TeamDB.hasMany(TeamInscriptionDB, { foreignKey: "id_team" })
+// Inscription -> Team (puede ser null)
+InscriptionDB.belongsTo(TeamDB, { foreignKey: "team_id" })
+TeamDB.hasMany(InscriptionDB, { foreignKey: "team_id" })
 
-TeamInscriptionDB.belongsTo(TournamentDB, { foreignKey: "id_tournament" })
-TournamentDB.hasMany(TeamInscriptionDB, { foreignKey: "id_tournament" })
+// Match -> Tournament
+MatchDB.belongsTo(TournamentDB, { foreignKey: "tournament_id" })
+TournamentDB.hasMany(MatchDB, { foreignKey: "tournament_id" })
 
-MatchDB.belongsTo(TournamentDB, { foreignKey: "id_tournament" })
-TournamentDB.hasMany(MatchDB, { foreignKey: "id_tournament" })
+// Match -> Inscription (inscription1, inscription2, winner)
+MatchDB.belongsTo(InscriptionDB, { foreignKey: "inscription1_id", as: "Inscription1" })
+InscriptionDB.hasMany(MatchDB, { foreignKey: "inscription1_id", as: "MatchesAsInscription1" })
 
-MatchDB.belongsTo(InscriptionDB, { foreignKey: "id_inscription_player1", as: "Player1Inscription" })
-InscriptionDB.hasMany(MatchDB, { foreignKey: "id_inscription_player1", as: "MatchesAsPlayer1" })
+MatchDB.belongsTo(InscriptionDB, { foreignKey: "inscription2_id", as: "Inscription2" })
+InscriptionDB.hasMany(MatchDB, { foreignKey: "inscription2_id", as: "MatchesAsInscription2" })
 
-MatchDB.belongsTo(InscriptionDB, { foreignKey: "id_inscription_player2", as: "Player2Inscription" })
-InscriptionDB.hasMany(MatchDB, { foreignKey: "id_inscription_player2", as: "MatchesAsPlayer2" })
+MatchDB.belongsTo(InscriptionDB, { foreignKey: "winner_inscription_id", as: "WinnerInscription" })
+InscriptionDB.hasMany(MatchDB, { foreignKey: "winner_inscription_id", as: "MatchesWon" })
 
-MatchDB.belongsTo(InscriptionDB, { foreignKey: "winner_id_inscription", as: "WinnerInscription" })
-InscriptionDB.hasMany(MatchDB, { foreignKey: "winner_id_inscription", as: "MatchesWonIndividual" })
-
-MatchDB.belongsTo(InscriptionDB, { foreignKey: "loser_id_inscription", as: "LoserInscription" })
-InscriptionDB.hasMany(MatchDB, { foreignKey: "loser_id_inscription", as: "MatchesLostIndividual" })
-
-MatchDB.belongsTo(TeamInscriptionDB, { foreignKey: "id_team_inscription1", as: "Team1Inscription" })
-TeamInscriptionDB.hasMany(MatchDB, { foreignKey: "id_team_inscription1", as: "MatchesAsTeam1" })
-
-MatchDB.belongsTo(TeamInscriptionDB, { foreignKey: "id_team_inscription2", as: "Team2Inscription" })
-TeamInscriptionDB.hasMany(MatchDB, { foreignKey: "id_team_inscription2", as: "MatchesAsTeam2" })
-
-MatchDB.belongsTo(TeamInscriptionDB, { foreignKey: "winner_team_inscription_id", as: "WinnerTeamInscription" })
-TeamInscriptionDB.hasMany(MatchDB, { foreignKey: "winner_team_inscription_id", as: "MatchesWonTeam" })
-
-MatchDB.belongsTo(TeamInscriptionDB, { foreignKey: "loser_team_inscription_id", as: "LoserTeamInscription" })
-TeamInscriptionDB.hasMany(MatchDB, { foreignKey: "loser_team_inscription_id", as: "MatchesLostTeam" })
-
-MatchDB.belongsToMany(SetsDB, {
-  through: 'match_sets',
-  foreignKey: 'match_id',
-  otherKey: 'sets_id_sets',
-  as: 'Sets'
-})
-
-SetsDB.belongsToMany(MatchDB, {
-  through: 'match_sets',
-  foreignKey: 'sets_id_sets',
-  otherKey: 'match_id',
-  as: 'Matches'
-})
-
-TournamentPlayerStatsDB.belongsTo(InscriptionDB, { foreignKey: "id_inscription" })
-InscriptionDB.hasOne(TournamentPlayerStatsDB, { foreignKey: "id_inscription", as: "Stats" })
+// Sets -> Match
+SetsDB.belongsTo(MatchDB, { foreignKey: "match_id" })
+MatchDB.hasMany(SetsDB, { foreignKey: "match_id" })
 
 export const syncModels = async () => {
   try {

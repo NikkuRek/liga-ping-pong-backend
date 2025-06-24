@@ -6,24 +6,24 @@ export const availabilitySeed = async () => {
 
     const availabilityData = [
       //Peter
-      { CI: "29909792", id_day: 2 },
-      { CI: "29909792", id_day: 3 },
-      { CI: "29909792", id_day: 4 },
-      { CI: "29909792", id_day: 5 },
+      { player_ci: "29909792", day_id: 2 },
+      { player_ci: "29909792", day_id: 3 },
+      { player_ci: "29909792", day_id: 4 },
+      { player_ci: "29909792", day_id: 5 },
       //Gabriel
-      { CI: "29944901", id_day: 3 },
+      { player_ci: "29944901", day_id: 3 },
       //Luis
-      { CI: "30353315", id_day: 4 },
-      { CI: "30353315", id_day: 5 },
+      { player_ci: "30353315", day_id: 4 },
+      { player_ci: "30353315", day_id: 5 },
       //Edgar
-      { CI: "31366298", id_day: 1 },
-      { CI: "31366298", id_day: 3 },
-      { CI: "31366298", id_day: 2 },
-      { CI: "31366298", id_day: 4 },
+      { player_ci: "31366298", day_id: 1 },
+      { player_ci: "31366298", day_id: 3 },
+      { player_ci: "31366298", day_id: 2 },
+      { player_ci: "31366298", day_id: 4 },
       //Samuel
-      { CI: "31350493", id_day: 1 },
-      { CI: "31350493", id_day: 2 },
-      { CI: "31350493", id_day: 3 },
+      { player_ci: "31350493", day_id: 1 },
+      { player_ci: "31350493", day_id: 2 },
+      { player_ci: "31350493", day_id: 3 },
     ]
 
     await AvailabilityDB.bulkCreate(availabilityData)

@@ -72,43 +72,34 @@ components:
     Match:
       type: object
       properties:
-        id:
+        match_id:
           type: integer
           example: 1
-        id_tournament:
+        tournament_id:
           type: integer
           example: 1
-        match_date_time:
+        inscription1_id:
+          type: integer
+          example: 10
+        inscription2_id:
+          type: integer
+          example: 11
+        winner_inscription_id:
+          type: integer
+          nullable: true
+          example: 10
+        match_datetime:
           type: string
           format: date-time
+          nullable: true
           example: "2023-05-15T14:00:00Z"
         round:
           type: string
           example: "Cuartos de final"
-        id_team_inscription1:
-          type: integer
-          example: 1
-        id_team_inscription2:
-          type: integer
-          example: 2
-        id_inscription1:
-          type: integer
-          example: 3
-        id_inscription2:
-          type: integer
-          example: 4
-        winner_team_inscription_id:
-          type: integer
-          example: 1
-        loser_team_inscription_id:
-          type: integer
-          example: 2
-        winner_inscription_id:
-          type: integer
-          example: 3
-        loser_inscription_id:
-          type: integer
-          example: 4
+        status:
+          type: string
+          enum: [Pendiente, "En Juego", Finalizado]
+          example: "Pendiente"
         createdAt:
           type: string
           format: date-time
@@ -116,36 +107,37 @@ components:
           type: string
           format: date-time
       required:
-        - id_tournament
-        - match_date_time
+        - tournament_id
+        - inscription1_id
+        - inscription2_id
         - round
 
     MatchInput:
       type: object
       properties:
-        id_tournament:
+        tournament_id:
           type: integer
           example: 1
-        match_date_time:
+        inscription1_id:
+          type: integer
+          example: 10
+        inscription2_id:
+          type: integer
+          example: 11
+        match_datetime:
           type: string
           format: date-time
+          nullable: true
           example: "2023-05-15T14:00:00Z"
         round:
           type: string
           example: "Cuartos de final"
-        id_team_inscription1:
-          type: integer
-          example: 1
-        id_team_inscription2:
-          type: integer
-          example: 2
-        id_inscription1:
-          type: integer
-          example: 3
-        id_inscription2:
-          type: integer
-          example: 4
+        status:
+          type: string
+          enum: [Pendiente, "En Juego", Finalizado]
+          example: "Pendiente"
       required:
-        - id_tournament
-        - match_date_time
+        - tournament_id
+        - inscription1_id
+        - inscription2_id
         - round

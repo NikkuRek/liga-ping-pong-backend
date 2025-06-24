@@ -6,7 +6,7 @@ import swaggerUi from "swagger-ui-express"
 import { swaggerOptions } from "../config"
 
 import { CareerRoute, PlayerRoute, TierRoute, HealthRoute, TournamentRoute, TeamRoute,
-  InscriptionRoute, TeamInscriptionRoute, MatchRoute, SetsRoute, TournamentPlayerStatsRoute,
+  InscriptionRoute, MatchRoute, SetsRoute,
   } from "../routes/index.route"
 
 export class Server {
@@ -28,10 +28,8 @@ export class Server {
       Tournament: this.pre + "/Tournament",
       Team: this.pre + "/Team",
       Inscription: this.pre + "/Inscription",
-      TeamInscription: this.pre + "/TeamInscription",
       Match: this.pre + "/Match",
       Sets: this.pre + "/Sets",
-      TournamentPlayerStats: this.pre + "/TournamentPlayerStats",
     }
     this.middlewares()
     this.routes()
@@ -53,10 +51,8 @@ export class Server {
     this.app.use(this.paths.Tournament, TournamentRoute)
     this.app.use(this.paths.Team, TeamRoute)
     this.app.use(this.paths.Inscription, InscriptionRoute)
-    this.app.use(this.paths.TeamInscription, TeamInscriptionRoute)
     this.app.use(this.paths.Match, MatchRoute)
     this.app.use(this.paths.Sets, SetsRoute)
-    this.app.use(this.paths.TournamentPlayerStats, TournamentPlayerStatsRoute)
   }
 
   listen() {

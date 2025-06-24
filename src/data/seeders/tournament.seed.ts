@@ -4,21 +4,21 @@ export const tournamentSeed = async () => {
     try {
         await TournamentDB.bulkCreate([
             {
-                id: 1,
+                tournament_id: 1,
                 name: "Liga 1-25 (Play-in)",
                 description: "Liga que corresponde al primer período del 2025.",
                 format: "Fase de Puntos",
-                type: "Individual",
+                tournament_type: "Individual",
                 start_date: "2025-05-06",
-                end_date: "2023-05-31",
-                status: "En proceso",
+                end_date: "2025-05-31",
+                status: "En Curso",
             },
             {
-                id: 2,
+                tournament_id: 2,
                 name: "Liga 1-25 (Play-off)",
                 description: "Segunda fase de la liga 1-25.",
                 format: "Eliminación directa",
-                type: "Individual",
+                tournament_type: "Individual",
                 start_date: "2025-06-01",
                 end_date: "2025-06-13",
                 status: "Próximo",

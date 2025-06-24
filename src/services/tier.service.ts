@@ -4,11 +4,11 @@ import type { TierInterface } from "../interfaces"
 class TierService {
   async getAll() {
     try {
-      const tier = await TierDB.findAll()
+      const tiers = await TierDB.findAll()
       return {
         status: 200,
         message: "Niveles obtenidos correctamente",
-        data: tier,
+        data: tiers,
       }
     } catch (error) {
       return {
@@ -19,9 +19,9 @@ class TierService {
     }
   }
 
-  async getOne(id: number) {
+  async getOne(tier_id: number) {
     try {
-      const tier = await TierDB.findByPk(id)
+      const tier = await TierDB.findByPk(tier_id)
       if (!tier) {
         return {
           status: 404,
@@ -45,7 +45,7 @@ class TierService {
 
   async create(tier: TierInterface) {
     try {
-      // Usar directamente los datos del tier sin intentar desestructurar createdAt/updatedAt
+      // tier debe tener range_name
       const newTier = await TierDB.create(tier as any)
       return {
         status: 201,
@@ -61,9 +61,9 @@ class TierService {
     }
   }
 
-  async update(id: number, updateData: { range?: string }) {
+  async update(tier_id: number, updateData: { range_name?: string }) {
     try {
-      const existingTier = await TierDB.findByPk(id)
+      const existingTier = await TierDB.findByPk(tier_id)
 
       if (!existingTier) {
         return {
@@ -73,10 +73,9 @@ class TierService {
         }
       }
 
-      // Usar directamente los datos de actualización sin intentar desestructurar createdAt/updatedAt
       await existingTier.update(updateData)
 
-      const updatedTier = await TierDB.findByPk(id)
+      const updatedTier = await TierDB.findByPk(tier_id)
 
       return {
         status: 200,
@@ -93,16 +92,16 @@ class TierService {
     }
   }
 
-  async delete(id: number) {
+  async delete(tier_id: number) {
     try {
-      const tier = await TierDB.findByPk(id)
+      const tier = await TierDB.findByPk(tier_id)
       if (!tier) {
         return {
           status: 404,
           message: "Nivel no encontrado",
         }
       }
-      await TierDB.destroy({ where: { id } })
+      await TierDB.destroy({ where: { tier_id } })
       return {
         status: 200,
         message: "Nivel eliminado correctamente",

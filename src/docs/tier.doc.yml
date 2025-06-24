@@ -31,7 +31,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Tier'
+              $ref: '#/components/schemas/TierInput'
       responses:
         201:
           description: Nivel creado
@@ -94,7 +94,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Tier'
+              $ref: '#/components/schemas/TierInput'
       responses:
         200:
           description: Nivel actualizado
@@ -143,17 +143,17 @@ components:
     Tier:
       type: object
       properties:
-        id_tier:
+        tier_id:
           type: integer
           description: ID del nivel
-        range:
+        range_name:
           type: string
           description: Rango del nivel
-        createdAt:
+    TierInput:
+      type: object
+      properties:
+        range_name:
           type: string
-          format: date-time
-          description: Fecha de creación
-        updatedAt:
-          type: string
-          format: date-time
-          description: Fecha de última actualización
+          description: Rango del nivel
+      required:
+        - range_name

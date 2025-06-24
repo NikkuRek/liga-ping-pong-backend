@@ -1,12 +1,12 @@
 import { DataTypes } from "sequelize"
 
 export const TierModel = {
-  id_tier: {
+  tier_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
-  range: {
+  range_name: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,

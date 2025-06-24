@@ -23,7 +23,7 @@ paths:
                   sets:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Sets'
+                      $ref: '#/components/schemas/Set'
         500:
           description: Error del servidor
           content:
@@ -40,7 +40,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SetsInput'
+              $ref: '#/components/schemas/SetInput'
       responses:
         201:
           description: Set creado exitosamente
@@ -53,7 +53,7 @@ paths:
                     type: boolean
                     example: true
                   set:
-                    $ref: '#/components/schemas/Sets'
+                    $ref: '#/components/schemas/Set'
         400:
           description: Datos inválidos
           content:
@@ -92,7 +92,7 @@ paths:
                     type: boolean
                     example: true
                   set:
-                    $ref: '#/components/schemas/Sets'
+                    $ref: '#/components/schemas/Set'
         404:
           description: Set no encontrado
           content:
@@ -122,7 +122,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SetsInput'
+              $ref: '#/components/schemas/SetInput'
       responses:
         200:
           description: Set actualizado exitosamente
@@ -135,7 +135,7 @@ paths:
                     type: boolean
                     example: true
                   set:
-                    $ref: '#/components/schemas/Sets'
+                    $ref: '#/components/schemas/Set'
         400:
           description: Datos inválidos
           content:
@@ -220,7 +220,7 @@ paths:
                   sets:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Sets'
+                      $ref: '#/components/schemas/Set'
         404:
           description: Partido no encontrado
           content:
@@ -236,22 +236,22 @@ paths:
 
 components:
   schemas:
-    Sets:
+    Set:
       type: object
       properties:
-        id_sets:
+        set_id:
           type: integer
           example: 1
         match_id:
           type: integer
           example: 1
-        number:
+        set_number:
           type: integer
           example: 1
-        score1:
+        score_participant1:
           type: integer
           example: 11
-        score2:
+        score_participant2:
           type: integer
           example: 9
         createdAt:
@@ -260,68 +260,33 @@ components:
         updatedAt:
           type: string
           format: date-time
-        match:
-          $ref: '#/components/schemas/Match'
       required:
         - match_id
-        - number
-        - score1
-        - score2
-    
-    SetsInput:
+        - set_number
+        - score_participant1
+        - score_participant2
+
+    SetInput:
       type: object
       properties:
         match_id:
           type: integer
           example: 1
-        number:
+        set_number:
           type: integer
           example: 1
-        score1:
+        score_participant1:
           type: integer
           example: 11
-        score2:
+        score_participant2:
           type: integer
           example: 9
       required:
         - match_id
-        - number
-        - score1
-        - score2
-    
-    Match:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        round:
-          type: string
-          example: "Cuartos de final"
-        team_inscription1:
-          $ref: '#/components/schemas/TeamInscription'
-        team_inscription2:
-          $ref: '#/components/schemas/TeamInscription'
-    
-    TeamInscription:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        team:
-          $ref: '#/components/schemas/Team'
-    
-    Team:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        team_name:
-          type: string
-          example: "Los Campeones"
-    
+        - set_number
+        - score_participant1
+        - score_participant2
+
     Error:
       type: object
       properties:

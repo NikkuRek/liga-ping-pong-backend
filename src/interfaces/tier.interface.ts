@@ -1,4 +1,4 @@
 export interface TierInterface {
-  id_tier: number
-  range: string
+  tier_id: number
+  range_name: string
 }

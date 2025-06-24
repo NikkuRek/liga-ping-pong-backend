@@ -21,7 +21,7 @@ paths:
                       $ref: '#/components/schemas/Player'
         500:
           description: Error del servidor
-          
+
     post:
       tags:
         - Player
@@ -30,30 +30,30 @@ paths:
       requestBody:
         required: true
         content:
-         application/json:
-          schema:
-            type: object
-            properties:
-              playerData:
-                $ref: '#/components/schemas/Player'
-              available_days:
-                $ref: '#/components/schemas/available_days'
-      responses:
-        201:
-         description: Jugador creado correctamente
-         content:
           application/json:
             schema:
-             type: object
-             properties:
-              message:
-                type: string
-              data:
-                $ref: '#/components/schemas/Player'
+              type: object
+              properties:
+                playerData:
+                  $ref: '#/components/schemas/Player'
+                available_days:
+                  $ref: '#/components/schemas/available_days'
+      responses:
+        201:
+          description: Jugador creado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/Player'
         400:
-         description: Datos inválidos
+          description: Datos inválidos
         500:
-         description: Error al crear jugador
+          description: Error al crear jugador
 
   /player/active:
     get:
@@ -101,14 +101,14 @@ paths:
         500:
           description: Error del servidor
 
-  /player/{CI}:
+  /player/{ci}:
     get:
       tags:
         - Player
       summary: Obtiene un jugador por CI
       description: Retorna un jugador según el CI proporcionado
       parameters:
-        - name: CI
+        - name: ci
           in: path
           description: CI del jugador
           required: true
@@ -130,14 +130,14 @@ paths:
           description: Jugador no encontrado
         500:
           description: Error del servidor
-    
+
     put:
       tags:
         - Player
       summary: Actualiza un jugador
       description: Actualiza los datos de un jugador según el CI proporcionado, incluyendo los días disponibles
       parameters:
-        - name: CI
+        - name: ci
           in: path
           description: CI del jugador
           required: true
@@ -179,7 +179,7 @@ paths:
       summary: Deshabilita un jugador
       description: Deshabilita un jugador según el CI proporcionado. Este borrado es lógico y no elimina físicamente el registro.
       parameters:
-        - name: CI
+        - name: ci
           in: path
           description: CI del jugador
           required: true
@@ -200,14 +200,14 @@ paths:
         500:
           description: Error del servidor
 
-  /player/delete/{CI}:
+  /player/delete/{ci}:
     delete:
       tags:
         - Player
       summary: Elimina físicamente un jugador
       description: Elimina físicamente un jugador según el CI proporcionado.
       parameters:
-        - name: CI
+        - name: ci
           in: path
           description: CI del jugador
           required: true
@@ -233,7 +233,7 @@ components:
     Player:
       type: object
       properties:
-        CI:
+        ci:
           type: string
           description: Cédula de identidad del jugador
         first_name:
@@ -248,15 +248,15 @@ components:
         semester:
           type: integer
           description: Semestre del jugador
-        id_career:
+        career_id:
           type: integer
-          description: id de la carrera del jugador
-        id_tier:
+          description: ID de la carrera del jugador
+        tier_id:
           type: integer
-          description: id del nivel del jugador
+          description: ID del nivel del jugador
         status:
           type: boolean
-          description: Estado del jugador
+          description: Estado del jugador (1=activo, 0=inactivo)
         createdAt:
           type: string
           format: date-time
@@ -266,7 +266,7 @@ components:
           format: date-time
           description: Fecha de última actualización
     available_days:
-                type: array
-                items:
-                  type: integer
-                description: Lista de IDs de días disponibles
+      type: array
+      items:
+        type: integer
+      description: Lista de IDs de días disponibles (day_id)

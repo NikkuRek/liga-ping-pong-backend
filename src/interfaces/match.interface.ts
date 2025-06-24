@@ -1,16 +1,12 @@
 export interface MatchInterface {
-  id?: number;
-  id_tournament: number;
-  match_date_time: Date;
-  round: string;
-  id_inscription1?: number | null;
-  id_inscription2?: number | null;
-  id_team_inscription1?: number | null; 
-  id_team_inscription2?: number | null; 
+  match_id?: number;
+  tournament_id: number;
+  inscription1_id: number;
+  inscription2_id: number;
   winner_inscription_id?: number | null;
-  loser_inscription_id?: number | null;
-  winner_team_inscription_id?: number | null;
-  loser_team_inscription_id?: number | null;
+  match_datetime?: Date | null;
+  round: string;
+  status?: 'Pendiente' | 'En Juego' | 'Finalizado';
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize"
 
 export const SetsModel = {
-  id_sets: {
+  set_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
@@ -10,18 +10,28 @@ export const SetsModel = {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  number: {
+  set_number: {
     type: DataTypes.INTEGER,
-    allowNull: true,
+    allowNull: false,
   },
-  score1: {
+  score_participant1: {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0,
   },
-  score2: {
+  score_participant2: {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
   },
 }

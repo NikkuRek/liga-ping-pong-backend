@@ -45,7 +45,15 @@ class TournamentService {
 
   async create(tournament: TournamentInterface) {
     try {
-      const { createdAt, updatedAt, ...tournamentData } = tournament
+      // Excluir campos no insertables
+      const {
+        tournament_id,
+        createdAt,
+        updatedAt,
+        ...tournamentData
+      } = tournament
+
+      // Asegúrate de que los campos obligatorios estén presentes
       const newTournament = await TournamentDB.create(tournamentData as any)
       return {
         status: 201,
@@ -72,8 +80,14 @@ class TournamentService {
           data: null,
         }
       }
-      const { createdAt, updatedAt, ...tournamentData } = tournament
-      await TournamentDB.update(tournamentData, { where: { id } })
+      const {
+        tournament_id,
+        createdAt,
+        updatedAt,
+        ...tournamentData
+      } = tournament
+
+      await TournamentDB.update(tournamentData, { where: { tournament_id: id } })
       const updatedTournament = await TournamentDB.findByPk(id)
       return {
         status: 200,
@@ -99,7 +113,7 @@ class TournamentService {
           message: "Torneo no encontrado",
         }
       }
-      await TournamentDB.destroy({ where: { id } })
+      await TournamentDB.destroy({ where: { tournament_id: id } })
       return {
         status: 200,
         message: "Torneo eliminado correctamente",

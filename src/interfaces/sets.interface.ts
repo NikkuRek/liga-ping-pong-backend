@@ -1,9 +1,9 @@
 export interface SetsInterface {
-  id_sets?: number
+  set_id?: number
   match_id: number
-  number?: number
-  score1: number
-  score2: number
+  set_number: number
+  score_participant1: number
+  score_participant2: number
   createdAt?: Date
   updatedAt?: Date
 }

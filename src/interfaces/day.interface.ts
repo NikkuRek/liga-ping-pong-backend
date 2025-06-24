@@ -1,4 +1,6 @@
+export type DayName = 'Lunes' | 'Martes' | 'Miércoles' | 'Jueves' | 'Viernes';
+
 export interface DayInterface {
-  id_day: number
-  day: string
+  day_id: number;
+  day_name: DayName;
 }

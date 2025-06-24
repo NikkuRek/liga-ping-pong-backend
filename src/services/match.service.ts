@@ -21,9 +21,9 @@ class MatchService {
     }
   }
 
-  async getOne(id: number) {
+  async getOne(match_id: number) {
     try {
-      const match = await MatchDB.findByPk(id);
+      const match = await MatchDB.findByPk(match_id);
       if (!match) {
         return {
           status: 404,
@@ -47,8 +47,8 @@ class MatchService {
 
   async create(match: MatchInterface) {
     try {
-      // Eliminamos cualquier intento de establecer createdAt o updatedAt manualmente
-      const { createdAt, updatedAt, ...matchData } = match;
+      // No permitir establecer manualmente createdAt o updatedAt
+      const { createdAt, updatedAt, match_id, ...matchData } = match;
       const newMatch = await MatchDB.create(matchData as any);
       return {
         status: 201,
@@ -64,9 +64,9 @@ class MatchService {
     }
   }
 
-  async update(id: number, match: MatchInterface) {
+  async update(match_id: number, match: MatchInterface) {
     try {
-      const existingMatch = await MatchDB.findByPk(id);
+      const existingMatch = await MatchDB.findByPk(match_id);
       if (!existingMatch) {
         return {
           status: 404,
@@ -74,10 +74,10 @@ class MatchService {
           data: null,
         };
       }
-      // Eliminamos cualquier intento de establecer createdAt o updatedAt manualmente
-      const { createdAt, updatedAt, ...matchData } = match;
-      await MatchDB.update(matchData, { where: { id } });
-      const updatedMatch = await MatchDB.findByPk(id);
+      // No permitir establecer manualmente createdAt o updatedAt o match_id
+      const { createdAt, updatedAt, match_id: _, ...matchData } = match;
+      await MatchDB.update(matchData, { where: { match_id } });
+      const updatedMatch = await MatchDB.findByPk(match_id);
       return {
         status: 200,
         message: "Partido actualizado correctamente",
@@ -92,16 +92,16 @@ class MatchService {
     }
   }
 
-  async delete(id: number) {
+  async delete(match_id: number) {
     try {
-      const match = await MatchDB.findByPk(id);
+      const match = await MatchDB.findByPk(match_id);
       if (!match) {
         return {
           status: 404,
           message: "Partido no encontrado",
         };
       }
-      await MatchDB.destroy({ where: { id } });
+      await MatchDB.destroy({ where: { match_id } });
       return {
         status: 200,
         message: "Partido eliminado correctamente",

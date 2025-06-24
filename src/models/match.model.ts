@@ -1,53 +1,48 @@
 import { DataTypes } from "sequelize";
 
 export const MatchModel = {
-  id: {
+  match_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
-  id_tournament: {
+  tournament_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  match_date_time: {
-    type: DataTypes.DATE,
+  inscription1_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
-  round: {
-    type: DataTypes.STRING,
+  inscription2_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-  },
-  id_team_inscription1: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  id_team_inscription2: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  id_inscription1: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  id_inscription2: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  winner_team_inscription_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  loser_team_inscription_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
   },
   winner_inscription_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
-  loser_inscription_id: {
-    type: DataTypes.INTEGER,
+  match_datetime: {
+    type: DataTypes.DATE,
     allowNull: true,
   },
-}
+  round: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+  },
+  status: {
+    type: DataTypes.ENUM('Pendiente', 'En Juego', 'Finalizado'),
+    allowNull: false,
+    defaultValue: 'Pendiente',
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+};

@@ -1,6 +1,6 @@
 export interface AvailabilityInterface {
-  CI: string
-  id_day: number
+  player_ci: string
+  day_id: number
   createdAt?: Date
   updatedAt?: Date
 }

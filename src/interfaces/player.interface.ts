@@ -1,14 +1,11 @@
-import type { Model } from "sequelize"
-
 export interface PlayerInterface {
-  addDays(dayInstances: Model<any, any>[]): unknown
-  CI: string
+  ci: string
   first_name: string
   last_name: string
   phone: string
   semester: number
-  id_career: number
-  id_tier: number
+  career_id: number
+  tier_id: number
   status: boolean
   createdAt?: Date
   updatedAt?: Date

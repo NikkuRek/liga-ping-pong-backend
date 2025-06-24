@@ -53,7 +53,7 @@ class SetsService {
     try {
       const sets = await SetsDB.findAll({
         where: { match_id: matchId },
-        order: [["number", "ASC"]],
+        order: [["set_number", "ASC"]],
       })
       return {
         status: 200,
@@ -70,10 +70,10 @@ class SetsService {
     }
   }
 
-  async getByMatchAndNumber(matchId: number, number: number) {
+  async getByMatchAndNumber(matchId: number, setNumber: number) {
     try {
       const set = await SetsDB.findOne({
-        where: { match_id: matchId, number: number },
+        where: { match_id: matchId, set_number: setNumber },
       })
       return set
     } catch (error) {
@@ -95,13 +95,17 @@ class SetsService {
       }
 
       // Determinar el número del set si no se proporciona
-      if (!set.number) {
+      if (!set.set_number) {
         const lastSet = await SetsDB.findOne({
           where: { match_id: set.match_id },
-          order: [["number", "DESC"]],
+          order: [["set_number", "DESC"]],
         })
-        set.number = lastSet ? lastSet.getDataValue("number") + 1 : 1
+        set.set_number = lastSet ? lastSet.getDataValue("set_number") + 1 : 1
       }
+
+      // Por defecto los scores son 0 si no se pasan
+      if (typeof set.score_participant1 !== "number") set.score_participant1 = 0
+      if (typeof set.score_participant2 !== "number") set.score_participant2 = 0
 
       const { createdAt, updatedAt, ...setData } = set
       const newSet = await SetsDB.create(setData as any)
@@ -133,7 +137,7 @@ class SetsService {
       }
 
       const { createdAt, updatedAt, ...setData } = set
-      await SetsDB.update(setData, { where: { id_sets: id } })
+      await SetsDB.update(setData, { where: { set_id: id } })
 
       const updatedSet = await SetsDB.findByPk(id)
 
@@ -161,7 +165,7 @@ class SetsService {
           message: "Set no encontrado",
         }
       }
-      await SetsDB.destroy({ where: { id_sets: id } })
+      await SetsDB.destroy({ where: { set_id: id } })
       return {
         status: 200,
         message: "Set eliminado correctamente",

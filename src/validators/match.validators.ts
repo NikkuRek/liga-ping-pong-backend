@@ -1,59 +1,59 @@
 import { check, param } from "express-validator";
 import type { NextFunction, Request, Response } from "express";
-import { MatchDB, TeamInscriptionDB, TournamentDB } from "../config/sequelize.config";
+import { MatchDB, InscriptionDB, TournamentDB } from "../config/sequelize.config";
 
 export class MatchValidator {
   validateFields = [
-    check("id_tournament", "El ID del torneo es obligatorio").not().isEmpty(),
-    check("id_tournament", "El ID del torneo debe ser numérico").isNumeric(),
-    check("match_date_time", "La fecha y hora del partido son obligatorias").not().isEmpty(),
-    check("match_date_time", "La fecha y hora deben tener un formato válido").isISO8601(),
+    check("tournament_id", "El ID del torneo es obligatorio").not().isEmpty(),
+    check("tournament_id", "El ID del torneo debe ser numérico").isNumeric(),
+    check("match_datetime", "La fecha y hora del partido son obligatorias").not().isEmpty(),
+    check("match_datetime", "La fecha y hora deben tener un formato válido").isISO8601(),
     check("round", "La ronda del partido es obligatoria").not().isEmpty(),
-    check("id_team_inscription1", "El ID del primer equipo es obligatorio").not().isEmpty(),
-    check("id_team_inscription1", "El ID del primer equipo debe ser numérico").isNumeric(),
-    check("id_team_inscription2", "El ID del segundo equipo es obligatorio").not().isEmpty(),
-    check("id_team_inscription2", "El ID del segundo equipo debe ser numérico").isNumeric(),
+    check("inscription1_id", "El ID de la primera inscripción es obligatorio").not().isEmpty(),
+    check("inscription1_id", "El ID de la primera inscripción debe ser numérico").isNumeric(),
+    check("inscription2_id", "El ID de la segunda inscripción es obligatorio").not().isEmpty(),
+    check("inscription2_id", "El ID de la segunda inscripción debe ser numérico").isNumeric(),
   ];
 
-  validateTournamentAndTeamsExist = async (req: Request, res: Response, next: NextFunction) => {
+  validateTournamentAndInscriptionsExist = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id_tournament, id_team_inscription1, id_team_inscription2 } = req.body;
+      const { tournament_id, inscription1_id, inscription2_id } = req.body;
 
       // Verificar si el torneo existe
-      const tournament = await TournamentDB.findByPk(id_tournament);
+      const tournament = await TournamentDB.findByPk(tournament_id);
       if (!tournament) {
         return res.status(404).json({
-          message: `El torneo con ID ${id_tournament} no existe`,
+          message: `El torneo con ID ${tournament_id} no existe`,
         });
       }
 
-      // Verificar si el primer equipo existe
-      const team1 = await TeamInscriptionDB.findByPk(id_team_inscription1);
-      if (!team1) {
+      // Verificar si la primera inscripción existe
+      const inscription1 = await InscriptionDB.findByPk(inscription1_id);
+      if (!inscription1) {
         return res.status(404).json({
-          message: `El equipo con ID ${id_team_inscription1} no existe`,
+          message: `La inscripción con ID ${inscription1_id} no existe`,
         });
       }
 
-      // Verificar si el segundo equipo existe
-      const team2 = await TeamInscriptionDB.findByPk(id_team_inscription2);
-      if (!team2) {
+      // Verificar si la segunda inscripción existe
+      const inscription2 = await InscriptionDB.findByPk(inscription2_id);
+      if (!inscription2) {
         return res.status(404).json({
-          message: `El equipo con ID ${id_team_inscription2} no existe`,
+          message: `La inscripción con ID ${inscription2_id} no existe`,
         });
       }
 
-      // Verificar que los equipos sean diferentes
-      if (id_team_inscription1 === id_team_inscription2) {
+      // Verificar que las inscripciones sean diferentes
+      if (inscription1_id === inscription2_id) {
         return res.status(400).json({
-          message: "Los equipos del partido deben ser diferentes",
+          message: "Las inscripciones del partido deben ser diferentes",
         });
       }
 
       next();
     } catch (error) {
       return res.status(500).json({
-        message: "Error interno del servidor al validar el torneo y los equipos",
+        message: "Error interno del servidor al validar el torneo y las inscripciones",
       });
     }
   };
@@ -90,9 +90,9 @@ export class MatchValidator {
     }
   };
 
-  validateWinnerAndLoser = async (req: Request, res: Response, next: NextFunction) => {
+  validateWinnerInscription = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { winner_team_inscription_id, loser_team_inscription_id } = req.body;
+      const { winner_inscription_id } = req.body;
       const matchId = req.params.id;
 
       const match = await MatchDB.findByPk(matchId);
@@ -103,34 +103,23 @@ export class MatchValidator {
         });
       }
 
-      const team1 = match.getDataValue("id_team_inscription1");
-      const team2 = match.getDataValue("id_team_inscription2");
+      const inscription1 = match.getDataValue("inscription1_id");
+      const inscription2 = match.getDataValue("inscription2_id");
 
-      // Verificar que el equipo ganador sea uno de los equipos del partido
-      if (winner_team_inscription_id !== team1 && winner_team_inscription_id !== team2) {
+      // Verificar que el ganador sea una de las inscripciones del partido
+      if (
+        winner_inscription_id !== inscription1 &&
+        winner_inscription_id !== inscription2
+      ) {
         return res.status(400).json({
-          message: "El equipo ganador debe ser uno de los equipos del partido",
-        });
-      }
-
-      // Verificar que el equipo perdedor sea uno de los equipos del partido
-      if (loser_team_inscription_id !== team1 && loser_team_inscription_id !== team2) {
-        return res.status(400).json({
-          message: "El equipo perdedor debe ser uno de los equipos del partido",
-        });
-      }
-
-      // Verificar que el ganador y el perdedor sean diferentes
-      if (winner_team_inscription_id === loser_team_inscription_id) {
-        return res.status(400).json({
-          message: "El ganador y el perdedor no pueden ser el mismo equipo",
+          message: "La inscripción ganadora debe ser una de las inscripciones del partido",
         });
       }
 
       next();
     } catch (error) {
       return res.status(500).json({
-        message: "Error interno del servidor al validar el ganador y el perdedor",
+        message: "Error interno del servidor al validar la inscripción ganadora",
       });
     }
   };

@@ -14,7 +14,7 @@ export class CareerValidator {
   validateNameExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const nameCareerFromBody = req.body.name_career
-      const idFromParams = req.params.id
+      const idFromParams = req.params.career_id
 
       if (!nameCareerFromBody) {
         return next()
@@ -25,7 +25,7 @@ export class CareerValidator {
       if (existingCareer) {
         if (idFromParams) {
           const paramIdNum = Number.parseInt(idFromParams, 10)
-          if (existingCareer.getDataValue("id") !== paramIdNum) {
+          if (existingCareer.getDataValue("career_id") !== paramIdNum) {
             return res.status(400).json({
               message: `El nombre de carrera "${nameCareerFromBody}" ya está en uso.`,
             })
@@ -49,8 +49,8 @@ export class CareerValidator {
 
   validateIdExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const idFromParams = req.params.id
-      const idFromBody = req.body.id
+      const idFromParams = req.params.career_id
+      const idFromBody = req.body.career_id
 
       let idToCheck: number | undefined
 

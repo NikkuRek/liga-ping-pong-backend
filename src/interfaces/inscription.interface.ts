@@ -1,9 +1,10 @@
 export interface InscriptionInterface {
-  id?: number
-  CI: string
-  id_tournament: number
+  inscription_id?: number
+  tournament_id: number
+  player_ci?: string | null
+  team_id?: number | null
   inscription_date: Date
-  seed?: number
+  seed?: number | null
   createdAt?: Date
   updatedAt?: Date
 }

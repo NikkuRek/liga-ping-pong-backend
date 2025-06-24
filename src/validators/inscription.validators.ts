@@ -6,7 +6,7 @@ import { InscriptionDB, PlayerDB, TournamentDB } from "../config/sequelize.confi
 export class InscriptionValidator {
   validateFields = [
     check("CI", "La cédula del jugador es obligatoria").not().isEmpty(),
-    check("CI", "La cédula del jugador debe ser una cadena de texto").isString(),
+    check("CI", "La cédula del jugador debe ser numérico").isNumeric(),
     check("id_tournament", "El ID del torneo es obligatorio").not().isEmpty(),
     check("id_tournament", "El ID del torneo debe ser numérico").isNumeric(),
   ]

@@ -4,11 +4,11 @@ import type { CareerInterface } from "../interfaces"
 class CareerService {
   async getAll() {
     try {
-      const career = await CareerDB.findAll()
+      const careers = await CareerDB.findAll()
       return {
         status: 200,
         message: "Carreras obtenidas correctamente",
-        data: career,
+        data: careers,
       }
     } catch (error) {
       return {
@@ -19,9 +19,9 @@ class CareerService {
     }
   }
 
-  async getOne(id: number) {
+  async getOne(career_id: number) {
     try {
-      const career = await CareerDB.findByPk(id)
+      const career = await CareerDB.findByPk(career_id)
       if (!career) {
         return {
           status: 404,
@@ -46,7 +46,7 @@ class CareerService {
   async create(career: CareerInterface) {
     try {
       // Eliminamos cualquier intento de establecer createdAt o updatedAt manualmente
-      const { createdAt, updatedAt, ...careerData } = career
+      const { createdAt, updatedAt, career_id, ...careerData } = career
       const newCareer = await CareerDB.create(careerData as any)
       return {
         status: 201,
@@ -62,9 +62,9 @@ class CareerService {
     }
   }
 
-  async update(id: number, career: CareerInterface) {
+  async update(career_id: number, career: CareerInterface) {
     try {
-      const existingCareer = await CareerDB.findByPk(id)
+      const existingCareer = await CareerDB.findByPk(career_id)
       if (!existingCareer) {
         return {
           status: 404,
@@ -73,9 +73,9 @@ class CareerService {
         }
       }
       // Eliminamos cualquier intento de establecer createdAt o updatedAt manualmente
-      const { createdAt, updatedAt, ...careerData } = career
-      await CareerDB.update(careerData, { where: { id } })
-      const updatedCareer = await CareerDB.findByPk(id)
+      const { createdAt, updatedAt, career_id: _, ...careerData } = career
+      await CareerDB.update(careerData, { where: { career_id } })
+      const updatedCareer = await CareerDB.findByPk(career_id)
       return {
         status: 200,
         message: "Carrera actualizada correctamente",
@@ -90,16 +90,16 @@ class CareerService {
     }
   }
 
-  async delete(id: number) {
+  async delete(career_id: number) {
     try {
-      const career = await CareerDB.findByPk(id)
+      const career = await CareerDB.findByPk(career_id)
       if (!career) {
         return {
           status: 404,
           message: "Carrera no encontrada",
         }
       }
-      await CareerDB.destroy({ where: { id } })
+      await CareerDB.destroy({ where: { career_id } })
       return {
         status: 200,
         message: "Carrera eliminada correctamente",

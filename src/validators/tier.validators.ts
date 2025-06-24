@@ -4,9 +4,9 @@ import { TierDB } from "../config/sequelize.config"
 
 export class TierValidator {
   validateFields = [
-    check("range", "El nombre del nivel es obligatorio").not().isEmpty(),
-    check("range", "El nombre del nivel debe ser una cadena de texto").isString(),
-    check("range", "El nombre del nivel debe contener solo letras, espacios y acentos").matches(
+    check("range_name", "El nombre del nivel es obligatorio").not().isEmpty(),
+    check("range_name", "El nombre del nivel debe ser una cadena de texto").isString(),
+    check("range_name", "El nombre del nivel debe contener solo letras, espacios y acentos").matches(
       /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
     ),
   ]
@@ -14,7 +14,7 @@ export class TierValidator {
   validateIdExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const idFromParams = req.params.id
-      const idFromBody = req.body.id_tier
+      const idFromBody = req.body.tier_id
 
       console.log("--- validateIdExists (Tier) Debug ---")
       console.log("ID desde Params:", `'${idFromParams}'`, typeof idFromParams)
@@ -77,7 +77,7 @@ export class TierValidator {
 
   validateNameExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const rangeFromBody = req.body.range
+      const rangeFromBody = req.body.range_name
       const idFromParams = req.params.id
 
       console.log("--- validateNameExists (Tier) Debug ---")
@@ -89,14 +89,14 @@ export class TierValidator {
         return next()
       }
 
-      const existingTier = await TierDB.findOne({ where: { range: rangeFromBody } })
+      const existingTier = await TierDB.findOne({ where: { range_name: rangeFromBody } })
 
       if (existingTier) {
         if (idFromParams) {
           const paramIdNum = Number.parseInt(idFromParams, 10)
-          if (existingTier.getDataValue("id_tier") !== paramIdNum) {
+          if (existingTier.getDataValue("tier_id") !== paramIdNum) {
             console.log(
-              `validateNameExists (Tier): Nombre de nivel "${rangeFromBody}" ya está en uso por otro nivel (ID: ${existingTier.getDataValue("id_tier")}).`,
+              `validateNameExists (Tier): Nombre de nivel "${rangeFromBody}" ya está en uso por otro nivel (ID: ${existingTier.getDataValue("tier_id")}).`,
             )
             return res.status(400).json({
               message: `El nombre del nivel "${rangeFromBody}" ya está en uso.`,

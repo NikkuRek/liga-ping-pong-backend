@@ -5,10 +5,8 @@ import { PlayerRoute } from "./player.routes"
 import { TierRoute } from "./tier.routes"
 import { TournamentRoute } from "./tournament.routes"
 import { InscriptionRoute } from "./inscription.routes"
-import { TeamInscriptionRoute } from "./team-inscription.routes"
 import { MatchRoute } from "./match.routes"
 import { SetsRoute } from "./sets.routes"
-import { TournamentPlayerStatsRoute } from "./tournament-player-stats.routes"
 import { TeamRoute } from "./team.routes"
 
 const router = Router()
@@ -18,6 +16,5 @@ const router = Router()
 
 // export default router
 
-export { CareerRoute, PlayerRoute, TierRoute, HealthRoute, TournamentRoute, InscriptionRoute, 
-    TeamInscriptionRoute, MatchRoute, SetsRoute, TournamentPlayerStatsRoute, 
-    TeamRoute, router  }
+export { CareerRoute, PlayerRoute, TierRoute, HealthRoute, TournamentRoute, InscriptionRoute,
+     MatchRoute, SetsRoute, TeamRoute, router  }

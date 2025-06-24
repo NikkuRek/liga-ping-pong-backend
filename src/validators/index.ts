@@ -3,8 +3,6 @@ export * from "./inscription.validators";
 export * from "./match.validators";
 export * from "./player.validators";
 export * from "./sets.validators";
-export * from "./team-inscription.validators";
 export * from "./team.validators";
 export * from "./tier.validators";
 export * from "./tournament.validators";
-export * from "./tournament-player-stats.validators";

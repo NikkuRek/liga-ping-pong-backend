@@ -5,34 +5,34 @@ import { Op } from "sequelize"
 
 export class TeamValidator {
   validateFields = [
-    check("player1_CI", "La cédula del primer jugador es obligatoria").not().isEmpty(),
-    check("player1_CI", "La cédula del primer jugador debe ser una cadena de texto").isString(),
-    check("player2_CI", "La cédula del segundo jugador es obligatoria").not().isEmpty(),
-    check("player2_CI", "La cédula del segundo jugador debe ser una cadena de texto").isString(),
+    check("player1_ci", "La cédula del primer jugador es obligatoria").not().isEmpty(),
+    check("player1_ci", "La cédula del primer jugador debe ser una cadena de texto").isString(),
+    check("player2_ci", "La cédula del segundo jugador es obligatoria").not().isEmpty(),
+    check("player2_ci", "La cédula del segundo jugador debe ser una cadena de texto").isString(),
   ]
 
   validatePlayersExist = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { player1_CI, player2_CI } = req.body
+      const { player1_ci, player2_ci } = req.body
 
       // Verificar si el primer jugador existe
-      const player1 = await PlayerDB.findByPk(player1_CI)
+      const player1 = await PlayerDB.findByPk(player1_ci)
       if (!player1) {
         return res.status(404).json({
-          message: `El jugador con CI ${player1_CI} no existe`,
+          message: `El jugador con CI ${player1_ci} no existe`,
         })
       }
 
       // Verificar si el segundo jugador existe
-      const player2 = await PlayerDB.findByPk(player2_CI)
+      const player2 = await PlayerDB.findByPk(player2_ci)
       if (!player2) {
         return res.status(404).json({
-          message: `El jugador con CI ${player2_CI} no existe`,
+          message: `El jugador con CI ${player2_ci} no existe`,
         })
       }
 
       // Verificar que los jugadores sean diferentes
-      if (player1_CI === player2_CI) {
+      if (player1_ci === player2_ci) {
         return res.status(400).json({
           message: "Los jugadores en un equipo deben ser diferentes",
         })
@@ -48,15 +48,15 @@ export class TeamValidator {
 
   validateUniqueTeam = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { player1_CI, player2_CI } = req.body
-      const idFromParams = req.params.id
+      const { player1_ci, player2_ci } = req.body
+      const idFromParams = req.params.team_id
 
       // Verificar si ya existe un equipo con estos jugadores (en cualquier orden)
       const existingTeam = await TeamDB.findOne({
         where: {
           [Op.or]: [
-            { player1_CI, player2_CI },
-            { player1_CI: player2_CI, player2_CI: player1_CI },
+            { player1_ci, player2_ci },
+            { player1_ci: player2_ci, player2_ci: player1_ci },
           ],
         },
       })
@@ -64,7 +64,7 @@ export class TeamValidator {
       if (existingTeam) {
         if (idFromParams) {
           const paramIdNum = Number.parseInt(idFromParams, 10)
-          if (existingTeam.getDataValue("id") !== paramIdNum) {
+          if (existingTeam.getDataValue("team_id") !== paramIdNum) {
             return res.status(400).json({
               message: "Ya existe un equipo con estos jugadores",
             })
@@ -88,7 +88,7 @@ export class TeamValidator {
 
   validateIdExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const idFromParams = req.params.id
+      const idFromParams = req.params.team_id
 
       if (!idFromParams) {
         return next()

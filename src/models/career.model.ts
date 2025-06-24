@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize"
 
 export const CareerModel = {
-  id: {
+  career_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
@@ -11,5 +11,14 @@ export const CareerModel = {
     allowNull: false,
     unique: true,
   },
-  // Los campos createdAt y updatedAt serán manejados automáticamente por Sequelize
+  createdAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
 }

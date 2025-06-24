@@ -6,7 +6,7 @@ export class TournamentValidator {
   validateFields = [
     check("name", "El nombre del torneo es obligatorio").not().isEmpty(),
     check("format", "El formato del torneo es obligatorio").not().isEmpty(),
-    check("type", "El tipo de torneo es obligatorio")
+    check("tournament_type", "El tipo de torneo es obligatorio")
       .not()
       .isEmpty()
       .isIn(["Individual", "Dobles"])
@@ -22,13 +22,13 @@ export class TournamentValidator {
       .withMessage("La fecha de fin debe tener un formato válido"),
     check("status")
       .optional()
-      .isIn(["Próximo", "En curso", "Finalizado", "Cancelado"])
-      .withMessage("El estado debe ser Próximo, En curso, Finalizado o Cancelado"),
+      .isIn(["Próximo", "En Curso", "Finalizado", "Cancelado"])
+      .withMessage("El estado debe ser Próximo, En Curso, Finalizado o Cancelado"),
   ]
 
   validateTournamentIdExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const idFromParams = req.params.id
+      const idFromParams = req.params.tournament_id
 
       if (!idFromParams) {
         return next()
@@ -61,13 +61,13 @@ export class TournamentValidator {
   validateTournamentNameUnique = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name } = req.body
-      const idFromParams = req.params.id
+      const idFromParams = req.params.tournament_id
 
       const tournaments = await TournamentDB.findAll()
       const existingTournament = tournaments.find(
         (tournament) =>
           (tournament.getDataValue("name") as string).toLowerCase() === name.toLowerCase() &&
-          (!idFromParams || tournament.getDataValue("id") !== Number.parseInt(idFromParams, 10)),
+          (!idFromParams || tournament.getDataValue("tournament_id") !== Number.parseInt(idFromParams, 10)),
       )
 
       if (existingTournament) {

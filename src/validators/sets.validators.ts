@@ -6,10 +6,12 @@ export class SetsValidator {
   validateFields = [
     check("match_id", "El ID del partido es obligatorio").not().isEmpty(),
     check("match_id", "El ID del partido debe ser numérico").isNumeric(),
-    check("score1", "La puntuación del equipo 1 es obligatoria").not().isEmpty(),
-    check("score1", "La puntuación del equipo 1 debe ser numérica").isNumeric(),
-    check("score2", "La puntuación del equipo 2 es obligatoria").not().isEmpty(),
-    check("score2", "La puntuación del equipo 2 debe ser numérica").isNumeric(),
+    check("set_number", "El número de set es obligatorio").not().isEmpty(),
+    check("set_number", "El número de set debe ser numérico").isNumeric(),
+    check("score_participant1", "La puntuación del participante 1 es obligatoria").not().isEmpty(),
+    check("score_participant1", "La puntuación del participante 1 debe ser numérica").isNumeric(),
+    check("score_participant2", "La puntuación del participante 2 es obligatoria").not().isEmpty(),
+    check("score_participant2", "La puntuación del participante 2 debe ser numérica").isNumeric(),
   ]
 
   validateMatchExists = async (req: Request, res: Response, next: NextFunction) => {
@@ -34,21 +36,23 @@ export class SetsValidator {
 
   validateUniqueSetNumber = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { number, match_id } = req.body
+      const { set_number, match_id } = req.body
       const idFromParams = req.params.id
 
-      if (number) {
+      if (set_number) {
         const existingSets = await SetsDB.findAll({
           where: { match_id },
         })
 
         const duplicateSet = existingSets.find(
-          (set) => set.getDataValue("number") === number && (!idFromParams || set.getDataValue("id_sets") !== Number(idFromParams))
+          (set) =>
+            set.getDataValue("set_number") === set_number &&
+            (!idFromParams || set.getDataValue("set_id") !== Number(idFromParams))
         )
 
         if (duplicateSet) {
           return res.status(400).json({
-            message: `Ya existe un set con el número ${number} para este partido`,
+            message: `Ya existe un set con el número ${set_number} para este partido`,
           })
         }
       }

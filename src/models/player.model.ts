@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize"
 
 export const PlayerModel = {
-  CI: {
+  ci: {
     type: DataTypes.STRING,
     primaryKey: true,
   },
@@ -22,17 +22,27 @@ export const PlayerModel = {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  id_career: {
+  career_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  id_tier: {
+  tier_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
   status: {
     type: DataTypes.BOOLEAN,
+    allowNull: false,
     defaultValue: true,
   },
-  // Los campos createdAt y updatedAt serán manejados automáticamente por Sequelize
+  createdAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  },
 }

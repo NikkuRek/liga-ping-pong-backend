@@ -4,16 +4,16 @@ export const tierSeed = async () => {
   try {
     await TierDB.bulkCreate([
       {
-        id_tier: 1,
-        range: "Principiante",
+        tier_id: 1,
+        range_name: "Principiante",
       },
       {
-        id_tier: 2,
-        range: "Intermedio",
+        tier_id: 2,
+        range_name: "Intermedio",
       },
       {
-        id_tier: 3,
-        range: "Avanzado",
+        tier_id: 3,
+        range_name: "Avanzado",
       },
     ])
     console.log("Seed de niveles ejecutado correctamente")
