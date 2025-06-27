@@ -42,24 +42,64 @@ export class PlayerValidator {
       const ciFromBody = req.body.playerData?.ci
       const ciFromParams = req.params.ci
 
+      console.log('--- validateCIExists Debug ---');
+      console.log('req.method:', req.method);
+      console.log('ciFromBody:', ciFromBody, typeof ciFromBody);
+      console.log('ciFromParams:', ciFromParams, typeof ciFromParams);
+
       if (!ciFromBody) {
+        console.log('validateCIExists: ciFromBody es nulo o indefinido, continuando.');
         return next()
       }
 
-      if (ciFromBody === ciFromParams) {
+      // Buscar si existe un jugador con ese CI (ciFromBody)
+      const playerWithBodyCI = await PlayerDB.findOne({ where: { ci: ciFromBody } });
+      console.log('validateCIExists: playerWithBodyCI encontrado (si existe):', playerWithBodyCI ? playerWithBodyCI.getDataValue("ci") : 'null');
+
+
+      // Caso 1: No existe ningún jugador con la CI del body (ni siquiera el que estamos actualizando si la CI cambió)
+      if (!playerWithBodyCI) {
+        console.log('validateCIExists: No se encontró ningún jugador con la CI del body. Permitiendo.');
         return next()
       }
 
-      const playerWithBodyCI = await PlayerDB.findOne({ where: { ci: ciFromBody } })
-
-      if (playerWithBodyCI) {
+      // Caso 2: Se encontró un jugador con la CI del body. Necesitamos saber si es el MISMO jugador que estamos actualizando.
+      // Esto aplica solo para PUT (actualización).
+      if (req.method.toLowerCase() === "put") {
+        console.log('validateCIExists: Es una petición PUT.');
+        // Si la CI del cuerpo es el mismo que la CI en los parámetros (no se está cambiando la CI del jugador)
+        if (ciFromBody === ciFromParams) {
+          console.log('validateCIExists: ciFromBody y ciFromParams son iguales.');
+          // Y el jugador encontrado es el mismo jugador que estamos intentando actualizar
+          console.log('validateCIExists: Comparando playerWithBodyCI.ci con ciFromParams:', playerWithBodyCI.getDataValue("ci"), '===', ciFromParams);
+          if (playerWithBodyCI.getDataValue("ci") === ciFromParams) {
+            console.log('validateCIExists: El CI del body corresponde al mismo jugador. Permitiendo.');
+            return next(); // Permitir la actualización del propio jugador
+          } else {
+            // Esto es una inconsistencia si ciFromBody === ciFromParams
+            console.error('validateCIExists: Lógica inconsistente. El CI del jugador encontrado (playerWithBodyCI.ci) no coincide con ciFromParams, aunque ciFromBody === ciFromParams. Esto no debería ocurrir.');
+            return res.status(500).json({
+              message: "Error interno de validación de CI (inconsistencia lógica inesperada)."
+            });
+          }
+        } else {
+          // Si la CI del body es DIFERENTE del CI en los parámetros (el usuario está intentando cambiar la CI del jugador)
+          // Y ya existe otro jugador con ese nuevo CI (playerWithBodyCI no es null)
+          // Entonces, se está intentando cambiar la CI a uno que ya está en uso por OTRA persona.
+          console.log('validateCIExists: ciFromBody es diferente de ciFromParams. Hay un conflicto de CI.');
+          return res.status(400).json({
+            message: `El CI "${ciFromBody}" ya está registrado por otro jugador.`,
+          })
+        }
+      } else { // Es una petición POST (o cualquier otro método que no sea PUT)
+        console.log('validateCIExists: Es una petición que NO es PUT. Se encontró un jugador existente. Bloqueando.');
         return res.status(400).json({
-          message: `El CI "${ciFromBody}" ya está registrado por otro jugador.`,
+          message: `El CI "${ciFromBody}" ya está registrado.`, // Mensaje más genérico para POST
         })
       }
 
-      next()
     } catch (error) {
+      console.error("Error interno del servidor al validar CI:", error);
       return res.status(500).json({
         message: "Error interno del servidor al validar CI",
       })

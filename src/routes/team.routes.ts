@@ -12,7 +12,7 @@ const teamController = new TeamController()
 router.get("/", teamController.all) // GET /api/team
 
 // Obtener equipos por jugador
-router.get("/player/:CI", teamController.getByPlayer) // GET /api/team/player/:CI
+router.get("/player/:ci", teamController.getByPlayer) // GET /api/team/player/:ci
 
 // Obtener un equipo por ID
 router.get("/:id", teamValidators.validateIdExists, teamController.one) // GET /api/team/:id

@@ -22,8 +22,8 @@ export class TeamController {
   };
 
   getByPlayer = async (req: Request, res: Response) => {
-    const { CI } = req.params;
-    const { status, message, data } = await TeamServices.getByPlayer(CI);
+    const { ci } = req.params;
+    const { status, message, data } = await TeamServices.getByPlayer(ci);
     return res.status(status).json({
       message,
       data,

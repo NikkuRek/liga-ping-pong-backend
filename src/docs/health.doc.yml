@@ -1,14 +1,14 @@
-# DESCRIPTION: Endpoint para verificar el estado de la aplicación y la conexión a la base de datos lpp_db_v3.
+# DESCRIPTION: Endpoint para verificar el estado de la aplicación y la conexión a la base de datos lpp_db.
 paths:
   /health:
     get:
       tags:
         - Health
       summary: Verifica el estado de la aplicación
-      description: Retorna el estado de la aplicación y la conexión a la base de datos lpp_db_v3.
+      description: Retorna el estado de la aplicación y la conexión a la base de datos lpp_db.
       responses:
         200:
-          description: La aplicación está funcionando correctamente y la base de datos lpp_db_v3 está conectada.
+          description: La aplicación está funcionando correctamente y la base de datos lpp_db está conectada.
           content:
             application/json:
               schema:
@@ -19,7 +19,7 @@ paths:
                     description: Estado de la aplicación.
                   database:
                     type: string
-                    description: Estado de la conexión a la base de datos lpp_db_v3.
+                    description: Estado de la conexión a la base de datos lpp_db.
                   database_name:
                     type: string
                     description: Nombre de la base de datos conectada.
@@ -28,9 +28,9 @@ paths:
                   value:
                     status: "ok"
                     database: "connected"
-                    database_name: "lpp_db_v3"
+                    database_name: "lpp_db"
         500:
-          description: Error en la conexión a la base de datos lpp_db_v3.
+          description: Error en la conexión a la base de datos lpp_db.
           content:
             application/json:
               schema:
@@ -41,7 +41,7 @@ paths:
                     description: Estado de la aplicación.
                   database:
                     type: string
-                    description: Estado de la conexión a la base de datos lpp_db_v3.
+                    description: Estado de la conexión a la base de datos lpp_db.
                   database_name:
                     type: string
                     description: Nombre de la base de datos conectada.
@@ -50,4 +50,4 @@ paths:
                   value:
                     status: "error"
                     database: "disconnected"
-                    database_name: "lpp_db_v3"
+                    database_name: "lpp_db"

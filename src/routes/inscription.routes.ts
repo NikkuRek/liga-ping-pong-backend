@@ -9,7 +9,7 @@ const inscriptionValidator = new InscriptionValidator()
 
 router.get("/", inscriptionController.all) // http://localhost:3000/api/inscription
 router.get("/:id", inscriptionValidator.validateIdExists, inscriptionController.one)
-router.get("/player/:CI", inscriptionController.getByPlayer)
+router.get("/player/:ci", inscriptionController.getByPlayer)
 router.get("/team/:teamId", inscriptionController.getByTeam)
 router.get("/tournament/:tournamentId", inscriptionController.getByTournament)
 router.post(

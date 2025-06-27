@@ -143,17 +143,8 @@ components:
     Career:
       type: object
       properties:
-        career_id:
-          type: integer
-          description: ID de la carrera
         name_career:
           type: string
           description: Nombre de la carrera
-        createdAt:
-          type: string
-          format: date-time
-          description: Fecha de creación
-        updatedAt:
-          type: string
-          format: date-time
-          description: Fecha de última actualización
+          
+        

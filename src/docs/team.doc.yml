@@ -193,7 +193,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /team/player/{CI}:
+  /team/player/{ci}:
     get:
       tags:
         - Team
@@ -244,10 +244,10 @@ components:
           example: 1
         player1_ci:
           type: string
-          example: "V12345678"
+          example: "12345678"
         player2_ci:
           type: string
-          example: "V87654321"
+          example: "23456789"
         team_name:
           type: string
           nullable: true
@@ -271,10 +271,10 @@ components:
       properties:
         player1_ci:
           type: string
-          example: "V12345678"
+          example: "12345678"
         player2_ci:
           type: string
-          example: "V87654321"
+          example: "23456789"
         team_name:
           type: string
           nullable: true
@@ -288,7 +288,7 @@ components:
       properties:
         ci:
           type: string
-          example: "V12345678"
+          example: "12345678"
         first_name:
           type: string
           example: "Juan"

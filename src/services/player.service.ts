@@ -30,9 +30,9 @@ class PlayerService {
     }
   }
 
-  async getOne(CI: string) {
+  async getOne(ci: string) {
     try {
-      const player = await PlayerDB.findByPk(CI, {
+      const player = await PlayerDB.findByPk(ci, {
         include: {
           model: DayDB,
           as: 'Days' 
@@ -117,13 +117,13 @@ class PlayerService {
       // 2. Separar la disponibilidad de los datos principales del jugador DESDE EL OBJETO ANIDADO
       const { available_days, ...playerData } = playerDataWithAvailability;
 
-      console.log("Service Create: Datos de jugador (para crear registro):", playerData); // Log después de desestructurar (debería tener CI, nombre, etc.)
+      console.log("Service Create: Datos de jugador (para crear registro):", playerData); // Log después de desestructurar (debería tener ci, nombre, etc.)
       console.log("Service Create: Datos de disponibilidad (array):", available_days); // Log después de desestructurar (debería ser el array [1, 3, 4])
 
 
       // 3. Crear el registro principal del jugador con los datos SIN la disponibilidad
       const newPlayer = await PlayerDB.create(playerData as any) as unknown as PlayerInterface;
-      console.log("Service Create: Jugador principal creado exitosamente. CI:", newPlayer.ci);
+      console.log("Service Create: Jugador principal creado exitosamente. ci:", newPlayer.ci);
 
 
       // 4. Manejar la disponibilidad si se proporcionó un array de IDs
@@ -132,7 +132,7 @@ class PlayerService {
 
         // Buscar las instancias de DayDB
         const dayInstances = await DayDB.findAll({
-          where: { id_day: available_days } // Cambiado de 'id' a 'id_day'
+          where: { day_id: available_days } // Cambiado de 'id' a 'day_id'
         });
         console.log("Service Create: Instancias de DayDB encontradas:", dayInstances.map(d => d.get()));
 
@@ -172,9 +172,9 @@ class PlayerService {
     }
   }
 
-  async update(CI: string, updateDataWithAvailability: { playerData?: Partial<PlayerInterface>, available_days?: number[] }) { // Modificado el tipo de entrada
+  async update(ci: string, updateDataWithAvailability: { playerData?: Partial<PlayerInterface>, available_days?: number[] }) { // Modificado el tipo de entrada
     try {
-      const existingPlayer = await PlayerDB.findByPk(CI);
+      const existingPlayer = await PlayerDB.findByPk(ci);
       if (!existingPlayer) {
         return {
           status: 404,
@@ -190,16 +190,16 @@ class PlayerService {
       if (updateDataWithAvailability.hasOwnProperty('available_days')) {
         if (Array.isArray(available_days)) {
           const dayInstances = await DayDB.findAll({
-            where: { id_day: available_days }
+            where: { day_id: available_days }
           });
 
           await (existingPlayer as any).setDays(dayInstances);
 
         } else {
-          console.warn(`Datos de disponibilidad enviados no son un array para jugador ${CI}. No se actualizará la disponibilidad.`);
+          console.warn(`Datos de disponibilidad enviados no son un array para jugador ${ci}. No se actualizará la disponibilidad.`);
         }
       }
-      const updatedPlayer = await PlayerDB.findByPk(CI, {
+      const updatedPlayer = await PlayerDB.findByPk(ci, {
         include: {
           model: DayDB,
           as: 'Days' 
@@ -221,9 +221,9 @@ class PlayerService {
     }
   }
 
-  async softDelete(CI: string) {
+  async softDelete(ci: string) {
     try {
-      const player = await PlayerDB.findByPk(CI);
+      const player = await PlayerDB.findByPk(ci);
       if (!player) {
         return {
           status: 404,
@@ -244,9 +244,9 @@ class PlayerService {
     }
   }
 
-  async delete(CI: string) {
+  async delete(ci: string) {
     try {
-      const player = await PlayerDB.findByPk(CI);
+      const player = await PlayerDB.findByPk(ci);
       if (!player) {
         return {
           status: 404,

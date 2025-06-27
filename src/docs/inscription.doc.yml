@@ -234,17 +234,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /inscription/player/{CI}:
+  /inscription/player/{ci}:
     get:
       tags:
         - Inscription
       summary: Obtiene inscripciones por jugador
       description: Retorna todas las inscripciones de un jugador específico
       parameters:
-        - name: CI
+        - name: ci
           in: path
           required: true
-          description: CI del jugador
+          description: ci del jugador
           schema:
             type: string
       responses:
@@ -330,7 +330,7 @@ components:
         player_ci:
           type: string
           nullable: true
-          example: "V12345678"
+          example: "12345678"
         team_id:
           type: integer
           nullable: true
@@ -367,7 +367,7 @@ components:
         player_ci:
           type: string
           nullable: true
-          example: "V12345678"
+          example: "12345678"
         team_id:
           type: integer
           nullable: true
@@ -387,7 +387,7 @@ components:
       properties:
         ci:
           type: string
-          example: "V12345678"
+          example: "12345678"
         first_name:
           type: string
           example: "Juan"
@@ -424,10 +424,10 @@ components:
           example: 2
         player1_ci:
           type: string
-          example: "V12345678"
+          example: "12345678"
         player2_ci:
           type: string
-          example: "V87654321"
+          example: "23456789"
         team_name:
           type: string
           nullable: true

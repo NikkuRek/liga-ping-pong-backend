@@ -31,8 +31,8 @@ export class InscriptionController {
   };
 
   getByPlayer = async (req: Request, res: Response) => {
-    const { CI } = req.params;
-    const { status, message, data } = await InscriptionServices.getByPlayer(CI);
+    const { ci } = req.params;
+    const { status, message, data } = await InscriptionServices.getByPlayer(ci);
     return res.status(status).json({
       message,
       data,

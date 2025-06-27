@@ -48,7 +48,7 @@ export class TeamValidator {
 
   validateUniqueTeam = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { player1_ci, player2_ci } = req.body
+      const { player1_ci, player2_ci, name } = req.body
       const idFromParams = req.params.team_id
 
       // Verificar si ya existe un equipo con estos jugadores (en cualquier orden)
@@ -68,12 +68,27 @@ export class TeamValidator {
             return res.status(400).json({
               message: "Ya existe un equipo con estos jugadores",
             })
-          } else {
-            return next()
           }
         } else {
           return res.status(400).json({
             message: "Ya existe un equipo con estos jugadores",
+          })
+        }
+      }
+
+      // Verificar si ya existe un equipo con el mismo nombre
+      if (name) {
+        const existingName = await TeamDB.findOne({
+          where: {
+            name,
+            ...(idFromParams && {
+              team_id: { [Op.ne]: Number.parseInt(idFromParams, 10) },
+            }),
+          },
+        })
+        if (existingName) {
+          return res.status(400).json({
+            message: "Ya existe un equipo con este nombre",
           })
         }
       }

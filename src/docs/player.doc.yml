@@ -106,7 +106,7 @@ paths:
       tags:
         - Player
       summary: Obtiene un jugador por CI
-      description: Retorna un jugador según el CI proporcionado
+      description: Retorna un jugador según la CI proporcionado
       parameters:
         - name: ci
           in: path
@@ -135,7 +135,7 @@ paths:
       tags:
         - Player
       summary: Actualiza un jugador
-      description: Actualiza los datos de un jugador según el CI proporcionado, incluyendo los días disponibles
+      description: Actualiza los datos de un jugador según la CI proporcionado, incluyendo los días disponibles
       parameters:
         - name: ci
           in: path
@@ -177,7 +177,7 @@ paths:
       tags:
         - Player
       summary: Deshabilita un jugador
-      description: Deshabilita un jugador según el CI proporcionado. Este borrado es lógico y no elimina físicamente el registro.
+      description: Deshabilita un jugador según la CI proporcionado. Este borrado es lógico y no elimina físicamente el registro.
       parameters:
         - name: ci
           in: path
@@ -205,7 +205,7 @@ paths:
       tags:
         - Player
       summary: Elimina físicamente un jugador
-      description: Elimina físicamente un jugador según el CI proporcionado.
+      description: Elimina físicamente un jugador según la CI proporcionado.
       parameters:
         - name: ci
           in: path
