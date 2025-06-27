@@ -21,15 +21,15 @@ export class Server {
     this.port = process.env.PORT || "3000"
     this.apiurl = process.env.API_URL || `http://localhost:${this.port}`
     this.paths = {
-      Career: this.pre + "/Career",
-      Player: this.pre + "/Player",
-      Tier: this.pre + "/Tier",
-      Health: this.pre + "/Health",
-      Tournament: this.pre + "/Tournament",
-      Team: this.pre + "/Team",
-      Inscription: this.pre + "/Inscription",
-      Match: this.pre + "/Match",
-      Sets: this.pre + "/Sets",
+      careers: this.pre + "/careers",
+      players: this.pre + "/players",
+      tiers: this.pre + "/tiers",
+      health: this.pre + "/health",
+      tournaments: this.pre + "/tournaments",
+      teams: this.pre + "/teams",
+      inscriptions: this.pre + "/inscriptions",
+      matches: this.pre + "/matches",
+      sets: this.pre + "/sets",
     }
     this.middlewares()
     this.routes()
@@ -44,15 +44,15 @@ export class Server {
   }
 
   routes() {
-    this.app.use(this.paths.Career, CareerRoute)
-    this.app.use(this.paths.Player, PlayerRoute)
-    this.app.use(this.paths.Tier, TierRoute)
-    this.app.use(this.paths.Health, HealthRoute)
-    this.app.use(this.paths.Tournament, TournamentRoute)
-    this.app.use(this.paths.Team, TeamRoute)
-    this.app.use(this.paths.Inscription, InscriptionRoute)
-    this.app.use(this.paths.Match, MatchRoute)
-    this.app.use(this.paths.Sets, SetsRoute)
+    this.app.use(this.paths.careers, CareerRoute)
+    this.app.use(this.paths.players, PlayerRoute)
+    this.app.use(this.paths.tiers, TierRoute)
+    this.app.use(this.paths.health, HealthRoute)
+    this.app.use(this.paths.tournaments, TournamentRoute)
+    this.app.use(this.paths.teams, TeamRoute)
+    this.app.use(this.paths.inscriptions, InscriptionRoute)
+    this.app.use(this.paths.matches, MatchRoute)
+    this.app.use(this.paths.sets, SetsRoute)
   }
 
   listen() {

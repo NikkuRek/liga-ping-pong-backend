@@ -14,7 +14,7 @@ Backend API para gestionar una liga de Ping Pong, construido con Node.js y Expre
 - Node.js
 - Express
 - MySQL (usando el paquete ORM Sequelize)
-- Autenticación JWT
+- Autenticación JWT (En proceso)
 
 ## Primeros Pasos
 
