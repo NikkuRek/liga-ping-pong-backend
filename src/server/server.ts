@@ -21,15 +21,15 @@ export class Server {
     this.port = process.env.PORT || "3000"
     this.apiurl = process.env.API_URL || `http://localhost:${this.port}`
     this.paths = {
-      careers: this.pre + "/careers",
-      players: this.pre + "/players",
-      tiers: this.pre + "/tiers",
+      careers: this.pre + "/career",
+      players: this.pre + "/player",
+      tiers: this.pre + "/tier",
       health: this.pre + "/health",
-      tournaments: this.pre + "/tournaments",
-      teams: this.pre + "/teams",
-      inscriptions: this.pre + "/inscriptions",
-      matches: this.pre + "/matches",
-      sets: this.pre + "/sets",
+      tournaments: this.pre + "/tournament",
+      teams: this.pre + "/team",
+      inscriptions: this.pre + "/inscription",
+      matches: this.pre + "/match",
+      sets: this.pre + "/set",
     }
     this.middlewares()
     this.routes()

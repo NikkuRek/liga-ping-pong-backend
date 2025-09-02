@@ -1,4 +1,4 @@
-import { MatchDB } from "../config/sequelize.config";
+import { MatchDB, SetsDB } from "../config/sequelize.config";
 import type { MatchInterface } from "../interfaces";
 
 // filepath: c:\Users\Usuario\Documents\dev\liga-ping-pong-backend\src\services\match.service.ts
@@ -6,13 +6,18 @@ import type { MatchInterface } from "../interfaces";
 class MatchService {
   async getAll() {
     try {
-      const matches = await MatchDB.findAll();
+      // Modifica esta línea para incluir los sets
+      const matches = await MatchDB.findAll({
+        include:
+          { model: SetsDB },
+      });
       return {
         status: 200,
         message: "Partidos obtenidos correctamente",
         data: matches,
       };
     } catch (error) {
+      console.error("Error al obtener partidos:", error);
       return {
         status: 500,
         message: "Error al obtener partidos",
@@ -21,9 +26,13 @@ class MatchService {
     }
   }
 
+  // También deberías hacer esto en el método getOne para que también muestre los sets
   async getOne(match_id: number) {
     try {
-      const match = await MatchDB.findByPk(match_id);
+      const match = await MatchDB.findByPk(match_id, {
+        include:
+          { model: SetsDB },
+      });
       if (!match) {
         return {
           status: 404,
@@ -37,6 +46,7 @@ class MatchService {
         data: match,
       };
     } catch (error) {
+      console.error("Error al obtener partido:", error);
       return {
         status: 500,
         message: "Error al obtener partido",

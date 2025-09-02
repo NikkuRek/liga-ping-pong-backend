@@ -27,7 +27,7 @@ router.put(
 router.put(
   "/:id/result",
   matchValidators.validateMatchIdExists,
-  matchValidators.validateWinnerLosserInscription,
+  matchValidators.validateWinnerInscription,
   validateFields,
   matchController.update
 );
