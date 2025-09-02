@@ -30,6 +30,10 @@ export const PlayerModel = {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  elo: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   status: {
     type: DataTypes.BOOLEAN,
     allowNull: false,

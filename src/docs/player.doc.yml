@@ -254,9 +254,13 @@ components:
         tier_id:
           type: integer
           description: ID del nivel del jugador
+        elo:
+          type: integer
+          nullable: true
+          description: Puntuación ELO del jugador
         status:
           type: boolean
-          description: Estado del jugador (1=activo, 0=inactivo)
+          description: Estado del jugador (true=activo, false=inactivo)
         createdAt:
           type: string
           format: date-time

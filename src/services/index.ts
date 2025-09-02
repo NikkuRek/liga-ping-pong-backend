@@ -1,4 +1,5 @@
 export * from "./career.service"
+export * from "./credential.service"
 export * from "./player.service"
 export * from "./tier.service"
 export * from "./team.service"

@@ -1,4 +1,5 @@
 export * from "./career.validators";
+export * from "./credential.validators";
 export * from "./inscription.validators";
 export * from "./match.validators";
 export * from "./player.validators";

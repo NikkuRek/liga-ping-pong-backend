@@ -1,6 +1,7 @@
 import { HealthRoute } from "./health.routes"
 import { Router } from "express"
 import { CareerRoute } from "./career.routes"
+import { CredentialRoute } from "./credential.routes"
 import { PlayerRoute } from "./player.routes"
 import { TierRoute } from "./tier.routes"
 import { TournamentRoute } from "./tournament.routes"
@@ -16,5 +17,5 @@ const router = Router()
 
 // export default router
 
-export { CareerRoute, PlayerRoute, TierRoute, HealthRoute, TournamentRoute, InscriptionRoute,
+export { CareerRoute, CredentialRoute, PlayerRoute, TierRoute, HealthRoute, TournamentRoute, InscriptionRoute,
      MatchRoute, SetsRoute, TeamRoute, router  }

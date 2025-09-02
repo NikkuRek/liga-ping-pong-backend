@@ -1,4 +1,5 @@
 export * from "./career.controller"
+export * from "./credential.controller"
 export * from "./player.controller"
 export * from "./tier.controller"
 export * from "./tournament.controller"

@@ -6,6 +6,7 @@ export interface PlayerInterface {
   semester: number
   career_id: number
   tier_id: number
+  elo?: number
   status: boolean
   createdAt?: Date
   updatedAt?: Date

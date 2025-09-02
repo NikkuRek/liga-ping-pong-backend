@@ -1,4 +1,4 @@
-import { Sequelize, type Dialect, DataTypes } from "sequelize"
+import { Sequelize, type Dialect } from "sequelize"
 import dotenv from "dotenv"
 
 import {
@@ -10,8 +10,9 @@ import {
   TournamentModel,
   InscriptionModel,
   TeamModel,
-  MatchModel, 
+  MatchModel,
   SetsModel,
+  CredentialModel,
 } from "../models"
 
 dotenv.config()
@@ -71,7 +72,7 @@ export const PlayerDB = db.define("players", PlayerModel, {
 
 export const AvailabilityDB = db.define("availabilities", AvailabilityModel, {
   timestamps: true,
-  tableName: "availabilities"
+  tableName: "availabilities",
 })
 
 export const TeamDB = db.define("teams", TeamModel, {
@@ -99,55 +100,51 @@ export const SetsDB = db.define("sets", SetsModel, {
   tableName: "sets",
 })
 
+export const CredentialDB = db.define("credentials", CredentialModel, {
+  timestamps: true,
+  tableName: "credentials",
+})
+
 // Relaciones
 
-// Player <-> Day (Availability)
 PlayerDB.belongsToMany(DayDB, {
   through: AvailabilityDB,
   foreignKey: "player_ci",
   otherKey: "day_id",
-  as: 'Days'
+  as: "Days",
 })
 
 DayDB.belongsToMany(PlayerDB, {
   through: AvailabilityDB,
   foreignKey: "day_id",
   otherKey: "player_ci",
-  as: 'Players'
+  as: "Players",
 })
 
-// Player -> Career
 PlayerDB.belongsTo(CareerDB, { foreignKey: "career_id" })
 CareerDB.hasMany(PlayerDB, { foreignKey: "career_id" })
 
-// Player -> Tier
 PlayerDB.belongsTo(TierDB, { foreignKey: "tier_id" })
 TierDB.hasMany(PlayerDB, { foreignKey: "tier_id" })
 
-// Team -> Player (player1, player2)
 TeamDB.belongsTo(PlayerDB, { foreignKey: "player1_ci", as: "Player1" })
 PlayerDB.hasMany(TeamDB, { foreignKey: "player1_ci", as: "TeamsAsPlayer1" })
 
 TeamDB.belongsTo(PlayerDB, { foreignKey: "player2_ci", as: "Player2" })
 PlayerDB.hasMany(TeamDB, { foreignKey: "player2_ci", as: "TeamsAsPlayer2" })
 
-// Inscription -> Tournament
 InscriptionDB.belongsTo(TournamentDB, { foreignKey: "tournament_id" })
 TournamentDB.hasMany(InscriptionDB, { foreignKey: "tournament_id" })
 
-// Inscription -> Player (puede ser null)
 InscriptionDB.belongsTo(PlayerDB, { foreignKey: "player_ci" })
 PlayerDB.hasMany(InscriptionDB, { foreignKey: "player_ci" })
 
-// Inscription -> Team (puede ser null)
 InscriptionDB.belongsTo(TeamDB, { foreignKey: "team_id" })
 TeamDB.hasMany(InscriptionDB, { foreignKey: "team_id" })
 
-// Match -> Tournament
 MatchDB.belongsTo(TournamentDB, { foreignKey: "tournament_id" })
 TournamentDB.hasMany(MatchDB, { foreignKey: "tournament_id" })
 
-// Match -> Inscription (inscription1, inscription2, winner)
 MatchDB.belongsTo(InscriptionDB, { foreignKey: "inscription1_id", as: "Inscription1" })
 InscriptionDB.hasMany(MatchDB, { foreignKey: "inscription1_id", as: "MatchesAsInscription1" })
 
@@ -157,9 +154,11 @@ InscriptionDB.hasMany(MatchDB, { foreignKey: "inscription2_id", as: "MatchesAsIn
 MatchDB.belongsTo(InscriptionDB, { foreignKey: "winner_inscription_id", as: "WinnerInscription" })
 InscriptionDB.hasMany(MatchDB, { foreignKey: "winner_inscription_id", as: "MatchesWon" })
 
-// Sets -> Match
 SetsDB.belongsTo(MatchDB, { foreignKey: "match_id" })
 MatchDB.hasMany(SetsDB, { foreignKey: "match_id" })
+
+PlayerDB.hasOne(CredentialDB, { foreignKey: "player_ci", sourceKey: "ci" })
+CredentialDB.belongsTo(PlayerDB, { foreignKey: "player_ci", targetKey: "ci" })
 
 export const syncModels = async () => {
   try {
@@ -169,7 +168,7 @@ export const syncModels = async () => {
     console.log("Base de datos sincronizada")
   } catch (error) {
     console.error("Error al conectar con la base de datos:", error)
-    throw error;
+    throw error
   }
 }
 syncModels()

@@ -1,5 +1,6 @@
 export * from "./availability.interface"
 export * from "./career.interface"
+export * from "./credential.interface"
 export * from "./day.interface"
 export * from "./player.interface"
 export * from "./tier.interface"

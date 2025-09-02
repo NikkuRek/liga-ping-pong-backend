@@ -1,6 +1,16 @@
 import "dotenv/config"
 import { db } from "../config"
-import { availabilitySeed, careerSeed, daySeed, inscriptionSeed, playerSeed, teamSeed, tierSeed, tournamentSeed } from "../data/seeders"
+import {
+  availabilitySeed,
+  careerSeed,
+  credentialSeed,
+  daySeed,
+  inscriptionSeed,
+  playerSeed,
+  teamSeed,
+  tierSeed,
+  tournamentSeed,
+} from "../data/seeders"
 
 export const insertSeeders = async () => {
   try {
@@ -9,11 +19,12 @@ export const insertSeeders = async () => {
     await daySeed()
     await tierSeed()
     await playerSeed()
+    await credentialSeed()
     await availabilitySeed()
     await teamSeed()
     await tournamentSeed()
     await inscriptionSeed()
-    
+
     console.log("Datos de prueba insertados correctamente")
   } catch (error) {
     console.error("Error al insertar datos de prueba:", error)
