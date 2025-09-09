@@ -2,6 +2,7 @@ import { Sequelize, type Dialect } from "sequelize"
 import dotenv from "dotenv"
 
 import {
+  AuraRecordModel,
   AvailabilityModel,
   CareerModel,
   DayModel,
@@ -50,6 +51,11 @@ const noTimestampsOptions = {
 }
 
 // Modelos
+export const AuraRecordDB = db.define("aura_records", AuraRecordModel, {
+  timestamps: true,
+  tableName: "aura_records",
+})
+
 export const DayDB = db.define("days", DayModel, {
   timestamps: false,
   tableName: "days",
@@ -105,6 +111,8 @@ export const CredentialDB = db.define("credentials", CredentialModel, {
   tableName: "credentials",
 })
 
+
+
 // Relaciones
 
 PlayerDB.belongsToMany(DayDB, {
@@ -159,6 +167,12 @@ MatchDB.hasMany(SetsDB, { foreignKey: "match_id" })
 
 PlayerDB.hasOne(CredentialDB, { foreignKey: "player_ci", sourceKey: "ci" })
 CredentialDB.belongsTo(PlayerDB, { foreignKey: "player_ci", targetKey: "ci" })
+
+AuraRecordDB.belongsTo(PlayerDB, { foreignKey: "player_ci" })
+PlayerDB.hasMany(AuraRecordDB, { foreignKey: "player_ci" })
+
+AuraRecordDB.belongsTo(MatchDB, { foreignKey: "match_id" })
+MatchDB.hasMany(AuraRecordDB, { foreignKey: "match_id" })
 
 export const syncModels = async () => {
   try {
