@@ -304,9 +304,9 @@ components:
         career_id:
           type: integer
           example: 2
-        tier_id:
+        aura:
           type: integer
-          example: 1
+          example: 1500
         status:
           type: boolean
           example: true

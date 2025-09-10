@@ -5,8 +5,7 @@ export interface PlayerInterface {
   phone: string
   semester: number
   career_id: number
-  tier_id: number
-  elo?: number
+  aura?: number
   status: boolean
   createdAt?: Date
   updatedAt?: Date

@@ -64,25 +64,6 @@ Elimina físicamente un jugador.
 
 ---
 
-### Niveles (Tiers)
-
-#### `GET /api/tier`
-Lista todos los niveles.
-
-#### `GET /api/tier/:id`
-Obtiene un nivel por ID.
-
-#### `POST /api/tier`
-Crea un nuevo nivel.
-
-#### `PUT /api/tier/:id`
-Actualiza un nivel existente.
-
-#### `DELETE /api/tier/:id`
-Elimina un nivel.
-
----
-
 ### Torneos
 
 #### `GET /api/tournament`
@@ -196,6 +177,31 @@ Actualiza un set existente.
 
 #### `DELETE /api/sets/:id`
 Elimina un set.
+
+---
+
+### Registros de Aura (Aura Records)
+
+#### `GET /api/aura-record`
+Lista todos los registros de aura.
+
+#### `GET /api/aura-record/:id`
+Obtiene un registro de aura por ID.
+
+#### `GET /api/aura-record/player/:ci`
+Obtiene los registros de aura de un jugador.
+
+#### `GET /api/aura-record/match/:matchId`
+Obtiene los registros de aura de un partido.
+
+#### `POST /api/aura-record`
+Crea un nuevo registro de aura.
+
+#### `PUT /api/aura-record/:id`
+Actualiza un registro de aura.
+
+#### `DELETE /api/aura-record/:id`
+Elimina un registro de aura.
 
 ---
 

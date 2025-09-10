@@ -26,11 +26,7 @@ export const PlayerModel = {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  tier_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  elo: {
+  aura: {
     type: DataTypes.INTEGER,
     allowNull: true,
   },

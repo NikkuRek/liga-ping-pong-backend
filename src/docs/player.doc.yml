@@ -251,13 +251,10 @@ components:
         career_id:
           type: integer
           description: ID de la carrera del jugador
-        tier_id:
-          type: integer
-          description: ID del nivel del jugador
-        elo:
+        aura:
           type: integer
           nullable: true
-          description: Puntuación ELO del jugador
+          description: Puntuación AURA del jugador
         status:
           type: boolean
           description: Estado del jugador (true=activo, false=inactivo)

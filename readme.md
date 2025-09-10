@@ -52,23 +52,26 @@ Puedes ejecutar el servidor en diferentes modos según los scripts definidos en 
 
 ### Comandos Disponibles
 
-- **npm run build**  
-    Compila el código TypeScript a JavaScript en la carpeta `dist`.
+- **`npm run build`**  
+  Compila el código TypeScript a JavaScript en la carpeta `dist`.
 
-- **npm run start**  
-    Inicia el servidor en modo producción usando el código compilado en `dist`.
+- **`npm run start`**  
+  Inicia el servidor en modo producción usando el código compilado en `dist`.
 
-- **npm run dev**  
-    Compila el código e inicia el servidor en modo desarrollo.
+- **`npm run dev`**  
+  Compila el código e inicia el servidor en modo desarrollo.
 
-- **npm run seeds**  
-    Ejecuta los scripts en la carpeta `dist` para poblar la base de datos con datos de ejemplo (semillas).
+- **`npm run seeds`**  
+  Ejecuta los scripts en la carpeta `dist` para poblar la base de datos con datos de ejemplo (semillas).
 
-- **npm run seeds-build**  
-    Compila y ejecuta los scripts para poblar la base de datos.
+- **`npm run seeds-build`**  
+  Compila y ejecuta los scripts para poblar la base de datos.
 
-- **npm run seeds-dev**
-    Compila, ejecuta los scripts para poblar la base de datos y arranca el servidor.
+- **`npm run seeds-dev`**  
+  Compila, ejecuta los scripts para poblar la base de datos y arranca el servidor en modo desarrollo. Ideal para empezar a desarrollar desde cero.
+
+- **`npm run render`**  
+  Script específico para despliegues en servicios como Render. Instala dependencias, compila el proyecto y ejecuta las semillas.
 
 Puedes usar estos comandos según el entorno y la necesidad de tu desarrollo.
 

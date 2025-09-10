@@ -7,7 +7,6 @@ import {
   CareerModel,
   DayModel,
   PlayerModel,
-  TierModel,
   TournamentModel,
   InscriptionModel,
   TeamModel,
@@ -64,11 +63,6 @@ export const DayDB = db.define("days", DayModel, {
 export const CareerDB = db.define("careers", CareerModel, {
   timestamps: true,
   tableName: "careers",
-})
-
-export const TierDB = db.define("tiers", TierModel, {
-  timestamps: false,
-  tableName: "tiers",
 })
 
 export const PlayerDB = db.define("players", PlayerModel, {
@@ -131,9 +125,6 @@ DayDB.belongsToMany(PlayerDB, {
 
 PlayerDB.belongsTo(CareerDB, { foreignKey: "career_id" })
 CareerDB.hasMany(PlayerDB, { foreignKey: "career_id" })
-
-PlayerDB.belongsTo(TierDB, { foreignKey: "tier_id" })
-TierDB.hasMany(PlayerDB, { foreignKey: "tier_id" })
 
 TeamDB.belongsTo(PlayerDB, { foreignKey: "player1_ci", as: "Player1" })
 PlayerDB.hasMany(TeamDB, { foreignKey: "player1_ci", as: "TeamsAsPlayer1" })

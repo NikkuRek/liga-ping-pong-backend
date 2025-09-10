@@ -6,9 +6,9 @@ import swaggerUi from "swagger-ui-express"
 import { swaggerOptions } from "../config"
 
 import {
+  AuraRecordRoute,
   CareerRoute,
   PlayerRoute,
-  TierRoute,
   HealthRoute,
   TournamentRoute,
   TeamRoute,
@@ -30,9 +30,9 @@ export class Server {
     this.port = process.env.PORT || "3000"
     this.apiurl = process.env.API_URL || `http://localhost:${this.port}`
     this.paths = {
+      aura_records: this.pre + "/aura_record",
       careers: this.pre + "/career",
       players: this.pre + "/player",
-      tiers: this.pre + "/tier",
       health: this.pre + "/health",
       tournaments: this.pre + "/tournament",
       teams: this.pre + "/team",
@@ -54,9 +54,9 @@ export class Server {
   }
 
   routes() {
+    this.app.use(this.paths.aura_records, AuraRecordRoute)
     this.app.use(this.paths.careers, CareerRoute)
     this.app.use(this.paths.players, PlayerRoute)
-    this.app.use(this.paths.tiers, TierRoute)
     this.app.use(this.paths.health, HealthRoute)
     this.app.use(this.paths.tournaments, TournamentRoute)
     this.app.use(this.paths.teams, TeamRoute)

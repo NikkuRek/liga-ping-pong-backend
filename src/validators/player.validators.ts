@@ -26,9 +26,6 @@ export class PlayerValidator {
     check("playerData.career_id", "El id de la carrera es obligatorio").not().isEmpty(),
     check("playerData.career_id", "El id de la carrera debe ser un número").isNumeric(),
 
-    check("playerData.tier_id", "El id del nivel es obligatorio").not().isEmpty(),
-    check("playerData.tier_id", "El id del nivel debe ser un número").isNumeric(),
-
     check("playerData.status", "El estado debe ser un valor booleano").optional().isBoolean(),
 
     check("playerData.available_days", "La disponibilidad debe ser un array de IDs de días").optional().isArray(),

@@ -1,32 +1,20 @@
 import { DataTypes } from "sequelize"
 
 export const AuraRecordModel = {
-  id: {
-    type: DataTypes.NUMBER,
+  aura_record_id: {
+    type: DataTypes.INTEGER,
     primaryKey: true,
   },
   match_id: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     allowNull: false,
-    references: {
-      model: "match",
-      key: "match_id",
-    },
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
   },
   player_ci: {
     type: DataTypes.STRING,
-    allowNull: false,
-    references: {
-      model: "player",
-      key: "ci",
-    },
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
+    allowNull: false
   },
   aura: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   date: {
@@ -46,4 +34,3 @@ export const AuraRecordModel = {
   },
 }
 
-// Al definir el modelo en Sequelize, usa { tableName: 'availabilities', timestamps: true }

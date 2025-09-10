@@ -3,12 +3,12 @@ import { Router } from "express"
 import { CareerRoute } from "./career.routes"
 import { CredentialRoute } from "./credential.routes"
 import { PlayerRoute } from "./player.routes"
-import { TierRoute } from "./tier.routes"
 import { TournamentRoute } from "./tournament.routes"
 import { InscriptionRoute } from "./inscription.routes"
 import { MatchRoute } from "./match.routes"
 import { SetsRoute } from "./sets.routes"
 import { TeamRoute } from "./team.routes"
+import { AuraRecordRoute } from "./aura-record.routes"
 
 const router = Router()
 
@@ -17,5 +17,5 @@ const router = Router()
 
 // export default router
 
-export { CareerRoute, CredentialRoute, PlayerRoute, TierRoute, HealthRoute, TournamentRoute, InscriptionRoute,
-     MatchRoute, SetsRoute, TeamRoute, router  }
+export { AuraRecordRoute, CareerRoute, CredentialRoute, PlayerRoute, HealthRoute, TournamentRoute, InscriptionRoute,
+     MatchRoute, SetsRoute, TeamRoute, router }
