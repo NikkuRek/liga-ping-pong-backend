@@ -1,5 +1,4 @@
 export * from "./availability.seed"
-export * from "./aura-record.seed"
 export * from "./career.seed"
 export * from "./credential.seed"
 export * from "./day.seed"

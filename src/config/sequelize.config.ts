@@ -156,8 +156,8 @@ InscriptionDB.hasMany(MatchDB, { foreignKey: "winner_inscription_id", as: "Match
 SetsDB.belongsTo(MatchDB, { foreignKey: "match_id" })
 MatchDB.hasMany(SetsDB, { foreignKey: "match_id" })
 
-PlayerDB.hasOne(CredentialDB, { foreignKey: "player_ci", sourceKey: "ci" })
-CredentialDB.belongsTo(PlayerDB, { foreignKey: "player_ci", targetKey: "ci" })
+PlayerDB.hasOne(CredentialDB, { foreignKey: "player_ci", sourceKey: "ci", as: "Credential" })
+CredentialDB.belongsTo(PlayerDB, { foreignKey: "player_ci", targetKey: "ci", as: "Player" })
 
 AuraRecordDB.belongsTo(PlayerDB, { foreignKey: "player_ci" })
 PlayerDB.hasMany(AuraRecordDB, { foreignKey: "player_ci" })

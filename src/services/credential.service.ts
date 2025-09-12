@@ -10,7 +10,7 @@ class CredentialService {
         include: {
           model: PlayerDB,
           as: "Player",
-          attributes: ["ci", "name", "lastname"],
+          attributes: ["ci", "first_name", "last_name"],
         },
       })
       return {
@@ -33,7 +33,7 @@ class CredentialService {
         include: {
           model: PlayerDB,
           as: "Player",
-          attributes: ["ci", "name", "lastname"],
+          attributes: ["ci", "first_name", "last_name"],
         },
       })
 
@@ -60,15 +60,29 @@ class CredentialService {
 
   async getByPlayerCI(player_ci: string) {
     try {
+      console.log("[v0] Searching credential for player_ci:", player_ci)
+
+      const player = await PlayerDB.findByPk(player_ci)
+      console.log("[v0] Player exists:", player ? "Yes" : "No")
+
+      if (!player) {
+        return {
+          status: 404,
+          message: "Jugador no encontrado",
+          data: null,
+        }
+      }
+
       const credential = await CredentialDB.findOne({
         where: { player_ci },
         include: {
           model: PlayerDB,
           as: "Player",
-          attributes: ["ci", "name", "lastname"],
-          required: false,
+          attributes: ["ci", "first_name", "last_name"],
         },
       })
+
+      console.log("[v0] Found credential:", credential ? "Yes" : "No")
 
       if (!credential) {
         return {
@@ -83,7 +97,8 @@ class CredentialService {
         data: credential,
       }
     } catch (error) {
-      return {
+      console.log("[v0] Error in getByPlayerCI:", error)
+      return { 
         status: 500,
         message: "Error al obtener credencial",
         data: null,
@@ -168,7 +183,7 @@ class CredentialService {
         include: {
           model: PlayerDB,
           as: "Player",
-          attributes: ["ci", "name", "lastname"],
+          attributes: ["ci", "first_name", "last_name"],
         },
       })
 
@@ -179,6 +194,52 @@ class CredentialService {
       }
     } catch (error) {
       console.error("Error al actualizar credencial:", error)
+      return {
+        status: 500,
+        message: "Error al actualizar credencial",
+        data: null,
+      }
+    }
+  }
+
+  async updateByPlayerCI(player_ci: string, credentialData: Partial<CredentialInterface>) {
+    try {
+      const existingCredential = await CredentialDB.findOne({
+        where: { player_ci },
+      })
+
+      if (!existingCredential) {
+        return {
+          status: 404,
+          message: "Credencial no encontrada para este jugador",
+          data: null,
+        }
+      }
+
+      // Si se está actualizando la contraseña, encriptarla
+      if (credentialData.password) {
+        const saltRounds = 10
+        credentialData.password = await bcrypt.hash(credentialData.password, saltRounds)
+      }
+
+      await existingCredential.update(credentialData)
+
+      const updatedCredential = await CredentialDB.findOne({
+        where: { player_ci },
+        include: {
+          model: PlayerDB,
+          as: "Player",
+          attributes: ["ci", "first_name", "last_name"],
+        },
+      })
+
+      return {
+        status: 200,
+        message: "Credencial actualizada correctamente",
+        data: updatedCredential,
+      }
+    } catch (error) {
+      console.error("Error al actualizar credencial por CI:", error)
       return {
         status: 500,
         message: "Error al actualizar credencial",
@@ -228,7 +289,7 @@ class CredentialService {
         }
       }
 
-      const isPasswordValid = await bcrypt.compare(password, credential.get("password") as string)
+      const isPasswordValid = await bcrypt.compare(password, credential.getDataValue('password'))
       if (!isPasswordValid) {
         return {
           status: 401,
@@ -242,7 +303,7 @@ class CredentialService {
         message: "Autenticación exitosa",
         data: {
           credential: credential,
-          player: credential.get("Player"),
+          player: (credential as any).Player,
         },
       }
     } catch (error) {

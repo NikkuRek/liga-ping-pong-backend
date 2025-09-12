@@ -47,6 +47,15 @@ export class CredentialController {
     })
   }
 
+  updateByPlayerCI = async (req: Request, res: Response) => {
+    const { player_ci } = req.body
+    const { status, message, data } = await CredentialServices.updateByPlayerCI(player_ci, req.body)
+    return res.status(status).json({
+      message,
+      data,
+    })
+  }
+
   delete = async (req: Request, res: Response) => {
     const { id } = req.params
     const { status, message } = await CredentialServices.delete(id)

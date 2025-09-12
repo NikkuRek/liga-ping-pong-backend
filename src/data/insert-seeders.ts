@@ -1,7 +1,6 @@
 import "dotenv/config"
 import { db } from "../config"
 import {
-  auraRecordSeed,
   availabilitySeed,
   careerSeed,
   credentialSeed,
@@ -23,7 +22,6 @@ export const insertSeeders = async () => {
     await teamSeed()
     await tournamentSeed()
     await inscriptionSeed()
-    await auraRecordSeed()
 
     console.log("Datos de prueba insertados correctamente")
   } catch (error) {

@@ -20,7 +20,9 @@ router.post(
 
 router.post("/authenticate", credentialValidator.validateAuthFields, validateFields, credentialController.authenticate) // http://localhost:3000/api/credential/authenticate
 
-router.put("/:id", credentialValidator.validateFields, validateFields, credentialController.update) // http://localhost:3000/api/credential/id
+router.put("/:id", credentialValidator.validateUpdateFields, validateFields, credentialController.update) // http://localhost:3000/api/credential/id
+
+router.put("/", credentialValidator.validateUpdateByPlayerCI, validateFields, credentialController.updateByPlayerCI) // http://localhost:3000/api/credential
 
 router.delete("/:id", credentialController.delete) // http://localhost:3000/api/credential/id
 
