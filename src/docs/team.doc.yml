@@ -1,0 +1,328 @@
+tags:
+  - name: Team
+    description: API para operaciones con equipos de dobles
+
+paths:
+  /team:
+    get:
+      tags:
+        - Team
+      summary: Obtiene todos los equipos
+      description: Retorna un array con todos los equipos registrados
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  teams:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Team'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Team
+      summary: Crea un nuevo equipo
+      description: Crea un nuevo equipo con los datos proporcionados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamInput'
+      responses:
+        201:
+          description: Equipo creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  team:
+                    $ref: '#/components/schemas/Team'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /team/{id}:
+    get:
+      tags:
+        - Team
+      summary: Obtiene un equipo por ID
+      description: Retorna un equipo específico según su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del equipo
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  team:
+                    $ref: '#/components/schemas/Team'
+        404:
+          description: Equipo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - Team
+      summary: Actualiza un equipo
+      description: Actualiza los datos de un equipo existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del equipo
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamInput'
+      responses:
+        200:
+          description: Equipo actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  team:
+                    $ref: '#/components/schemas/Team'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Equipo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Team
+      summary: Elimina un equipo
+      description: Elimina un equipo existente según su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del equipo
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Equipo eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Equipo eliminado correctamente
+        404:
+          description: Equipo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /team/player/{ci}:
+    get:
+      tags:
+        - Team
+      summary: Obtiene equipos por jugador
+      description: Retorna todos los equipos donde participa un jugador específico
+      parameters:
+        - name: CI
+          in: path
+          required: true
+          description: CI del jugador
+          schema:
+            type: string
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  teams:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Team'
+        404:
+          description: Jugador no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Team:
+      type: object
+      properties:
+        team_id:
+          type: integer
+          example: 1
+        player1_ci:
+          type: string
+          example: "12345678"
+        player2_ci:
+          type: string
+          example: "23456789"
+        team_name:
+          type: string
+          nullable: true
+          example: "Los Campeones"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        player1:
+          $ref: '#/components/schemas/Player'
+        player2:
+          $ref: '#/components/schemas/Player'
+      required:
+        - player1_ci
+        - player2_ci
+
+    TeamInput:
+      type: object
+      properties:
+        player1_ci:
+          type: string
+          example: "12345678"
+        player2_ci:
+          type: string
+          example: "23456789"
+        team_name:
+          type: string
+          nullable: true
+          example: "Los Campeones"
+      required:
+        - player1_ci
+        - player2_ci
+
+    Player:
+      type: object
+      properties:
+        ci:
+          type: string
+          example: "12345678"
+        first_name:
+          type: string
+          example: "Juan"
+        last_name:
+          type: string
+          example: "Pérez"
+        phone:
+          type: string
+          example: "04141234567"
+        semester:
+          type: integer
+          example: 5
+        career_id:
+          type: integer
+          example: 2
+        aura:
+          type: integer
+          example: 1500
+        status:
+          type: boolean
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Mensaje de error"

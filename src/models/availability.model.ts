@@ -1,21 +1,26 @@
 import { DataTypes } from "sequelize"
 
 export const AvailabilityModel = {
-  CI: {
+  player_ci: {
     type: DataTypes.STRING,
     primaryKey: true,
+    allowNull: false,
   },
-  id_day: {
+  day_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
+    allowNull: false,
   },
   createdAt: {
     type: DataTypes.DATE,
+    allowNull: false,
     defaultValue: DataTypes.NOW,
   },
   updatedAt: {
     type: DataTypes.DATE,
+    allowNull: false,
     defaultValue: DataTypes.NOW,
   },
 }
 
+// Al definir el modelo en Sequelize, usa { tableName: 'availabilities', timestamps: true }

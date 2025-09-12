@@ -1,0 +1,343 @@
+# filepath: c:\Users\Usuario\Documents\dev\liga-ping-pong-backend\src\docs\match.doc.yml
+paths:
+  /match:
+    get:
+      tags:
+        - Match
+      summary: Obtiene todos los partidos
+      description: Retorna un array con todos los partidos
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MatchWithSets'
+        500:
+          description: Error al obtener partidos
+
+    post:
+      tags:
+        - Match
+      summary: Crea un nuevo partido
+      description: Crea un nuevo partido con los datos proporcionados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MatchInput'
+      responses:
+        201:
+          description: Partido creado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/MatchWithSets'
+        400:
+          description: Datos inválidos
+        404:
+          description: Torneo o inscripción no encontrada
+        500:
+          description: Error al crear partido
+
+  /match/{id}:
+    get:
+      tags:
+        - Match
+      summary: Obtiene un partido por ID
+      description: Retorna un partido según el ID proporcionado
+      parameters:
+        - name: id
+          in: path
+          description: ID del partido
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/MatchWithSets'
+        404:
+          description: Partido no encontrado
+        500:
+          description: Error al obtener partido
+
+    put:
+      tags:
+        - Match
+      summary: Actualiza un partido
+      description: Actualiza los datos de un partido según el ID proporcionado
+      parameters:
+        - name: id
+          in: path
+          description: ID del partido
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MatchInput'
+      responses:
+        200:
+          description: Partido actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/MatchWithSets'
+        400:
+          description: Datos inválidos
+        404:
+          description: Partido no encontrado
+        500:
+          description: Error al actualizar partido
+
+    delete:
+      tags:
+        - Match
+      summary: Elimina un partido
+      description: Elimina un partido según el ID proporcionado
+      parameters:
+        - name: id
+          in: path
+          description: ID del partido
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Partido eliminado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        404:
+          description: Partido no encontrado
+        500:
+          description: Error al eliminar partido
+
+  /match/{id}/result:
+    put:
+      tags:
+        - Match
+      summary: Actualiza el resultado de un partido
+      description: Actualiza el ganador y perdedor de un partido según el ID proporcionado
+      parameters:
+        - name: id
+          in: path
+          description: ID del partido
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                winner_inscription_id:
+                  type: integer
+                  description: ID de la inscripción ganadora
+      responses:
+        200:
+          description: Resultado actualizado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/MatchWithSets'
+        400:
+          description: Datos inválidos
+        404:
+          description: Partido no encontrado
+        500:
+          description: Error al actualizar resultado
+
+  /match/tournament/{id_tournament}:
+    get:
+      tags:
+        - Match
+      summary: Obtiene partidos por torneo
+      description: Retorna un array con todos los partidos de un torneo específico
+      parameters:
+        - name: id_tournament
+          in: path
+          description: ID del torneo
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MatchWithSets'
+        500:
+          description: Error al obtener partidos
+
+components:
+  schemas:
+    Match:
+      type: object
+      properties:
+        match_id:
+          type: integer
+          description: ID del partido
+        tournament_id:
+          type: integer
+          description: ID del torneo
+        inscription1_id:
+          type: integer
+          description: ID de la primera inscripción
+        inscription2_id:
+          type: integer
+          description: ID de la segunda inscripción
+        winner_inscription_id:
+          type: integer
+          nullable: true
+          description: ID de la inscripción ganadora
+        match_datetime:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha y hora del partido
+        round:
+          type: string
+          description: Ronda del partido
+        status:
+          type: string
+          enum: [Pendiente, En Juego, Finalizado]
+          description: Estado del partido
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación
+        updatedAt:
+          type: string
+          format: date-time
+          description: Fecha de última actualización
+        set:
+          $ref: '#/components/schemas/Set'
+
+    MatchWithSets:
+      type: object
+      properties:
+        match_id:
+          type: integer
+          description: ID del partido
+        tournament_id:
+          type: integer
+          description: ID del torneo
+        inscription1_id:
+          type: integer
+          description: ID de la primera inscripción
+        inscription2_id:
+          type: integer
+          description: ID de la segunda inscripción
+        winner_inscription_id:
+          type: integer
+          nullable: true
+          description: ID de la inscripción ganadora
+        match_datetime:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha y hora del partido
+        round:
+          type: string
+          description: Ronda del partido
+        status:
+          type: string
+          enum: [Pendiente, En Juego, Finalizado]
+          description: Estado del partido
+        createdAt:
+          type: string
+          format: date-time
+          description: Fecha de creación
+        updatedAt:
+          type: string
+          format: date-time
+          description: Fecha de última actualización
+        sets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Set'
+            
+    MatchInput:
+      type: object
+      properties:
+        tournament_id:
+          type: integer
+          description: ID del torneo
+        inscription1_id:
+          type: integer
+          description: ID de la primera inscripción
+        inscription2_id:
+          type: integer
+          description: ID de la segunda inscripción
+        winner_inscription_id:
+          type: integer
+          nullable: true
+          description: ID de la inscripción ganadora
+        match_datetime:
+          type: string
+          format: date-time
+          nullable: true
+          description: Fecha y hora del partido
+        round:
+          type: string
+          description: Ronda del partido
+        status:
+          type: string
+          enum: [Pendiente, En Juego, Finalizado]
+          description: Estado del partido
+      required:
+        - tournament_id
+        - inscription1_id
+        - inscription2_id
+        - match_datetime
+        - round

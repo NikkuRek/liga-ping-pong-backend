@@ -13,8 +13,8 @@ export class PlayerController {
   };
 
   one = async (req: Request, res: Response) => {
-    const { CI } = req.params;
-    const { status, message, data } = await PlayerServices.getOne(CI);
+    const { ci } = req.params;
+    const { status, message, data } = await PlayerServices.getOne(ci);
     return res.status(status).json({
       message,
       data,
@@ -46,8 +46,8 @@ export class PlayerController {
   };
 
   update = async (req: Request, res: Response) => {
-    const { CI } = req.params;
-    const { status, message, data } = await PlayerServices.update(CI, req.body);
+    const { ci } = req.params;
+    const { status, message, data } = await PlayerServices.update(ci, req.body);
     return res.status(status).json({
       message,
       data,
@@ -55,16 +55,16 @@ export class PlayerController {
   };
 
   softDelete = async (req: Request, res: Response) => {
-    const { CI } = req.params;
-    const { status, message } = await PlayerServices.softDelete(CI);
+    const { ci } = req.params;
+    const { status, message } = await PlayerServices.softDelete(ci);
     return res.status(status).json({
       message,
     });
   };
 
   delete = async (req: Request, res: Response) => {
-    const { CI } = req.params;
-    const { status, message } = await PlayerServices.delete(CI);
+    const { ci } = req.params;
+    const { status, message } = await PlayerServices.delete(ci);
     return res.status(status).json({
       message,
     });

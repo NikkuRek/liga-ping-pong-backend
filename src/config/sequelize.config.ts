@@ -2,11 +2,17 @@ import { Sequelize, type Dialect } from "sequelize"
 import dotenv from "dotenv"
 
 import {
+  AuraRecordModel,
   AvailabilityModel,
   CareerModel,
   DayModel,
   PlayerModel,
-  TierModel,
+  TournamentModel,
+  InscriptionModel,
+  TeamModel,
+  MatchModel,
+  SetsModel,
+  CredentialModel,
 } from "../models"
 
 dotenv.config()
@@ -33,60 +39,133 @@ const sequelizeOptions: any = {
   },
 }
 
-// Si el host no es localhost, agrega el puerto a las opciones
 if (dbHost !== "localhost") {
   sequelizeOptions.port = dbPort
 }
 
-// Configuración de la conexión a la base de datos
-export const db = new Sequelize(dbName, dbUser, dbPassword, sequelizeOptions);
+export const db = new Sequelize(dbName, dbUser, dbPassword, sequelizeOptions)
 
-const Options = {
-  timestamps: false, // Deshabilitar createdAt y updatedAt
+const noTimestampsOptions = {
+  timestamps: false,
 }
 
-// CREAMOS LAS TABLAS EN ORDEN ALFABETICO
-export const AvailabilityDB = db.define("availability", AvailabilityModel)
-export const CareerDB = db.define("career", CareerModel)
-export const DayDB = db.define("day", DayModel, Options)
-export const PlayerDB = db.define("player", PlayerModel)
-export const TierDB = db.define("tier", TierModel, Options)
+// Modelos
+export const AuraRecordDB = db.define("aura_records", AuraRecordModel, {
+  timestamps: true,
+  tableName: "aura_records",
+})
 
-// En las relaciones importa el orden de la jerarquia
+export const DayDB = db.define("days", DayModel, {
+  timestamps: false,
+  tableName: "days",
+})
 
-// AvailabilityDB
-DayDB.hasMany(AvailabilityDB, { foreignKey: "id_day" })
-AvailabilityDB.belongsTo(DayDB, { foreignKey: "id_day" })
-PlayerDB.hasMany(AvailabilityDB, { foreignKey: "CI" })
-AvailabilityDB.belongsTo(PlayerDB, { foreignKey: "CI" })
+export const CareerDB = db.define("careers", CareerModel, {
+  timestamps: true,
+  tableName: "careers",
+})
+
+export const PlayerDB = db.define("players", PlayerModel, {
+  timestamps: true,
+  tableName: "players",
+})
+
+export const AvailabilityDB = db.define("availabilities", AvailabilityModel, {
+  timestamps: true,
+  tableName: "availabilities",
+})
+
+export const TeamDB = db.define("teams", TeamModel, {
+  timestamps: true,
+  tableName: "teams",
+})
+
+export const TournamentDB = db.define("tournaments", TournamentModel, {
+  timestamps: true,
+  tableName: "tournaments",
+})
+
+export const InscriptionDB = db.define("inscriptions", InscriptionModel, {
+  timestamps: true,
+  tableName: "inscriptions",
+})
+
+export const MatchDB = db.define("matches", MatchModel, {
+  timestamps: true,
+  tableName: "matches",
+})
+
+export const SetsDB = db.define("sets", SetsModel, {
+  timestamps: true,
+  tableName: "sets",
+})
+
+export const CredentialDB = db.define("credentials", CredentialModel, {
+  timestamps: true,
+  tableName: "credentials",
+})
 
 
-// PlayerDB
-CareerDB.hasMany(PlayerDB, { foreignKey: "id_career" });
-PlayerDB.belongsTo(CareerDB, { foreignKey: "id_career" });
-TierDB.hasMany(PlayerDB, { foreignKey: "id_tier" });
-PlayerDB.belongsTo(TierDB, { foreignKey: "id_tier" });
 
-
-// Relaciones muchos a muchos entre PlayerDB y DayDB a través de AvailabilityDB
-// Esto permite que un jugador tenga disponibilidad en varios días y un día tenga varios jugadores disponibles
+// Relaciones
 
 PlayerDB.belongsToMany(DayDB, {
-  through: AvailabilityDB,   
-  foreignKey: "CI",         
-  otherKey: "id_day"
-});
+  through: AvailabilityDB,
+  foreignKey: "player_ci",
+  otherKey: "day_id",
+  as: "Days",
+})
 
 DayDB.belongsToMany(PlayerDB, {
-  through: AvailabilityDB,   
-  foreignKey: "id_day",
-  otherKey: "CI"            
-});
+  through: AvailabilityDB,
+  foreignKey: "day_id",
+  otherKey: "player_ci",
+  as: "Players",
+})
 
+PlayerDB.belongsTo(CareerDB, { foreignKey: "career_id" })
+CareerDB.hasMany(PlayerDB, { foreignKey: "career_id" })
 
+TeamDB.belongsTo(PlayerDB, { foreignKey: "player1_ci", as: "Player1" })
+PlayerDB.hasMany(TeamDB, { foreignKey: "player1_ci", as: "TeamsAsPlayer1" })
 
-// Sincroniza los modelos con la base de datos
-const syncModels = async () => {
+TeamDB.belongsTo(PlayerDB, { foreignKey: "player2_ci", as: "Player2" })
+PlayerDB.hasMany(TeamDB, { foreignKey: "player2_ci", as: "TeamsAsPlayer2" })
+
+InscriptionDB.belongsTo(TournamentDB, { foreignKey: "tournament_id" })
+TournamentDB.hasMany(InscriptionDB, { foreignKey: "tournament_id" })
+
+InscriptionDB.belongsTo(PlayerDB, { foreignKey: "player_ci" })
+PlayerDB.hasMany(InscriptionDB, { foreignKey: "player_ci" })
+
+InscriptionDB.belongsTo(TeamDB, { foreignKey: "team_id" })
+TeamDB.hasMany(InscriptionDB, { foreignKey: "team_id" })
+
+MatchDB.belongsTo(TournamentDB, { foreignKey: "tournament_id" })
+TournamentDB.hasMany(MatchDB, { foreignKey: "tournament_id" })
+
+MatchDB.belongsTo(InscriptionDB, { foreignKey: "inscription1_id", as: "Inscription1" })
+InscriptionDB.hasMany(MatchDB, { foreignKey: "inscription1_id", as: "MatchesAsInscription1" })
+
+MatchDB.belongsTo(InscriptionDB, { foreignKey: "inscription2_id", as: "Inscription2" })
+InscriptionDB.hasMany(MatchDB, { foreignKey: "inscription2_id", as: "MatchesAsInscription2" })
+
+MatchDB.belongsTo(InscriptionDB, { foreignKey: "winner_inscription_id", as: "WinnerInscription" })
+InscriptionDB.hasMany(MatchDB, { foreignKey: "winner_inscription_id", as: "MatchesWon" })
+
+SetsDB.belongsTo(MatchDB, { foreignKey: "match_id" })
+MatchDB.hasMany(SetsDB, { foreignKey: "match_id" })
+
+PlayerDB.hasOne(CredentialDB, { foreignKey: "player_ci", sourceKey: "ci", as: "Credential" })
+CredentialDB.belongsTo(PlayerDB, { foreignKey: "player_ci", targetKey: "ci", as: "Player" })
+
+AuraRecordDB.belongsTo(PlayerDB, { foreignKey: "player_ci" })
+PlayerDB.hasMany(AuraRecordDB, { foreignKey: "player_ci" })
+
+AuraRecordDB.belongsTo(MatchDB, { foreignKey: "match_id" })
+MatchDB.hasMany(AuraRecordDB, { foreignKey: "match_id" })
+
+export const syncModels = async () => {
   try {
     await db.authenticate()
     console.log("Conectando a la base de datos...")
@@ -94,9 +173,9 @@ const syncModels = async () => {
     console.log("Base de datos sincronizada")
   } catch (error) {
     console.error("Error al conectar con la base de datos:", error)
+    throw error
   }
 }
-
 syncModels()
 
 export default db

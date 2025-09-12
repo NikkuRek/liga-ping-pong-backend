@@ -1,0 +1,298 @@
+tags:
+  - name: Sets
+    description: API para operaciones con sets de partidos
+
+paths:
+  /set:
+    get:
+      tags:
+        - Sets
+      summary: Obtiene todos los sets
+      description: Retorna un array con todos los sets registrados
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  sets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Set'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Sets
+      summary: Crea un nuevo set
+      description: Crea un nuevo set con los datos proporcionados
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetInput'
+      responses:
+        201:
+          description: Set creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  set:
+                    $ref: '#/components/schemas/Set'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /set/{id}:
+    get:
+      tags:
+        - Sets
+      summary: Obtiene un set por ID
+      description: Retorna un set específico según su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del set
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  set:
+                    $ref: '#/components/schemas/Set'
+        404:
+          description: Set no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      tags:
+        - Sets
+      summary: Actualiza un set
+      description: Actualiza los datos de un set existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del set
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetInput'
+      responses:
+        200:
+          description: Set actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  set:
+                    $ref: '#/components/schemas/Set'
+        400:
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Set no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Sets
+      summary: Elimina un set
+      description: Elimina un set existente según su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del set
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Set eliminado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Set eliminado correctamente
+        404:
+          description: Set no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /set/match/{id}:
+    get:
+      tags:
+        - Sets
+      summary: Obtiene sets por partido
+      description: Retorna todos los sets de un partido específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID del partido
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  sets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Set'
+        404:
+          description: Partido no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Error del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Set:
+      type: object
+      properties:
+        set_id:
+          type: integer
+          example: 1
+        match_id:
+          type: integer
+          example: 1
+        set_number:
+          type: integer
+          example: 1
+        score_participant1:
+          type: integer
+          example: 11
+        score_participant2:
+          type: integer
+          example: 9
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - match_id
+        - set_number
+        - score_participant1
+        - score_participant2
+
+    SetInput:
+      type: object
+      properties:
+        match_id:
+          type: integer
+          example: 1
+        set_number:
+          type: integer
+          example: 1
+        score_participant1:
+          type: integer
+          example: 11
+        score_participant2:
+          type: integer
+          example: 9
+      required:
+        - match_id
+        - set_number
+        - score_participant1
+        - score_participant2
+
+    Error:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Mensaje de error"

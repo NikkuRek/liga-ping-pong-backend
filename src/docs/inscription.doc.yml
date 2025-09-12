@@ -1,0 +1,490 @@
+  tags:
+    - name: Inscription
+      description: API para operaciones con inscripciones individuales o de equipos a torneos
+
+  paths:
+    /inscription:
+      get:
+        tags:
+          - Inscription
+        summary: Obtiene todas las inscripciones
+        description: Retorna un array con todas las inscripciones registradas
+        responses:
+          200:
+            description: Operación exitosa
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    ok:
+                      type: boolean
+                      example: true
+                    inscriptions:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Inscription'
+          500:
+            description: Error del servidor
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+      post:
+        tags:
+          - Inscription
+        summary: Crea una nueva inscripción
+        description: Crea una nueva inscripción con los datos proporcionados (jugador o equipo)
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InscriptionInput'
+        responses:
+          201:
+            description: Inscripción creada exitosamente
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    ok:
+                      type: boolean
+                      example: true
+                    inscription:
+                      $ref: '#/components/schemas/Inscription'
+          400:
+            description: Datos inválidos
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          500:
+            description: Error del servidor
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+
+    /inscription/{id}:
+      get:
+        tags:
+          - Inscription
+        summary: Obtiene una inscripción por ID
+        description: Retorna una inscripción específica según su ID
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: ID de la inscripción
+            schema:
+              type: integer
+        responses:
+          200:
+            description: Operación exitosa
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    ok:
+                      type: boolean
+                      example: true
+                    inscription:
+                      $ref: '#/components/schemas/Inscription'
+          404:
+            description: Inscripción no encontrada
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          500:
+            description: Error del servidor
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+      put:
+        tags:
+          - Inscription
+        summary: Actualiza una inscripción
+        description: Actualiza los datos de una inscripción existente
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: ID de la inscripción
+            schema:
+              type: integer
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InscriptionInput'
+        responses:
+          200:
+            description: Inscripción actualizada exitosamente
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    ok:
+                      type: boolean
+                      example: true
+                    inscription:
+                      $ref: '#/components/schemas/Inscription'
+          400:
+            description: Datos inválidos
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          404:
+            description: Inscripción no encontrada
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          500:
+            description: Error del servidor
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+      delete:
+        tags:
+          - Inscription
+        summary: Elimina una inscripción
+        description: Elimina una inscripción existente según su ID
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: ID de la inscripción
+            schema:
+              type: integer
+        responses:
+          200:
+            description: Inscripción eliminada exitosamente
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    ok:
+                      type: boolean
+                      example: true
+                    message:
+                      type: string
+                      example: Inscripción eliminada correctamente
+          404:
+            description: Inscripción no encontrada
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          500:
+            description: Error del servidor
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+
+    /inscription/tournament/{id}:
+      get:
+        tags:
+          - Inscription
+        summary: Obtiene inscripciones por torneo
+        description: Retorna todas las inscripciones de un torneo específico
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: ID del torneo
+            schema:
+              type: integer
+        responses:
+          200:
+            description: Operación exitosa
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    ok:
+                      type: boolean
+                      example: true
+                    inscriptions:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Inscription'
+          404:
+            description: Torneo no encontrado
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          500:
+            description: Error del servidor
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+
+    /inscription/player/{ci}:
+      get:
+        tags:
+          - Inscription
+        summary: Obtiene inscripciones por jugador
+        description: Retorna todas las inscripciones de un jugador específico
+        parameters:
+          - name: ci
+            in: path
+            required: true
+            description: ci del jugador
+            schema:
+              type: string
+        responses:
+          200:
+            description: Operación exitosa
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    ok:
+                      type: boolean
+                      example: true
+                    inscriptions:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Inscription'
+          404:
+            description: Jugador no encontrado
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          500:
+            description: Error del servidor
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+
+    /inscription/team/{id}:
+      get:
+        tags:
+          - Inscription
+        summary: Obtiene inscripciones por equipo
+        description: Retorna todas las inscripciones de un equipo específico
+        parameters:
+          - name: id
+            in: path
+            required: true
+            description: ID del equipo
+            schema:
+              type: integer
+        responses:
+          200:
+            description: Operación exitosa
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    ok:
+                      type: boolean
+                      example: true
+                    inscriptions:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/Inscription'
+          404:
+            description: Equipo no encontrado
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+          500:
+            description: Error del servidor
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Error'
+
+  components:
+    schemas:
+      Inscription:
+        type: object
+        properties:
+          inscription_id:
+            type: integer
+            example: 1
+          tournament_id:
+            type: integer
+            example: 1
+          player_ci:
+            type: string
+            nullable: true
+            example: "12345678"
+          team_id:
+            type: integer
+            nullable: true
+            example: 2
+          inscription_date:
+            type: string
+            format: date-time
+            example: "2023-05-10T14:30:00Z"
+          seed:
+            type: integer
+            nullable: true
+            example: 3
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
+          player:
+            $ref: '#/components/schemas/Player'
+          team:
+            $ref: '#/components/schemas/Team'
+          tournament:
+            $ref: '#/components/schemas/Tournament'
+        required:
+          - tournament_id
+
+      InscriptionInput:
+        type: object
+        properties:
+          tournament_id:
+            type: integer
+            example: 1
+          player_ci:
+            type: string
+            nullable: true
+            example: "12345678"
+          team_id:
+            type: integer
+            nullable: true
+            example: 2
+          seed:
+            type: integer
+            nullable: true
+            example: 3
+        required:
+          - tournament_id
+        oneOf:
+          - required: [player_ci]
+          - required: [team_id]
+
+      Player:
+        type: object
+        properties:
+          ci:
+            type: string
+            example: "12345678"
+          first_name:
+            type: string
+            example: "Juan"
+          last_name:
+            type: string
+            example: "Pérez"
+          phone:
+            type: string
+            example: "04141234567"
+          semester:
+            type: integer
+            example: 5
+          career_id:
+            type: integer
+            example: 1
+          aura:
+            type: integer
+            example: 1500  
+          status:
+            type: boolean
+            example: true
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
+
+      Team:
+        type: object
+        properties:
+          team_id:
+            type: integer
+            example: 2
+          player1_ci:
+            type: string
+            example: "12345678"
+          player2_ci:
+            type: string
+            example: "23456789"
+          team_name:
+            type: string
+            nullable: true
+            example: "Los PingPongStars"
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
+
+      Tournament:
+        type: object
+        properties:
+          tournament_id:
+            type: integer
+            example: 1
+          name:
+            type: string
+            example: "Torneo de Primavera 2023"
+          description:
+            type: string
+            nullable: true
+            example: "Torneo anual de primavera"
+          tournament_type:
+            type: string
+            enum: [Individual, Dobles]
+            example: "Individual"
+          format:
+            type: string
+            example: "Eliminación directa"
+          start_date:
+            type: string
+            format: date
+            example: "2023-05-01"
+          end_date:
+            type: string
+            format: date
+            nullable: true
+            example: "2023-05-10"
+          status:
+            type: string
+            enum: [Próximo, En Curso, Finalizado, Cancelado]
+            example: "Próximo"
+          createdAt:
+            type: string
+            format: date-time
+          updatedAt:
+            type: string
+            format: date-time
+
+      Error:
+        type: object
+        properties:
+          ok:
+            type: boolean
+            example: false
+          error:
+            type: string
+            example: "Mensaje de error"

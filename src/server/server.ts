@@ -1,41 +1,49 @@
 import express, { type Application } from "express"
 import cors from "cors"
 import morgan from "morgan"
-import swaggerJsDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
-import { swaggerOptions } from "../config";
+import swaggerJsDoc from "swagger-jsdoc"
+import swaggerUi from "swagger-ui-express"
+import { swaggerOptions } from "../config"
 
 import {
+  AuraRecordRoute,
   CareerRoute,
   PlayerRoute,
-  TierRoute,
   HealthRoute,
-} from "../routes/index.route";
-
-import { db } from "../config/sequelize.config";
+  TournamentRoute,
+  TeamRoute,
+  InscriptionRoute,
+  MatchRoute,
+  SetsRoute,
+  CredentialRoute,
+} from "../routes/index.route"
 
 export class Server {
   private app: Application
   private port: string
   private apiurl: string
-  private pre: string = "/api"
+  private pre = "/api"
   private paths: any
-  
 
   constructor() {
     this.app = express()
     this.port = process.env.PORT || "3000"
     this.apiurl = process.env.API_URL || `http://localhost:${this.port}`
     this.paths = {
-      Career: this.pre + "/Career",
-      Player: this.pre + "/Player",
-      Tier: this.pre + "/Tier",
-      Health: this.pre + "/Health",
-    };
+      aura_records: this.pre + "/aura_record",
+      careers: this.pre + "/career",
+      players: this.pre + "/player",
+      health: this.pre + "/health",
+      tournaments: this.pre + "/tournament",
+      teams: this.pre + "/team",
+      inscriptions: this.pre + "/inscription",
+      matches: this.pre + "/match",
+      sets: this.pre + "/set",
+      credentials: this.pre + "/credential",
+    }
     this.middlewares()
     this.routes()
-    this.dbConnection();
-    this.swaggerSetup();
+    this.swaggerSetup()
   }
 
   middlewares() {
@@ -46,31 +54,27 @@ export class Server {
   }
 
   routes() {
-    this.app.use(this.paths.Career, CareerRoute);
-    this.app.use(this.paths.Player, PlayerRoute);
-    this.app.use(this.paths.Tier, TierRoute);
-    this.app.use(this.paths.Health, HealthRoute);
+    this.app.use(this.paths.aura_records, AuraRecordRoute)
+    this.app.use(this.paths.careers, CareerRoute)
+    this.app.use(this.paths.players, PlayerRoute)
+    this.app.use(this.paths.health, HealthRoute)
+    this.app.use(this.paths.tournaments, TournamentRoute)
+    this.app.use(this.paths.teams, TeamRoute)
+    this.app.use(this.paths.inscriptions, InscriptionRoute)
+    this.app.use(this.paths.matches, MatchRoute)
+    this.app.use(this.paths.sets, SetsRoute)
+    this.app.use(this.paths.credentials, CredentialRoute)
   }
 
-  private async dbConnection() {
-    try {
-      await db.authenticate();
-      console.log("Conexión exitosa a la base de datos...");
-    } catch (error) {
-      console.error("No se pudo conectar a la base de datos:", error);
-    }
-  }
-  
   listen() {
     this.app.listen(this.port, () => {
-      let URL = `${this.apiurl}/swagger/#`;
-      console.log(`Servidor corriendo en ${URL}`);
+      const URL = `${this.apiurl}/swagger/#`
+      console.log(`Servidor corriendo en ${URL}`)
     })
   }
 
   swaggerSetup() {
-    const swaggerDocs = swaggerJsDoc(swaggerOptions);
-    this.app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+    const swaggerDocs = swaggerJsDoc(swaggerOptions)
+    this.app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocs))
   }
-
 }

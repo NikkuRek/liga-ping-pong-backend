@@ -4,8 +4,8 @@ import { PlayerDB } from "../config/sequelize.config"
 
 export class PlayerValidator {
   validateFields = [
-    check("playerData.CI", "El CI es obligatorio").not().isEmpty(),
-    check("playerData.CI", "El CI debe contener solo números").isNumeric(),
+    check("playerData.ci", "El CI es obligatorio").not().isEmpty(),
+    check("playerData.ci", "El CI debe contener solo números").isNumeric(),
 
     check("playerData.first_name", "El primer nombre es obligatorio").not().isEmpty(),
     check("playerData.first_name", "El primer nombre debe contener solo letras y letras con acentos")
@@ -23,53 +23,80 @@ export class PlayerValidator {
     check("playerData.semester", "El semestre es obligatorio").not().isEmpty(),
     check("playerData.semester", "El semestre debe ser un número entero").isInt(),
 
-    check("playerData.id_career", "El id de la carrera es obligatorio").not().isEmpty(),
-    check("playerData.id_career", "El id de la carrera debe ser un número").isNumeric(),
-
-    check("playerData.id_tier", "El id del nivel es obligatorio").not().isEmpty(),
-    check("playerData.id_tier", "El id del nivel debe ser un número").isNumeric(),
+    check("playerData.career_id", "El id de la carrera es obligatorio").not().isEmpty(),
+    check("playerData.career_id", "El id de la carrera debe ser un número").isNumeric(),
 
     check("playerData.status", "El estado debe ser un valor booleano").optional().isBoolean(),
 
     check("playerData.available_days", "La disponibilidad debe ser un array de IDs de días").optional().isArray(),
     check("playerData.available_days.*", "Cada día en la disponibilidad debe ser un número entero válido")
       .optional()
-      .isInt({ gt: 0, lt: 6 }),
+      .isInt({ min: 1, max: 5 }),
   ]
 
   validateCIExists = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const ciFromBody = req.body.playerData?.CI
-      const ciFromParams = req.params.CI
+      const ciFromBody = req.body.playerData?.ci
+      const ciFromParams = req.params.ci
 
-      console.log("--- validateCIExists Debug ---")
-      console.log("CI desde Body:", `'${ciFromBody}'`, typeof ciFromBody)
-      console.log("CI desde Params:", `'${ciFromParams}'`, typeof ciFromParams)
-      console.log("Comparación ciFromBody === ciFromParams:", ciFromBody === ciFromParams)
+      console.log('--- validateCIExists Debug ---');
+      console.log('req.method:', req.method);
+      console.log('ciFromBody:', ciFromBody, typeof ciFromBody);
+      console.log('ciFromParams:', ciFromParams, typeof ciFromParams);
+
       if (!ciFromBody) {
-        console.log("CI del body no encontrado o vacío en, pasando...")
+        console.log('validateCIExists: ciFromBody es nulo o indefinido, continuando.');
         return next()
       }
 
-      if (ciFromBody === ciFromParams) {
-        console.log("CI del body coincide con CI de params, pasando...")
+      // Buscar si existe un jugador con ese CI (ciFromBody)
+      const playerWithBodyCI = await PlayerDB.findOne({ where: { ci: ciFromBody } });
+      console.log('validateCIExists: playerWithBodyCI encontrado (si existe):', playerWithBodyCI ? playerWithBodyCI.getDataValue("ci") : 'null');
+
+
+      // Caso 1: No existe ningún jugador con la CI del body (ni siquiera el que estamos actualizando si la CI cambió)
+      if (!playerWithBodyCI) {
+        console.log('validateCIExists: No se encontró ningún jugador con la CI del body. Permitiendo.');
         return next()
       }
 
-      console.log("CI del body es diferente al de params, buscando en DB...")
-      const playerWithBodyCI = await PlayerDB.findOne({ where: { CI: ciFromBody } })
-
-      if (playerWithBodyCI) {
-        console.log("Encontrado jugador con CI del body. Es un duplicado de otro jugador.")
+      // Caso 2: Se encontró un jugador con la CI del body. Necesitamos saber si es el MISMO jugador que estamos actualizando.
+      // Esto aplica solo para PUT (actualización).
+      if (req.method.toLowerCase() === "put") {
+        console.log('validateCIExists: Es una petición PUT.');
+        // Si la CI del cuerpo es el mismo que la CI en los parámetros (no se está cambiando la CI del jugador)
+        if (ciFromBody === ciFromParams) {
+          console.log('validateCIExists: ciFromBody y ciFromParams son iguales.');
+          // Y el jugador encontrado es el mismo jugador que estamos intentando actualizar
+          console.log('validateCIExists: Comparando playerWithBodyCI.ci con ciFromParams:', playerWithBodyCI.getDataValue("ci"), '===', ciFromParams);
+          if (playerWithBodyCI.getDataValue("ci") === ciFromParams) {
+            console.log('validateCIExists: El CI del body corresponde al mismo jugador. Permitiendo.');
+            return next(); // Permitir la actualización del propio jugador
+          } else {
+            // Esto es una inconsistencia si ciFromBody === ciFromParams
+            console.error('validateCIExists: Lógica inconsistente. El CI del jugador encontrado (playerWithBodyCI.ci) no coincide con ciFromParams, aunque ciFromBody === ciFromParams. Esto no debería ocurrir.');
+            return res.status(500).json({
+              message: "Error interno de validación de CI (inconsistencia lógica inesperada)."
+            });
+          }
+        } else {
+          // Si la CI del body es DIFERENTE del CI en los parámetros (el usuario está intentando cambiar la CI del jugador)
+          // Y ya existe otro jugador con ese nuevo CI (playerWithBodyCI no es null)
+          // Entonces, se está intentando cambiar la CI a uno que ya está en uso por OTRA persona.
+          console.log('validateCIExists: ciFromBody es diferente de ciFromParams. Hay un conflicto de CI.');
+          return res.status(400).json({
+            message: `El CI "${ciFromBody}" ya está registrado por otro jugador.`,
+          })
+        }
+      } else { // Es una petición POST (o cualquier otro método que no sea PUT)
+        console.log('validateCIExists: Es una petición que NO es PUT. Se encontró un jugador existente. Bloqueando.');
         return res.status(400).json({
-          message: `El CI "${ciFromBody}" ya está registrado por otro jugador.`,
+          message: `El CI "${ciFromBody}" ya está registrado.`, // Mensaje más genérico para POST
         })
       }
 
-      console.log("CI del body es diferente al de params y no encontrado en DB. Pasando...")
-      next()
     } catch (error) {
-      console.error("Error en validateCIExists:", error)
+      console.error("Error interno del servidor al validar CI:", error);
       return res.status(500).json({
         message: "Error interno del servidor al validar CI",
       })
@@ -77,11 +104,10 @@ export class PlayerValidator {
   }
 
   validatePhoneExists = async (req: Request, res: Response, next: NextFunction) => {
-    const { phone, CI } = req.body.playerData || {}
-    const currentCI = req.params.CI
+    const { phone } = req.body.playerData || {}
+    const currentCI = req.params.ci
 
     if (!phone) {
-      console.warn("No se proporcionó teléfono en. Saltando validación de teléfono en uso.")
       return next()
     }
 
@@ -89,20 +115,16 @@ export class PlayerValidator {
       const player = await PlayerDB.findOne({ where: { phone: phone } })
 
       if (player) {
-        if (currentCI && player.getDataValue("CI") === currentCI) {
-          console.log(`Teléfono ${phone} pertenece al jugador actual ${currentCI}, pasando.`)
+        if (currentCI && player.getDataValue("ci") === currentCI) {
           return next()
         } else {
-          console.log(`Teléfono ${phone} ya está en uso por otro jugador (CI: ${player.getDataValue("CI")}).`)
           return res.status(400).json({
             message: "El teléfono ya está en uso por otro jugador",
           })
         }
       }
-      console.log(`Teléfono ${phone} no encontrado en DB, pasando.`)
       next()
     } catch (error) {
-      console.error("Error en validatePhoneExists:", error)
       return res.status(500).json({
         message: "Error interno del servidor al validar teléfono",
       })

@@ -10,7 +10,7 @@ const playerValidator = new PlayerValidator()
 router.get("/", playerController.all) // http://localhost:3000/api/player
 router.get("/active", playerController.active) // http://localhost:3000/api/player/active
 router.get("/inactive", playerController.inactive) // http://localhost:3000/api/player/inactive
-router.get("/:CI", playerController.one) // http://localhost:3000/api/player/CI
+router.get("/:ci", playerController.one) // http://localhost:3000/api/player/ci
 router.post(
   "/",
   playerValidator.validateFields,
@@ -21,16 +21,16 @@ router.post(
 ) // http://localhost:3000/api/player
 
 router.put(
-  "/:CI",
+  "/:ci",
   playerValidator.validateFields,
   playerValidator.validateCIExists,
   playerValidator.validatePhoneExists,
   validateFields,
   playerController.update,
-) // http://localhost:3000/api/player/CI
+) // http://localhost:3000/api/player/ci
 
-router.delete("/:CI", playerController.softDelete) // http://localhost:3000/api/player/CI
-router.delete("/delete/:CI", playerController.delete) // http://localhost:3000/api/player/delete/CI
+router.delete("/:ci", playerController.softDelete) // http://localhost:3000/api/player/ci
+router.delete("/delete/:ci", playerController.delete) // http://localhost:3000/api/player/delete/ci
 
 export const PlayerRoute = router
 
