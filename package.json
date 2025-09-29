@@ -10,7 +10,7 @@
     "seeds": "node dist/data/insert-seeders",
     "seeds-build": "tsc && node dist/config/sequelize.config && node dist/data/insert-seeders",
     "seeds-dev": "tsc && node dist/config/sequelize.config && node dist/data/insert-seeders && node dist/app.js",
-    "render": "npm install && tsc && node dist/config/sequelize.config && node dist/data/insert-seeders"
+    "render": "npm install && tsc && node dist/config/sequelize.config"
   },
   "author": "NK",
   "license": "MIT",

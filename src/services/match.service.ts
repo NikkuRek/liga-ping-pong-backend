@@ -1,6 +1,6 @@
 import { MatchDB, SetsDB } from "../config/sequelize.config"
 import type { MatchInterface } from "../interfaces"
-// import { auraCalculationService } from "../middlewares/aura-calculator.middlewares"
+import { auraCalculationService } from "../middlewares/aura-calculator.middlewares"
 
 // filepath: c:\Users\Usuario\Documents\dev\liga-ping-pong-backend\src\services\match.service.ts
 
@@ -92,19 +92,19 @@ class MatchService {
       const updatedMatch = await MatchDB.findByPk(match_id)
 
       //  --------------------------------------------------------------------------------------------
-      // if (match.winner_inscription_id && !previousWinner) {
-      //   try {
-      //     const inscription1_id = existingMatch.getDataValue("inscription1_id")
-      //     const inscription2_id = existingMatch.getDataValue("inscription2_id")
-      //     const winner_id = match.winner_inscription_id
-      //     const loser_id = winner_id === inscription1_id ? inscription2_id : inscription1_id
+      if (match.winner_inscription_id && !previousWinner) {
+        try {
+          const inscription1_id = existingMatch.getDataValue("inscription1_id")
+          const inscription2_id = existingMatch.getDataValue("inscription2_id")
+          const winner_id = match.winner_inscription_id
+          const loser_id = winner_id === inscription1_id ? inscription2_id : inscription1_id
 
-      //     await auraCalculationService.updateAURAAfterMatch(winner_id, loser_id)
-      //   } catch (auraError) {
-      //     console.error("[AURA] Error calculating AURA, but match update succeeded:", auraError)
-      //     // Don't fail the match update if AURA calculation fails
-      //   }
-      // }
+          await auraCalculationService.updateAURAAfterMatch(winner_id, loser_id, match_id)
+        } catch (auraError) {
+          console.error("[AURA] Error calculating AURA, but match update succeeded:", auraError)
+          // Don't fail the match update if AURA calculation fails
+        }
+      }
       //  --------------------------------------------------------------------------------------------
 
       return {
