@@ -3,7 +3,7 @@ tags:
     description: API para gestionar los registros de aura de los jugadores
 
 paths:
-  /aura-record:
+  /aura_record:
     get:
       tags:
         - AuraRecord
@@ -54,7 +54,7 @@ paths:
         '500':
           description: Error al crear el registro de aura
 
-  /aura-record/{id}:
+  /aura_record/{id}:
     get:
       tags:
         - AuraRecord
@@ -101,7 +101,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuraRecordUpdate'
+              $ref: '#/components/schemas/AuraRecordInput'
       responses:
         '200':
           description: Registro de aura actualizado correctamente
@@ -148,7 +148,7 @@ paths:
         '500':
           description: Error al eliminar el registro de aura
 
-  /aura-record/player/{ci}:
+  /aura_record/player/{ci}:
     get:
       tags:
         - AuraRecord
@@ -175,7 +175,7 @@ paths:
         '500':
           description: Error al obtener los registros
 
-  /aura-record/match/{matchId}:
+  /aura_record/match/{matchId}:
     get:
       tags:
         - AuraRecord
@@ -246,26 +246,6 @@ components:
         player_ci:
           type: string
           description: Cédula del jugador asociado
-        aura:
-          type: integer
-          description: Cantidad de aura ganada o perdida
-        date:
-          type: string
-          format: date-time
-          description: Fecha en que se registró el aura
-
-    AuraRecordUpdate:
-      type: object
-      properties:
-        match_id:
-          type: integer
-          description: ID del partido asociado
-        player_ci:
-          type: string
-          description: Cédula del jugador asociado
-        player:
-          $ref: '#/components/schemas/Player'
-          description: Objeto con los datos del jugador asociado
         aura:
           type: integer
           description: Cantidad de aura ganada o perdida

@@ -16,8 +16,9 @@ export class TournamentValidator {
       .isEmpty()
       .isISO8601()
       .withMessage("La fecha de inicio debe tener un formato válido"),
+    // Permitir null en end_date usando optional({ nullable: true })
     check("end_date")
-      .optional()
+      .optional({ nullable: true })
       .isISO8601()
       .withMessage("La fecha de fin debe tener un formato válido"),
     check("status")
@@ -58,25 +59,11 @@ export class TournamentValidator {
     }
   }
 
+  // Ajustado para permitir nombres de torneos repetidos: no realiza validación única
   validateTournamentNameUnique = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name } = req.body
-      const idFromParams = req.params.tournament_id
-
-      const tournaments = await TournamentDB.findAll()
-      const existingTournament = tournaments.find(
-        (tournament) =>
-          (tournament.getDataValue("name") as string).toLowerCase() === name.toLowerCase() &&
-          (!idFromParams || tournament.getDataValue("tournament_id") !== Number.parseInt(idFromParams, 10)),
-      )
-
-      if (existingTournament) {
-        return res.status(400).json({
-          message: `Ya existe un torneo con el nombre ${name}`,
-        })
-      }
-
-      next()
+      // No realizar ninguna comprobación y permitir nombres duplicados
+      return next()
     } catch (error) {
       return res.status(500).json({
         message: "Error interno del servidor al validar el nombre único del torneo",

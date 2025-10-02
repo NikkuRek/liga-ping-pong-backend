@@ -4,6 +4,7 @@ export const AuraRecordModel = {
   aura_record_id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
+    autoIncrement: true,
   },
   match_id: {
     type: DataTypes.INTEGER,

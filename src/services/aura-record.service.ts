@@ -98,6 +98,24 @@ class AuraRecordService {
 
   async create(aura_record: AuraRecordInterface) {
     try {
+      const player = await PlayerDB.findByPk(aura_record.player_ci)
+      if (!player) {
+        return {
+          status: 404,
+          message: `Jugador con ci ${aura_record.player_ci} no encontrado`,
+          data: null,
+        }
+      }
+
+      const match = await MatchDB.findByPk(aura_record.match_id)
+      if (!match) {
+        return {
+          status: 404,
+          message: `Partido con id ${aura_record.match_id} no encontrado`,
+          data: null,
+        }
+      }
+
       // Eliminamos cualquier intento de establecer createdAt o updatedAt manualmente
       const { createdAt, updatedAt, aura_record_id, ...aura_recordData } = aura_record
       const newAuraRecord = await AuraRecordDB.create(aura_recordData as any)
@@ -107,6 +125,7 @@ class AuraRecordService {
         data: newAuraRecord,
       }
     } catch (error) {
+      console.error("Error al crear el registro:", error)
       return {
         status: 500,
         message: "Error al crear el registro",
