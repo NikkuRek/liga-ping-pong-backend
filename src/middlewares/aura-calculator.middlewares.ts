@@ -125,7 +125,7 @@ export class AURACalculationService {
                 ],
                 winner_inscription_id: { [Op.ne]: null }
             },
-            order: [['date', 'DESC']]
+            order: [['match_datetime', 'DESC']]
         });
 
         let streak = 0;
@@ -195,7 +195,7 @@ export class AURACalculationService {
                     { inscription1_id: { [Op.in]: inscriptionIds } },
                     { inscription2_id: { [Op.in]: inscriptionIds } }
                 ],
-                date: { [Op.gte]: sevenDaysAgo }
+                match_datetime: { [Op.gte]: sevenDaysAgo }
             }
         });
 
