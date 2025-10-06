@@ -13,7 +13,7 @@ export class AURACalculationService {
             return 20; // K bajo para alto (1600+)
         }
     }
-    
+
     private readonly DEFAULT_AURA = 1000
 
     private calculateExpectedScore(auraA: number, auraB: number): number {
@@ -72,7 +72,6 @@ export class AURACalculationService {
 
         let winnerTotalScore = 0;
         let loserTotalScore = 0;
-        let winnerSetsWon = 0;
 
         for (const set of sets) {
             const score1 = set.getDataValue("score1");
@@ -82,28 +81,19 @@ export class AURACalculationService {
             if (inscription1Id === winnerInscriptionId) {
                 winnerTotalScore += score1;
                 loserTotalScore += score2;
-                if (score1 > score2) {
-                    winnerSetsWon++;
-                }
-            } else { // inscription2 is the winner
+            } else {
                 winnerTotalScore += score2;
                 loserTotalScore += score1;
-                if (score2 > score1) {
-                    winnerSetsWon++;
-                }
             }
         }
 
-        // Adjust winner's score
-        const adjustedWinnerScore = winnerTotalScore - (winnerSetsWon * 2);
+        const pointDifference = winnerTotalScore - loserTotalScore;
 
-        const pointDifference = adjustedWinnerScore - loserTotalScore;
-
-        if (pointDifference >= 7) {
+        if (pointDifference >= 12) {
             return 0.08; // +8%
-        } else if (pointDifference >= 5) {
+        } else if (pointDifference >= 9) {
             return 0.06; // +6%
-        } else if (pointDifference >= 3) {
+        } else if (pointDifference >= 6) {
             return 0.04; // +4%
         }
 
@@ -224,12 +214,22 @@ export class AURACalculationService {
 
     private async calculateTotalBonusPercentage(playerCI: string, match_id: number, winnerInscriptionId: number, winnerAvgAURA: number, loserAvgAURA: number): Promise<number> {
         const scoreDifferenceBonus = await this.getScoreDifferenceBonus(match_id, winnerInscriptionId);
+        console.log(`Bono por diferencia de puntos para ${playerCI}: ${scoreDifferenceBonus}`);
+
         const winningStreakBonus = await this.getWinningStreakBonus(playerCI);
+        console.log(`Bono por racha ganadora para ${playerCI}: ${winningStreakBonus}`);
+
         const tournamentMatchBonus = await this.getTournamentMatchBonus(match_id);
+        console.log(`Bono por tipo de torneo para el partido ${match_id}: ${tournamentMatchBonus}`);
+
         const consistencyStreakBonus = await this.getConsistencyStreakBonus(playerCI);
+        console.log(`Bono por consistencia para ${playerCI}: ${consistencyStreakBonus}`);
+
         const directRivalsBonus = this.getDirectRivalsBonus(winnerAvgAURA, loserAvgAURA);
+        console.log(`Bono por rivalidad directa para el ganador: ${directRivalsBonus}`);
 
         const totalBonus = scoreDifferenceBonus + winningStreakBonus + tournamentMatchBonus + consistencyStreakBonus + directRivalsBonus;
+        console.log(`Total de bonos para ${playerCI}: ${totalBonus}`);
 
         // Max Bonus 30%
         return Math.min(totalBonus, 0.3);
@@ -255,12 +255,17 @@ export class AURACalculationService {
 
             let totalWinnerAURAChange = 0;
 
+
+
             // Actualizar AURA de los ganadores
             for (const playerCI of winnerPlayerCIs) {
                 const player = await PlayerDB.findByPk(playerCI)
                 if (player) {
                     const bonusPercentage = await this.calculateTotalBonusPercentage(playerCI, match_id, winnerInscriptionId, winnerAvgAURA, loserAvgAURA);
                     const finalWinnerAuraChange = winnerAURAChange * (1 + bonusPercentage);
+
+                    console.log(`Jugador ${playerCI}: Cambio de AURA base: ${winnerAURAChange.toFixed(2)}, Porcentaje de bonos: ${bonusPercentage.toFixed(2)}, Cambio final: ${finalWinnerAuraChange.toFixed(2)}`);
+
                     totalWinnerAURAChange += finalWinnerAuraChange;
 
                     const currentAURA = player.getDataValue("aura") || this.DEFAULT_AURA
