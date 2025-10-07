@@ -63,42 +63,71 @@ export class AURACalculationService {
         return totalAURA / players.length
     }
 
+    
     private async getScoreDifferenceBonus(match_id: number, winnerInscriptionId: number): Promise<number> {
-        const sets = await SetsDB.findAll({ where: { match_id } });
+    // 1. Obtener la información del partido para saber qué inscripción corresponde a 'score1' y 'score2'
+    const match = await MatchDB.findByPk(match_id);
+    if (!match) return 0;
 
-        if (sets.length === 0) {
-            return 0;
-        }
+    const inscription1Id = match.getDataValue("inscription1_id");
+    const inscription2Id = match.getDataValue("inscription2_id");
 
-        let winnerTotalScore = 0;
-        let loserTotalScore = 0;
+    // 2. Obtener los sets del partido
+    const sets = await SetsDB.findAll({ where: { match_id } });
 
-        for (const set of sets) {
-            const score1 = set.getDataValue("score1");
-            const score2 = set.getDataValue("score2");
-            const inscription1Id = set.getDataValue("inscription1_id");
-
-            if (inscription1Id === winnerInscriptionId) {
-                winnerTotalScore += score1;
-                loserTotalScore += score2;
-            } else {
-                winnerTotalScore += score2;
-                loserTotalScore += score1;
-            }
-        }
-
-        const pointDifference = winnerTotalScore - loserTotalScore;
-
-        if (pointDifference >= 12) {
-            return 0.08; // +8%
-        } else if (pointDifference >= 9) {
-            return 0.06; // +6%
-        } else if (pointDifference >= 6) {
-            return 0.04; // +4%
-        }
-
+    if (sets.length === 0) {
         return 0;
     }
+
+    let winnerTotalScore = 0;
+    let loserTotalScore = 0;
+
+    for (const set of sets) {
+        // CORRECCIÓN CLAVE: Usar los nuevos nombres de columna 'score1' y 'score2'
+        const score1 = Number(set.getDataValue("score_participant1")); 
+        const score2 = Number(set.getDataValue("score_participant2"));
+        
+        // Log de verificación por set
+        console.log(`Set ID: ${set.getDataValue("set_id") || 'N/A'} | Scores: ${score1} vs ${score2}`);
+
+        // Comprobación de integridad
+        if (isNaN(score1) || isNaN(score2)) {
+            console.error(`Error de datos: Las puntuaciones del set no son números.`);
+            continue; 
+        }
+
+        // 3. Determinar qué puntuación pertenece al ganador
+        if (inscription1Id === winnerInscriptionId) {
+            // El Inscription 1 es el ganador, por lo tanto, score1 es la puntuación del ganador
+            winnerTotalScore += score1;
+            loserTotalScore += score2;
+        } else if (inscription2Id === winnerInscriptionId) {
+            // El Inscription 2 es el ganador, por lo tanto, score2 es la puntuación del ganador
+            winnerTotalScore += score2;
+            loserTotalScore += score1;
+        } else {
+            console.warn(`Advertencia: El ID de ganador no coincide con Inscription 1 ni Inscription 2.`);
+            continue; 
+        }
+    }
+    
+    // CORRECCIÓN: Cálculo directo de la diferencia de puntos (eliminando el ajuste incorrecto)
+    const pointDifference = winnerTotalScore - loserTotalScore;
+
+    console.log(`Diferencia de Puntos Final: ${pointDifference}. Ganador: ${winnerTotalScore} | Perdedor: ${loserTotalScore}`);
+    console.log(`Inscripción Ganadora ID: ${winnerInscriptionId}, Inscripción 1 ID: ${inscription1Id}, Inscripción 2 ID: ${inscription2Id}`);
+    console.log
+    // Lógica del bono
+    if (pointDifference >= 12) {
+        return 0.08; // +8%
+    } else if (pointDifference >= 9) {
+        return 0.06; // +6%
+    } else if (pointDifference >= 6) {
+        return 0.04; // +4%
+    }
+
+    return 0;
+}
 
     private async getWinningStreakBonus(playerCI: string): Promise<number> {
         const inscriptions = await InscriptionDB.findAll({

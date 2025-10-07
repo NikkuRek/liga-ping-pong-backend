@@ -88,6 +88,11 @@ class MatchService {
 
       // No permitir establecer manualmente createdAt o updatedAt o match_id
       const { createdAt, updatedAt, match_id: _, ...matchData } = match
+
+      if (match.winner_inscription_id && !previousWinner) {
+        ;(matchData as any).status = "Finalizado"
+      }
+
       await MatchDB.update(matchData, { where: { match_id } })
       const updatedMatch = await MatchDB.findByPk(match_id)
 
@@ -100,9 +105,9 @@ class MatchService {
           const loser_id = winner_id === inscription1_id ? inscription2_id : inscription1_id
 
           await auraCalculationService.updateAURAAfterMatch(winner_id, loser_id, match_id)
+
         } catch (auraError) {
           console.error("[AURA] Error calculating AURA, but match update succeeded:", auraError)
-          // Don't fail the match update if AURA calculation fails
         }
       }
       //  --------------------------------------------------------------------------------------------

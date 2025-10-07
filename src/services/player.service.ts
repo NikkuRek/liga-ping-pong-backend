@@ -1,11 +1,7 @@
 import { PlayerDB, DayDB } from "../config/sequelize.config"
 import { ValidationError } from "sequelize"
 import type { PlayerInterface } from "../interfaces"
-
-interface PlayerCreateData {
-  playerData: PlayerInterface
-  available_days?: number[]
-}
+import { InscriptionServices } from "./inscription.service"
 
 class PlayerService {
   async getAll() {
@@ -13,7 +9,7 @@ class PlayerService {
       const player = await PlayerDB.findAll({
         include: {
           model: DayDB,
-          as: 'Days' 
+          as: 'Days'
         }
       })
       return {
@@ -35,7 +31,7 @@ class PlayerService {
       const player = await PlayerDB.findByPk(ci, {
         include: {
           model: DayDB,
-          as: 'Days' 
+          as: 'Days'
         }
       });
 
@@ -66,7 +62,7 @@ class PlayerService {
         where: { status: true },
         include: {
           model: DayDB,
-          as: 'Days' 
+          as: 'Days'
         }
       });
       return {
@@ -89,7 +85,7 @@ class PlayerService {
         where: { status: false },
         include: {
           model: DayDB,
-          as: 'Days' 
+          as: 'Days'
         }
       });
       return {
@@ -106,17 +102,11 @@ class PlayerService {
     }
   }
 
-  async create(requestBody: { playerData: PlayerCreateData }) {
+  async create(requestBody: { playerData: PlayerInterface, available_days: number[] }) {
     try {
-      // 1. Acceder al objeto anidado que contiene los datos del jugador y la disponibilidad
-      const playerDataWithAvailability = requestBody.playerData;
+      const { playerData, available_days } = requestBody;
 
       console.log("Service Create: Objeto completo recibido en el servicio:", requestBody); // Log del objeto completo
-      console.log("Service Create: Datos de jugador + disponibilidad (objeto anidado):", playerDataWithAvailability); // Log del objeto anidado
-
-      // 2. Separar la disponibilidad de los datos principales del jugador DESDE EL OBJETO ANIDADO
-      const { available_days, ...playerData } = playerDataWithAvailability;
-
       console.log("Service Create: Datos de jugador (para crear registro):", playerData); // Log después de desestructurar (debería tener ci, nombre, etc.)
       console.log("Service Create: Datos de disponibilidad (array):", available_days); // Log después de desestructurar (debería ser el array [1, 3, 4])
 
@@ -143,6 +133,26 @@ class PlayerService {
 
       } else {
         console.log("Service Create: No se proporcionaron datos de disponibilidad válidos.");
+      }
+
+      if (newPlayer) {
+        const currentDate = new Date();
+        const inscription1 = {
+          player_ci: newPlayer.ci,
+          tournament_id: 1,
+          team_id: null,
+          seed: 0,
+          inscription_date: currentDate,
+        };
+        const inscription2 = {
+          player_ci: newPlayer.ci,
+          tournament_id: 2,
+          team_id: null,
+          seed: 0,
+          inscription_date: currentDate,
+        };
+        await InscriptionServices.create(inscription1 as any);
+        await InscriptionServices.create(inscription2 as any);
       }
 
       console.log("Service Create: Lógica de creación y disponibilidad completada.");
@@ -184,7 +194,7 @@ class PlayerService {
       }
       const { playerData, available_days } = updateDataWithAvailability;
       if (playerData) {
-        await existingPlayer.update(playerData); 
+        await existingPlayer.update(playerData);
       }
 
       if (updateDataWithAvailability.hasOwnProperty('available_days')) {
@@ -202,7 +212,7 @@ class PlayerService {
       const updatedPlayer = await PlayerDB.findByPk(ci, {
         include: {
           model: DayDB,
-          as: 'Days' 
+          as: 'Days'
         }
       });
 
