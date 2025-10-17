@@ -147,6 +147,51 @@ paths:
         500:
           description: Error al eliminar partido
 
+  /match/{id}/cascade:
+    delete:
+      tags:
+        - Match
+      summary: Elimina un partido en cascada
+      description: Elimina un partido junto con todos sus datos asociados (aura-records y sets) en el orden correcto. Primero elimina los registros de aura, luego los sets y finalmente el partido.
+      parameters:
+        - name: id
+          in: path
+          description: ID del partido
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Partido y sus datos asociados eliminados correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Partido y sus datos asociados eliminados correctamente
+        404:
+          description: Partido no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Partido no encontrado
+        500:
+          description: Error al eliminar partido en cascada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error al eliminar partido en cascada
+
   /match/{id}/result:
     put:
       tags:
