@@ -32,6 +32,12 @@ router.put(
   matchController.update
 );
 router.delete("/:id", matchValidators.validateMatchIdExists, matchController.delete);
+router.delete(
+  "/:id/cascade",
+  matchValidators.validateMatchIdExists,
+  //  middleware to check if the match exists
+  matchController.deleteCascade
+);
 
 export const MatchRoute = router;
 

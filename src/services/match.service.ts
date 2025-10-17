@@ -1,4 +1,4 @@
-import { MatchDB, SetsDB } from "../config/sequelize.config"
+import { MatchDB, SetsDB, AuraRecordDB } from "../config/sequelize.config"
 import type { MatchInterface } from "../interfaces"
 import { auraCalculationService } from "../middlewares/aura-calculator.middlewares"
 
@@ -144,6 +144,38 @@ class MatchService {
       return {
         status: 500,
         message: "Error al eliminar partido",
+      }
+    }
+  }
+
+  async deleteCascade(match_id: number) {
+    try {
+      const match = await MatchDB.findByPk(match_id)
+      if (!match) {
+        return {
+          status: 404,
+          message: "Partido no encontrado",
+        }
+      }
+
+      // 1. Eliminar los registros de aura asociados al partido
+      await AuraRecordDB.destroy({ where: { match_id } })
+
+      // 2. Eliminar los sets asociados al partido
+      await SetsDB.destroy({ where: { match_id } })
+
+      // 3. Eliminar el partido
+      await MatchDB.destroy({ where: { match_id } })
+
+      return {
+        status: 200,
+        message: "Partido y sus datos asociados eliminados correctamente",
+      }
+    } catch (error) {
+      console.error("Error al eliminar partido en cascada:", error)
+      return {
+        status: 500,
+        message: "Error al eliminar partido en cascada",
       }
     }
   }
