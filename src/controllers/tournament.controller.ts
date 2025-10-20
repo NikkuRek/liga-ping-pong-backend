@@ -45,4 +45,13 @@ export class TournamentController {
       message,
     });
   };
+
+  getTournamentsByPlayerCI = async (req: Request, res: Response) => {
+    const { player_ci } = req.params;
+    const { status, message, data } = await TournamentServices.getTournamentsByPlayerCI(player_ci);
+    return res.status(status).json({
+      message,
+      data,
+    });
+  };
 }

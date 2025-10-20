@@ -1,4 +1,4 @@
-import { MatchDB, SetsDB, AuraRecordDB, PlayerDB } from "../config/sequelize.config"
+import { MatchDB, SetsDB, AuraRecordDB, PlayerDB, InscriptionDB } from "../config/sequelize.config"
 import type { MatchInterface } from "../interfaces"
 import { auraCalculationService } from "../middlewares/aura-calculator.middlewares"
 import { Op } from "sequelize"
@@ -180,6 +180,53 @@ class MatchService {
       return {
         status: 500,
         message: "Error al eliminar partido en cascada",
+      }
+    }
+  }
+
+  async getMatchesByPlayerCI(player_ci: string) {
+    try {
+      // 1. Buscar todas las inscripciones del jugador
+      const inscriptions = await InscriptionDB.findAll({
+        where: { player_ci },
+        attributes: ["inscription_id"],
+      })
+
+      if (inscriptions.length === 0) {
+        return {
+          status: 404,
+          message: "No se encontraron inscripciones para este jugador",
+          data: [],
+        }
+      }
+
+      // 2. Extraer los IDs de las inscripciones
+      const inscriptionIds = inscriptions.map((inscription) =>
+        inscription.getDataValue("inscription_id")
+      )
+
+      // 3. Buscar partidos donde el jugador esté como inscription1_id o inscription2_id
+      const matches = await MatchDB.findAll({
+        where: {
+          [Op.or]: [
+            { inscription1_id: { [Op.in]: inscriptionIds } },
+            { inscription2_id: { [Op.in]: inscriptionIds } },
+          ],
+        },
+        include: { model: SetsDB },
+      })
+
+      return {
+        status: 200,
+        message: "Partidos obtenidos correctamente",
+        data: matches,
+      }
+    } catch (error) {
+      console.error("Error al obtener partidos por CI del jugador:", error)
+      return {
+        status: 500,
+        message: "Error al obtener partidos por CI del jugador",
+        data: null,
       }
     }
   }

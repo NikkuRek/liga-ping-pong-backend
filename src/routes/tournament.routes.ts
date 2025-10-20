@@ -7,7 +7,8 @@ const router = Router()
 const tournamentController = new TournamentController()
 const tournamentValidator = new TournamentValidator()
 
-router.get("/", tournamentController.all) // http://localhost:3000/api/tournament
+router.get("/", tournamentController.all) // http://localhost:3004/api/tournament
+router.get("/player/:player_ci", tournamentController.getTournamentsByPlayerCI) // http://localhost:3004/api/tournament/player/:player_ci
 router.get("/:id", tournamentValidator.validateTournamentIdExists, tournamentController.one)
 router.post(
   "/",

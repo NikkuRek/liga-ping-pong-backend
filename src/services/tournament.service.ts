@@ -1,5 +1,6 @@
-import { TournamentDB } from "../config/sequelize.config"
+import { TournamentDB, InscriptionDB } from "../config/sequelize.config"
 import type { TournamentInterface } from "../interfaces"
+import { Op } from "sequelize"
 
 class TournamentService {
   async getAll() {
@@ -123,6 +124,49 @@ class TournamentService {
       return {
         status: 500,
         message: "Error al eliminar torneo",
+      }
+    }
+  }
+
+  async getTournamentsByPlayerCI(player_ci: string) {
+    try {
+      // 1. Buscar todas las inscripciones del jugador
+      const inscriptions = await InscriptionDB.findAll({
+        where: { player_ci },
+        attributes: ["tournament_id"],
+      })
+
+      if (inscriptions.length === 0) {
+        return {
+          status: 404,
+          message: "No se encontraron inscripciones para este jugador",
+          data: [],
+        }
+      }
+
+      // 2. Extraer los IDs de los torneos
+      const tournamentIds = inscriptions.map((inscription) =>
+        inscription.getDataValue("tournament_id")
+      )
+
+      // 3. Buscar los torneos únicos
+      const tournaments = await TournamentDB.findAll({
+        where: {
+          tournament_id: { [Op.in]: tournamentIds },
+        },
+      })
+
+      return {
+        status: 200,
+        message: "Torneos obtenidos correctamente",
+        data: tournaments,
+      }
+    } catch (error) {
+      console.error("Error al obtener torneos por CI del jugador:", error)
+      return {
+        status: 500,
+        message: "Error al obtener torneos por CI del jugador",
+        data: null,
       }
     }
   }

@@ -6,7 +6,8 @@ import { matchValidators } from "../validators";
 const router = Router();
 const matchController = new MatchController();
 
-router.get("/", matchController.all); // http://localhost:3000/api/match
+router.get("/", matchController.all); // http://localhost:3004/api/match
+router.get("/player/:player_ci", matchController.getMatchesByPlayerCI); // http://localhost:3004/api/match/player/:player_ci
 router.get("/:id", matchValidators.validateMatchIdExists, matchController.one);
 router.get("/tournament/:id_tournament", matchController.all); // Assuming this fetches matches by tournament
 router.post(

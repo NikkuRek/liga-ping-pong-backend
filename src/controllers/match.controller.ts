@@ -53,4 +53,13 @@ export class MatchController {
       message,
     });
   };
+
+  getMatchesByPlayerCI = async (req: Request, res: Response) => {
+    const { player_ci } = req.params;
+    const { status, message, data } = await MatchServices.getMatchesByPlayerCI(player_ci);
+    return res.status(status).json({
+      message,
+      data,
+    });
+  };
 }

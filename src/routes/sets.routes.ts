@@ -8,7 +8,7 @@ const router = Router()
 const setsController = new SetsController()
 const setsValidator = new SetsValidator()
 
-router.get("/", setsController.all) // http://localhost:3000/api/sets
+router.get("/", setsController.all) // http://localhost:3004/api/sets
 router.get("/:id", setsValidator.validateIdExists, setsController.one)
 router.get("/match/:matchId", setsController.getByMatch)
 router.post(

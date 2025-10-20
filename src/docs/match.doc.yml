@@ -274,6 +274,62 @@ paths:
         500:
           description: Error al obtener partidos
 
+  /match/player/{player_ci}:
+    get:
+      tags:
+        - Match
+      summary: Obtiene partidos por CI del jugador
+      description: |
+        Retorna un array con todos los partidos en los que ha participado un jugador específico.
+        Busca todas las inscripciones del jugador y luego obtiene los partidos donde aparece como inscription1_id o inscription2_id.
+      parameters:
+        - name: player_ci
+          in: path
+          description: Cédula de identidad del jugador
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Partidos obtenidos correctamente
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MatchWithSets'
+        404:
+          description: No se encontraron inscripciones para este jugador
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No se encontraron inscripciones para este jugador
+                  data:
+                    type: array
+                    example: []
+        500:
+          description: Error al obtener partidos por CI del jugador
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error al obtener partidos por CI del jugador
+                  data:
+                    type: null
+
 components:
   schemas:
     Match:

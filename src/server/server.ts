@@ -27,7 +27,7 @@ export class Server {
 
   constructor() {
     this.app = express()
-    this.port = process.env.PORT || "3000"
+    this.port = process.env.PORT || "3004"
     this.apiurl = process.env.API_URL || `http://localhost:${this.port}`
     this.paths = {
       aura_records: this.pre + "/aura_record",

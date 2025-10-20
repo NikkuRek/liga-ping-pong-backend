@@ -146,6 +146,62 @@ paths:
         500:
           description: Error al eliminar torneo
 
+  /tournament/player/{player_ci}:
+    get:
+      tags:
+        - Tournament
+      summary: Obtiene torneos por CI del jugador
+      description: |
+        Retorna un array con todos los torneos en los que está inscrito un jugador específico.
+        Busca todas las inscripciones del jugador y luego obtiene los torneos únicos asociados.
+      parameters:
+        - name: player_ci
+          in: path
+          description: Cédula de identidad del jugador
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Torneos obtenidos correctamente
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tournament'
+        404:
+          description: No se encontraron inscripciones para este jugador
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No se encontraron inscripciones para este jugador
+                  data:
+                    type: array
+                    example: []
+        500:
+          description: Error al obtener torneos por CI del jugador
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error al obtener torneos por CI del jugador
+                  data:
+                    type: null
+
 components:
   schemas:
     Tournament:

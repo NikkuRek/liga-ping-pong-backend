@@ -7,7 +7,7 @@ const router = Router()
 const careerController = new CareerController()
 const careerValidator = new CareerValidator()
 
-router.get("/", careerController.all) // http://localhost:3000/api/career
+router.get("/", careerController.all) // http://localhost:3004/api/career
 router.get("/:id", careerController.one)
 router.post(
   "/",
