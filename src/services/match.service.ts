@@ -1,6 +1,7 @@
-import { MatchDB, SetsDB, AuraRecordDB } from "../config/sequelize.config"
+import { MatchDB, SetsDB, AuraRecordDB, PlayerDB } from "../config/sequelize.config"
 import type { MatchInterface } from "../interfaces"
 import { auraCalculationService } from "../middlewares/aura-calculator.middlewares"
+import { Op } from "sequelize"
 
 // filepath: c:\Users\Usuario\Documents\dev\liga-ping-pong-backend\src\services\match.service.ts
 
@@ -158,13 +159,16 @@ class MatchService {
         }
       }
 
-      // 1. Eliminar los registros de aura asociados al partido
+      // 1. Revertir los cambios de aura antes de eliminar los registros
+      await this.revertAuraChanges(match_id)
+
+      // 2. Eliminar los registros de aura asociados al partido
       await AuraRecordDB.destroy({ where: { match_id } })
 
-      // 2. Eliminar los sets asociados al partido
+      // 3. Eliminar los sets asociados al partido
       await SetsDB.destroy({ where: { match_id } })
 
-      // 3. Eliminar el partido
+      // 4. Eliminar el partido
       await MatchDB.destroy({ where: { match_id } })
 
       return {
@@ -177,6 +181,98 @@ class MatchService {
         status: 500,
         message: "Error al eliminar partido en cascada",
       }
+    }
+  }
+
+  private async revertAuraChanges(match_id: number): Promise<void> {
+    try {
+      // Obtener los aura-records del partido a eliminar
+      const auraRecords = await AuraRecordDB.findAll({
+        where: { match_id },
+        order: [["aura_record_id", "ASC"]],
+      })
+
+      if (auraRecords.length === 0) {
+        console.log(`[AURA REVERT] No hay registros de aura para el partido ${match_id}`)
+        return
+      }
+
+      // Para cada jugador en los aura-records
+      for (const record of auraRecords) {
+        const player_ci = record.getDataValue("player_ci")
+        const aura_en_ese_partido = record.getDataValue("aura")
+        const aura_record_id = record.getDataValue("aura_record_id")
+
+        // Buscar el aura-record ANTERIOR del mismo jugador
+        const previousRecord = await AuraRecordDB.findOne({
+          where: {
+            player_ci,
+            aura_record_id: { [Op.lt]: aura_record_id },
+          },
+          order: [["aura_record_id", "DESC"]],
+        })
+
+        let aura_anterior: number
+
+        if (previousRecord) {
+          // Si existe un registro anterior, usar ese aura
+          aura_anterior = previousRecord.getDataValue("aura")
+        } else {
+          // Si no existe registro anterior, este es el primer partido del jugador
+          // Necesitamos calcular el aura que tenía ANTES de este partido
+          // Como el aura_en_ese_partido es el resultado después del partido,
+          // y no tenemos el anterior, debemos usar una lógica diferente
+          
+          // Obtener el aura actual del jugador
+          const player = await PlayerDB.findByPk(player_ci)
+          if (!player) {
+            console.error(`[AURA REVERT] Jugador ${player_ci} no encontrado`)
+            continue
+          }
+          
+          const aura_actual = player.getDataValue("aura") || 1000
+          
+          // Si no hay registro anterior, calculamos el aura_anterior restando el cambio
+          // del aura actual. El cambio es: aura_en_ese_partido - aura_anterior
+          // Entonces: aura_anterior = aura_actual - (aura_en_ese_partido - aura_anterior)
+          // Simplificando: necesitamos el aura que tenía antes del partido
+          // Como es el primer partido, asumimos que empezó con el aura por defecto
+          // y el cambio fue: aura_en_ese_partido - aura_default
+          
+          // Pero espera, si es el primer partido y no hay más partidos después,
+          // entonces aura_actual == aura_en_ese_partido
+          // Si hay partidos después, aura_actual != aura_en_ese_partido
+          
+          // La mejor aproximación es: si no hay registro anterior, 
+          // el aura_anterior es el aura por defecto del sistema (1000)
+          aura_anterior = 1000
+        }
+
+        // Calcular el cambio que produjo ese partido
+        const cambio_de_aura = aura_en_ese_partido - aura_anterior
+
+        // Obtener el aura actual del jugador
+        const player = await PlayerDB.findByPk(player_ci)
+        if (!player) {
+          console.error(`[AURA REVERT] Jugador ${player_ci} no encontrado`)
+          continue
+        }
+
+        const aura_actual = player.getDataValue("aura") || 1000
+
+        // Revertir el cambio
+        const nuevo_aura = aura_actual - cambio_de_aura
+
+        // Actualizar el jugador
+        await PlayerDB.update({ aura: nuevo_aura }, { where: { ci: player_ci } })
+
+        console.log(
+          `[AURA REVERT] Jugador ${player_ci}: Aura anterior=${aura_anterior}, Aura en partido=${aura_en_ese_partido}, Cambio=${cambio_de_aura}, Aura actual=${aura_actual}, Nuevo aura=${nuevo_aura}`,
+        )
+      }
+    } catch (error) {
+      console.error("[AURA REVERT] Error al revertir cambios de aura:", error)
+      throw error
     }
   }
 }

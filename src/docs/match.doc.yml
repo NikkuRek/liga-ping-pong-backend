@@ -152,7 +152,17 @@ paths:
       tags:
         - Match
       summary: Elimina un partido en cascada
-      description: Elimina un partido junto con todos sus datos asociados (aura-records y sets) en el orden correcto. Primero elimina los registros de aura, luego los sets y finalmente el partido.
+      description: |
+        Elimina un partido junto con todos sus datos asociados en el orden correcto:
+        1. Revierte los cambios de aura de los jugadores (resta el cambio registrado en aura-record)
+        2. Elimina los registros de aura (aura-records)
+        3. Elimina los sets asociados
+        4. Elimina el partido
+        
+        **Nota importante sobre la reversión de aura:**
+        - Si el jugador ganó aura en ese partido, se le resta ese cambio
+        - Si el jugador perdió aura en ese partido, se le suma ese cambio (revertir una pérdida)
+        - Los cambios de aura de partidos posteriores NO se ven afectados
       parameters:
         - name: id
           in: path
