@@ -386,13 +386,74 @@ components:
         inscription1_id:
           type: integer
           description: ID de la primera inscripción
+        Inscription1:
+          type: object
+          description: Datos de la primera inscripción con información del jugador
+          properties:
+            inscription_id:
+              type: integer
+            player_ci:
+              type: string
+            player:
+              type: object
+              properties:
+                ci:
+                  type: string
+                  description: Cédula del jugador
+                first_name:
+                  type: string
+                  description: Nombre del jugador
+                last_name:
+                  type: string
+                  description: Apellido del jugador
         inscription2_id:
           type: integer
           description: ID de la segunda inscripción
+        Inscription2:
+          type: object
+          description: Datos de la segunda inscripción con información del jugador
+          properties:
+            inscription_id:
+              type: integer
+            player_ci:
+              type: string
+            player:
+              type: object
+              properties:
+                ci:
+                  type: string
+                  description: Cédula del jugador
+                first_name:
+                  type: string
+                  description: Nombre del jugador
+                last_name:
+                  type: string
+                  description: Apellido del jugador
         winner_inscription_id:
           type: integer
           nullable: true
           description: ID de la inscripción ganadora
+        WinnerInscription:
+          type: object
+          nullable: true
+          description: Datos de la inscripción ganadora con información del jugador
+          properties:
+            inscription_id:
+              type: integer
+            player_ci:
+              type: string
+            player:
+              type: object
+              properties:
+                ci:
+                  type: string
+                  description: Cédula del jugador
+                first_name:
+                  type: string
+                  description: Nombre del jugador
+                last_name:
+                  type: string
+                  description: Apellido del jugador
         match_datetime:
           type: string
           format: date-time

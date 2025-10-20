@@ -8,9 +8,27 @@ import { Op } from "sequelize"
 class MatchService {
   async getAll() {
     try {
-      // Modifica esta línea para incluir los sets
+      // Incluir sets e inscripciones con datos del jugador
       const matches = await MatchDB.findAll({
-        include: { model: SetsDB },
+        include: [
+          { model: SetsDB },
+          {
+            model: InscriptionDB,
+            as: "Inscription1",
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+          {
+            model: InscriptionDB,
+            as: "Inscription2",
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+          {
+            model: InscriptionDB,
+            as: "WinnerInscription",
+            required: false,
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+        ],
       })
       return {
         status: 200,
@@ -31,7 +49,25 @@ class MatchService {
   async getOne(match_id: number) {
     try {
       const match = await MatchDB.findByPk(match_id, {
-        include: { model: SetsDB },
+        include: [
+          { model: SetsDB },
+          {
+            model: InscriptionDB,
+            as: "Inscription1",
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+          {
+            model: InscriptionDB,
+            as: "Inscription2",
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+          {
+            model: InscriptionDB,
+            as: "WinnerInscription",
+            required: false,
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+        ],
       })
       if (!match) {
         return {
@@ -213,7 +249,25 @@ class MatchService {
             { inscription2_id: { [Op.in]: inscriptionIds } },
           ],
         },
-        include: { model: SetsDB },
+        include: [
+          { model: SetsDB },
+          {
+            model: InscriptionDB,
+            as: "Inscription1",
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+          {
+            model: InscriptionDB,
+            as: "Inscription2",
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+          {
+            model: InscriptionDB,
+            as: "WinnerInscription",
+            required: false,
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+        ],
       })
 
       return {
