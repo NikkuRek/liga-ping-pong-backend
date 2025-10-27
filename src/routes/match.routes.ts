@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateFields } from "../middlewares";
+import { validateFields, matchLimiter } from "../middlewares";
 import { MatchController } from "../controllers";
 import { matchValidators } from "../validators";
 
@@ -15,6 +15,7 @@ router.post(
   matchValidators.validateFields,
   matchValidators.validateTournamentAndInscriptionsExist,
   validateFields,
+  matchLimiter,
   matchController.create
 );
 router.put(

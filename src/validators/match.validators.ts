@@ -50,6 +50,19 @@ export class MatchValidator {
         });
       }
 
+      // Verificar que las inscripciones pertenezcan al mismo torneo del partido
+      if (inscription1.getDataValue('tournament_id') !== tournament.getDataValue('tournament_id')) {
+        return res.status(400).json({
+          message: `La inscripción con ID ${inscription1_id} no pertenece al torneo con ID ${tournament_id}`,
+        });
+      }
+
+      if (inscription2.getDataValue('tournament_id') !== tournament.getDataValue('tournament_id')) {
+        return res.status(400).json({
+          message: `La inscripción con ID ${inscription2_id} no pertenece al torneo con ID ${tournament_id}`,
+        });
+      }
+
       next();
     } catch (error) {
       return res.status(500).json({
