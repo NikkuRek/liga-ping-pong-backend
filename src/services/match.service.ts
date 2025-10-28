@@ -195,8 +195,10 @@ class MatchService {
         }
       }
 
-      // 1. Revertir los cambios de aura antes de eliminar los registros
-      await this.revertAuraChanges(match_id)
+      // 1. Revertir los cambios de aura antes de eliminar los registros, excepto para el torneo principal
+      if (match.getDataValue("tournament_id") !== 1) {
+        await this.revertAuraChanges(match_id)
+      }
 
       // 2. Eliminar los registros de aura asociados al partido
       await AuraRecordDB.destroy({ where: { match_id } })
