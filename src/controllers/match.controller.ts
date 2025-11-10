@@ -62,4 +62,16 @@ export class MatchController {
       data,
     });
   };
+
+  getMatchesByPlayerName = async (req: Request, res: Response) => {
+    const { first_name, last_name } = req.query;
+    const { status, message, data } = await MatchServices.getMatchesByPlayerName(
+      String(first_name),
+      String(last_name)
+    );
+    return res.status(status).json({
+      message,
+      data,
+    });
+  }
 }

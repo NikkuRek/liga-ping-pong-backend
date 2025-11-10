@@ -3,12 +3,9 @@ import type { MatchInterface } from "../interfaces"
 import { auraCalculationService } from "../middlewares/aura-calculator.middlewares"
 import { Op } from "sequelize"
 
-// filepath: c:\Users\Usuario\Documents\dev\liga-ping-pong-backend\src\services\match.service.ts
-
 class MatchService {
   async getAll() {
     try {
-      // Incluir sets e inscripciones con datos del jugador
       const matches = await MatchDB.findAll({
         include: [
           { model: SetsDB },
@@ -45,7 +42,6 @@ class MatchService {
     }
   }
 
-  // También deberías hacer esto en el método getOne para que también muestre los sets
   async getOne(match_id: number) {
     try {
       const match = await MatchDB.findByPk(match_id, {
@@ -93,7 +89,6 @@ class MatchService {
 
   async create(match: MatchInterface) {
     try {
-      // No permitir establecer manualmente createdAt o updatedAt
       const { createdAt, updatedAt, match_id, ...matchData } = match
       const newMatch = await MatchDB.create(matchData as any)
       return {
@@ -123,17 +118,15 @@ class MatchService {
 
       const previousWinner = existingMatch.getDataValue("winner_inscription_id")
 
-      // No permitir establecer manualmente createdAt o updatedAt o match_id
       const { createdAt, updatedAt, match_id: _, ...matchData } = match
 
       if (match.winner_inscription_id && !previousWinner) {
-        ;(matchData as any).status = "Finalizado"
+        ; (matchData as any).status = "Finalizado"
       }
 
       await MatchDB.update(matchData, { where: { match_id } })
       const updatedMatch = await MatchDB.findByPk(match_id)
 
-      //  --------------------------------------------------------------------------------------------
       if (match.winner_inscription_id && !previousWinner) {
         try {
           const inscription1_id = existingMatch.getDataValue("inscription1_id")
@@ -147,7 +140,6 @@ class MatchService {
           console.error("[AURA] Error calculating AURA, but match update succeeded:", auraError)
         }
       }
-      //  --------------------------------------------------------------------------------------------
 
       return {
         status: 200,
@@ -195,18 +187,14 @@ class MatchService {
         }
       }
 
-      // 1. Revertir los cambios de aura antes de eliminar los registros, excepto para el torneo principal
       if (match.getDataValue("tournament_id") !== 1) {
         await this.revertAuraChanges(match_id)
       }
 
-      // 2. Eliminar los registros de aura asociados al partido
       await AuraRecordDB.destroy({ where: { match_id } })
 
-      // 3. Eliminar los sets asociados al partido
       await SetsDB.destroy({ where: { match_id } })
 
-      // 4. Eliminar el partido
       await MatchDB.destroy({ where: { match_id } })
 
       return {
@@ -224,7 +212,6 @@ class MatchService {
 
   async getMatchesByPlayerCI(player_ci: string) {
     try {
-      // 1. Buscar todas las inscripciones del jugador
       const inscriptions = await InscriptionDB.findAll({
         where: { player_ci },
         attributes: ["inscription_id"],
@@ -238,12 +225,10 @@ class MatchService {
         }
       }
 
-      // 2. Extraer los IDs de las inscripciones
       const inscriptionIds = inscriptions.map((inscription) =>
         inscription.getDataValue("inscription_id")
       )
 
-      // 3. Buscar partidos donde el jugador esté como inscription1_id o inscription2_id
       const matches = await MatchDB.findAll({
         where: {
           [Op.or]: [
@@ -287,9 +272,127 @@ class MatchService {
     }
   }
 
+
+
+
+  async getMatchesByPlayerName(first_name: string, last_name: string) {
+    try {
+      // Construir cláusula where según parámetros recibidos
+      const nameWhere: any = {}
+      if (first_name && last_name) {
+        nameWhere[Op.and] = [
+          { first_name: { [Op.iLike]: `%${first_name}%` } },
+          { last_name: { [Op.iLike]: `%${last_name}%` } },
+        ]
+      } else if (first_name) {
+        nameWhere.first_name = { [Op.iLike]: `%${first_name}%` }
+      } else if (last_name) {
+        nameWhere.last_name = { [Op.iLike]: `%${last_name}%` }
+      } else {
+        return {
+          status: 400,
+          message: "Se requiere al menos first_name o last_name para la búsqueda",
+          data: [],
+        }
+      }
+
+      const players = await PlayerDB.findAll({
+        where: nameWhere,
+        attributes: ["ci"],
+      })
+
+      if (!players || players.length === 0) {
+        return {
+          status: 404,
+          message: "No se encontraron jugadores con ese nombre",
+          data: [],
+        }
+      }
+
+      const inscriptionIds = players.map((p) => p.getDataValue("ci"))
+
+      // Buscar inscripciones de esos jugadores
+      const inscriptions = await InscriptionDB.findAll({
+        where: { player_ci: { [Op.in]: inscriptionIds } },
+        attributes: ["inscription_id"],
+      })
+
+      if (!inscriptions || inscriptions.length === 0) {
+        return {
+          status: 404,
+          message: "No se encontraron inscripciones para los jugadores encontrados",
+          data: [],
+        }
+      }
+
+      const inscriptionIdValues = inscriptions.map((ins) => ins.getDataValue("inscription_id"))
+
+      const matches = await MatchDB.findAll({
+        where: {
+          [Op.or]: [
+            { inscription1_id: { [Op.in]: inscriptionIdValues } },
+            { inscription2_id: { [Op.in]: inscriptionIdValues } },
+          ],
+        },
+        include: [
+          { model: SetsDB },
+          {
+            model: InscriptionDB,
+            as: "Inscription1",
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+          {
+            model: InscriptionDB,
+            as: "Inscription2",
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+          {
+            model: InscriptionDB,
+            as: "WinnerInscription",
+            required: false,
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+        ],
+      })
+
+      if (!matches || matches.length === 0) {
+        return {
+          status: 404,
+          message: "No se encontraron partidos para los jugadores buscados",
+          data: [],
+        }
+      }
+
+      return {
+        status: 200,
+        message: "Partidos obtenidos correctamente",
+        data: matches,
+      }
+    } catch (error) {
+      console.error("Error al obtener partidos por nombre del jugador:", error)
+      return {
+        status: 500,
+        message: "Error al obtener partidos por nombre del jugador",
+        data: null,
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   private async revertAuraChanges(match_id: number): Promise<void> {
     try {
-      // Obtener los aura-records del partido a eliminar
       const auraRecords = await AuraRecordDB.findAll({
         where: { match_id },
         order: [["aura_record_id", "ASC"]],
@@ -300,13 +403,11 @@ class MatchService {
         return
       }
 
-      // Para cada jugador en los aura-records
       for (const record of auraRecords) {
         const player_ci = record.getDataValue("player_ci")
         const aura_en_ese_partido = record.getDataValue("aura")
         const aura_record_id = record.getDataValue("aura_record_id")
 
-        // Buscar el aura-record ANTERIOR del mismo jugador
         const previousRecord = await AuraRecordDB.findOne({
           where: {
             player_ci,
@@ -318,43 +419,21 @@ class MatchService {
         let aura_anterior: number
 
         if (previousRecord) {
-          // Si existe un registro anterior, usar ese aura
           aura_anterior = previousRecord.getDataValue("aura")
         } else {
-          // Si no existe registro anterior, este es el primer partido del jugador
-          // Necesitamos calcular el aura que tenía ANTES de este partido
-          // Como el aura_en_ese_partido es el resultado después del partido,
-          // y no tenemos el anterior, debemos usar una lógica diferente
-          
-          // Obtener el aura actual del jugador
           const player = await PlayerDB.findByPk(player_ci)
           if (!player) {
             console.error(`[AURA REVERT] Jugador ${player_ci} no encontrado`)
             continue
           }
-          
+
           const aura_actual = player.getDataValue("aura") || 1000
-          
-          // Si no hay registro anterior, calculamos el aura_anterior restando el cambio
-          // del aura actual. El cambio es: aura_en_ese_partido - aura_anterior
-          // Entonces: aura_anterior = aura_actual - (aura_en_ese_partido - aura_anterior)
-          // Simplificando: necesitamos el aura que tenía antes del partido
-          // Como es el primer partido, asumimos que empezó con el aura por defecto
-          // y el cambio fue: aura_en_ese_partido - aura_default
-          
-          // Pero espera, si es el primer partido y no hay más partidos después,
-          // entonces aura_actual == aura_en_ese_partido
-          // Si hay partidos después, aura_actual != aura_en_ese_partido
-          
-          // La mejor aproximación es: si no hay registro anterior, 
-          // el aura_anterior es el aura por defecto del sistema (1000)
+
           aura_anterior = 1000
         }
 
-        // Calcular el cambio que produjo ese partido
         const cambio_de_aura = aura_en_ese_partido - aura_anterior
 
-        // Obtener el aura actual del jugador
         const player = await PlayerDB.findByPk(player_ci)
         if (!player) {
           console.error(`[AURA REVERT] Jugador ${player_ci} no encontrado`)
@@ -363,10 +442,8 @@ class MatchService {
 
         const aura_actual = player.getDataValue("aura") || 1000
 
-        // Revertir el cambio
         const nuevo_aura = aura_actual - cambio_de_aura
 
-        // Actualizar el jugador
         await PlayerDB.update({ aura: nuevo_aura }, { where: { ci: player_ci } })
 
         console.log(

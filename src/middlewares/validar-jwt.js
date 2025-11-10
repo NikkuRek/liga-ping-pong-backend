@@ -1,6 +1,6 @@
 // const { response, request } = require("express")
 // const jwt = require("jsonwebtoken")
-// const Usuario = require("../models/usuario.model")
+// const Usuario = require("../models/credential.model")
 // const validarJWT = async (req = request, res = response, next) => {
 //   const token = req.header("x-token") //asi obtengo los headers
 //   if (!token) {
@@ -33,3 +33,19 @@
 // module.exports = {
 //   validarJWT,
 // }
+
+
+
+//   player_ci: {
+//     type: DataTypes.STRING,
+//     allowNull: false,
+//     unique: true,
+//     references: {
+//       model: "players",
+//       key: "ci",
+//     },
+//   },
+//   password: {
+//     type: DataTypes.STRING,
+//     allowNull: false,
+//   },
