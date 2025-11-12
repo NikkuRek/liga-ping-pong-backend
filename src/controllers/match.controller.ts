@@ -63,6 +63,15 @@ export class MatchController {
     });
   };
 
+  getMatchesByCIInCurrentWeek = async (req: Request, res: Response) => {
+    const { player_ci } = req.params;
+    const { status, message, data } = await MatchServices.getMatchesByCIInCurrentWeek(player_ci);
+    return res.status(status).json({
+      message,
+      data,
+    });
+  };
+
   getMatchesByPlayerName = async (req: Request, res: Response) => {
     const { first_name, last_name } = req.query;
     const { status, message, data } = await MatchServices.getMatchesByPlayerName(

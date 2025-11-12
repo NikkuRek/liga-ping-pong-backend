@@ -403,6 +403,61 @@ paths:
                   data:
                     type: null
 
+  /match/player/{player_ci}/current-week-matches:
+    get:
+      tags:
+        - Match
+      summary: Obtiene partidos de un jugador en la semana actual para el torneo 2
+      description: |
+        Retorna un array con todos los partidos en los que ha participado un jugador específico durante la semana actual (Lunes a Domingo) y que pertenecen al torneo con ID 2.
+      parameters:
+        - name: player_ci
+          in: path
+          description: Cédula de identidad del jugador
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Partidos del torneo 2 en la semana actual obtenidos correctamente
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MatchWithSets"
+        404:
+          description: No se encontraron inscripciones para este jugador
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No se encontraron inscripciones para este jugador
+                  data:
+                    type: array
+                    example: []
+        500:
+          description: Error al obtener los partidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Error al obtener partidos por CI del jugador en la semana actual
+                  data:
+                    type: null
+
 components:
   schemas:
     Match:

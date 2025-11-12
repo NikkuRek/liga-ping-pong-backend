@@ -272,6 +272,89 @@ class MatchService {
     }
   }
 
+  async getMatchesByCIInCurrentWeek(player_ci: string) {
+    try {
+      const inscriptions = await InscriptionDB.findAll({
+        where: { player_ci },
+        attributes: ["inscription_id"],
+      });
+  
+      if (inscriptions.length === 0) {
+        return {
+          status: 404,
+          message: "No se encontraron inscripciones para este jugador",
+          data: [],
+        };
+      }
+  
+      const inscriptionIds = inscriptions.map((inscription) =>
+        inscription.getDataValue("inscription_id")
+      );
+  
+      const today = new Date();
+      const dayOfWeek = today.getDay(); 
+      const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); 
+  
+      const monday = new Date(today.setDate(diff));
+      monday.setHours(0, 0, 0, 0);
+  
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+  
+      const matches = await MatchDB.findAll({
+        where: {
+          [Op.and]: [
+            {
+              [Op.or]: [
+                { inscription1_id: { [Op.in]: inscriptionIds } },
+                { inscription2_id: { [Op.in]: inscriptionIds } },
+              ],
+            },
+            {
+              match_datetime: {
+                [Op.between]: [monday, sunday],
+              },
+            },
+            { tournament_id: 2 },
+          ],
+        },
+        include: [
+          { model: SetsDB },
+          {
+            model: InscriptionDB,
+            as: "Inscription1",
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+          {
+            model: InscriptionDB,
+            as: "Inscription2",
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+          {
+            model: InscriptionDB,
+            as: "WinnerInscription",
+            required: false,
+            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+          },
+        ],
+      });
+  
+      return {
+        status: 200,
+        message: "Partidos del torneo 2 en la semana actual obtenidos correctamente",
+        data: matches,
+      };
+    } catch (error) {
+      console.error("Error al obtener partidos por CI del jugador en la semana actual:", error);
+      return {
+        status: 500,
+        message: "Error al obtener partidos por CI del jugador en la semana actual",
+        data: null,
+      };
+    }
+  }
+
 
 
 
