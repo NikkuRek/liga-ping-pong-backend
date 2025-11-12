@@ -29,7 +29,7 @@ export const matchLimiter = async (req: Request, res: Response, next: NextFuncti
         startOfWeek.setHours(0, 0, 0, 0);
 
         const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setDate(startOfWeek.getDate() + 10);
         endOfWeek.setHours(23, 59, 59, 999);
 
         // Find all ranked matches for both players in the current week
@@ -46,7 +46,7 @@ export const matchLimiter = async (req: Request, res: Response, next: NextFuncti
             },
         });
 
-        // Rule 1: Check total matches per player (max 6)
+        // Rule 1: Check total matches per player (max 10)
         const matchesByPlayer1 = weeklyMatches.filter(
             (m: MatchInterface) => m.inscription1_id === inscription1_id || m.inscription2_id === inscription1_id
         );
@@ -54,15 +54,15 @@ export const matchLimiter = async (req: Request, res: Response, next: NextFuncti
             (m: MatchInterface) => m.inscription1_id === inscription2_id || m.inscription2_id === inscription2_id
         );
 
-        if (matchesByPlayer1.length >= 6) {
+        if (matchesByPlayer1.length >= 10) {
             return res.status(429).json({
-                message: `El jugador con inscripción ID ${inscription1_id} ya ha jugado 6 partidos de ranked esta semana.`,
+                message: `El jugador con inscripción ID ${inscription1_id} ya ha jugado 10 partidos de ranked esta semana.`,
             });
         }
 
-        if (matchesByPlayer2.length >= 6) {
+        if (matchesByPlayer2.length >= 10) {
             return res.status(429).json({
-                message: `El jugador con inscripción ID ${inscription2_id} ya ha jugado 6 partidos de ranked esta semana.`,
+                message: `El jugador con inscripción ID ${inscription2_id} ya ha jugado 10 partidos de ranked esta semana.`,
             });
         }
 
