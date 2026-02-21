@@ -28,6 +28,8 @@ paths:
         - Match
       summary: Crea un nuevo partido
       description: Crea un nuevo partido con los datos proporcionados
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -52,6 +54,39 @@ paths:
           description: Torneo o inscripción no encontrada
         500:
           description: Error al crear partido
+
+  /match/propose:
+    post:
+      tags:
+        - Match
+      summary: Propone un nuevo partido
+      description: Crea una propuesta de partido que debe ser aprobada por el oponente
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MatchInput"
+      responses:
+        201:
+          description: Partido propuesto correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/MatchWithSets"
+        400:
+          description: Datos inválidos
+        404:
+          description: Torneo o inscripción no encontrada
+        500:
+          description: Error al proponer partido
 
   /match/{id}:
     get:
@@ -88,6 +123,8 @@ paths:
         - Match
       summary: Actualiza un partido
       description: Actualiza los datos de un partido según el ID proporcionado
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -125,6 +162,8 @@ paths:
         - Match
       summary: Elimina un partido
       description: Elimina un partido según el ID proporcionado
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -163,6 +202,8 @@ paths:
         - Si el jugador ganó aura en ese partido, se le resta ese cambio
         - Si el jugador perdió aura en ese partido, se le suma ese cambio (revertir una pérdida)
         - Los cambios de aura de partidos posteriores NO se ven afectados
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path
@@ -208,6 +249,8 @@ paths:
         - Match
       summary: Actualiza el resultado de un partido
       description: Actualiza el ganador y perdedor de un partido según el ID proporcionado
+      security:
+        - bearerAuth: []
       parameters:
         - name: id
           in: path

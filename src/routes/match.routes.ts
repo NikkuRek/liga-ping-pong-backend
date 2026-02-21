@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateFields, matchLimiter } from "../middlewares";
+import { validateFields, matchLimiter, validateToken } from "../middlewares";
 import { MatchController } from "../controllers";
 import { matchValidators } from "../validators";
 
@@ -14,14 +14,24 @@ router.get("/tournament/:id_tournament", matchController.all); // Assuming this 
 router.get("/player/name", matchController.getMatchesByPlayerName); // http://localhost:3004/api/match/player/name?first_name=&last_name=
 router.post(
   "/",
+  validateToken,
   matchValidators.validateFields,
   matchValidators.validateTournamentAndInscriptionsExist,
   validateFields,
   matchLimiter,
   matchController.create
 );
+router.post(
+  "/propose",
+  validateToken,
+  matchValidators.validateFields,
+  matchValidators.validateTournamentAndInscriptionsExist,
+  validateFields,
+  matchController.propose
+);
 router.put(
   "/:id",
+  validateToken,
   matchValidators.validateFields,
   matchValidators.validateMatchIdExists,
   matchValidators.validateTournamentAndInscriptionsExist,
@@ -30,14 +40,16 @@ router.put(
 );
 router.put(
   "/:id/result",
+  validateToken,
   matchValidators.validateMatchIdExists,
   matchValidators.validateWinnerInscription,
   validateFields,
   matchController.update
 );
-router.delete("/:id", matchValidators.validateMatchIdExists, matchController.delete);
+router.delete("/:id", validateToken, matchValidators.validateMatchIdExists, matchController.delete);
 router.delete(
   "/:id/cascade",
+  validateToken,
   matchValidators.validateMatchIdExists,
   //  middleware to check if the match exists
   matchController.deleteCascade

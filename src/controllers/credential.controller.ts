@@ -1,5 +1,6 @@
 import type { Request, Response } from "express"
 import { CredentialServices } from "../services"
+import { createToken } from "../helpers/jwt.helpers"
 
 export class CredentialController {
   constructor() {}
@@ -67,6 +68,20 @@ export class CredentialController {
   authenticate = async (req: Request, res: Response) => {
     const { player_ci, password } = req.body
     const { status, message, data } = await CredentialServices.authenticate(player_ci, password)
+    if (status === 200 && data) {
+      try {
+        const token = await createToken(data.player)
+        return res.status(status).json({
+          message,
+          token,
+          user: data.player,
+        })
+      } catch (error) {
+        return res.status(500).json({
+          message: "Error generating token",
+        })
+      }
+    }
     return res.status(status).json({
       message,
       data,

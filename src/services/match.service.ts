@@ -105,6 +105,25 @@ class MatchService {
     }
   }
 
+  async propose(match: MatchInterface) {
+    try {
+      const { createdAt, updatedAt, match_id, ...matchData } = match
+      ;(matchData as any).status = 'Propuesto'
+      const newMatch = await MatchDB.create(matchData as any)
+      return {
+        status: 201,
+        message: "Partido propuesto correctamente",
+        data: newMatch,
+      }
+    } catch (error) {
+      return {
+        status: 500,
+        message: "Error al proponer partido",
+        data: null,
+      }
+    }
+  }
+
   async update(match_id: number, match: MatchInterface) {
     try {
       const existingMatch = await MatchDB.findByPk(match_id)

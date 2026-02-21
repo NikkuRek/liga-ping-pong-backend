@@ -15,6 +15,15 @@ const swaggerOptions = {
         url: `${apiUrl}${pre}`,
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
   },
   basePath: "/api",
   apis: ["./src/docs/*.yml", "./src/routes/*.ts"],

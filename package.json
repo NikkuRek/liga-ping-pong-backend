@@ -21,10 +21,12 @@
     "@types/jsonwebtoken": "^9.0.8",
     "@types/morgan": "^1.9.9",
     "@types/sequelize": "^4.28.20",
+    "standard": "^17.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.2"
   },
   "dependencies": {
+    "@types/socket.io": "^3.0.1",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
     "axios": "^1.7.9",
@@ -38,9 +40,13 @@
     "mysql2": "^3.12.0",
     "node": "^20.14.0",
     "sequelize": "^6.37.3",
+    "socket.io": "^4.8.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "xlsx": "^0.18.5",
     "yamljs": "^0.3.0"
+  },
+  "eslintConfig": {
+    "extends": "standard"
   }
 }

@@ -31,7 +31,7 @@ export const MatchModel = {
     allowNull: false,
   },
   status: {
-    type: DataTypes.ENUM('Pendiente', 'En Juego', 'Finalizado', 'Cancelado'),
+    type: DataTypes.ENUM('Propuesto', 'Pendiente', 'En Juego', 'Finalizado', 'Cancelado'),
     allowNull: false,
     defaultValue: 'Pendiente',
   },
