@@ -3,11 +3,26 @@ paths:
     get:
       tags:
         - AuraRecord
-      summary: Listar todos los registros de AURA
-      description: Retorna el historial completo de cambios de puntuación AURA de todos los jugadores.
+      summary: Listar todos los registros de AURA (Paginado)
+      description: Retorna el historial completo de cambios de puntuación AURA con soporte para paginación y cálculos de diferencia al vuelo.
+      parameters:
+        - name: limit
+          in: query
+          description: Cantidad de registros por página.
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Número de página.
+          schema:
+            type: integer
       responses:
         200:
           description: Listado obtenido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuraRecordListResponse'
 
   /aura_record/{id}:
     get:
@@ -61,21 +76,45 @@ components:
       properties:
         aura_record_id:
           type: integer
-        player_ci:
-          type: string
         match_id:
           type: integer
+        player_ci:
+          type: string
+        player_name:
+          type: string
         previous_aura:
           type: integer
         new_aura:
           type: integer
-        change_reason:
+        change_aura:
           type: string
-        change_amount:
-          type: integer
+        date:
+          type: string
+          format: date-time
         createdAt:
           type: string
           format: date-time
         updatedAt:
           type: string
           format: date-time
+
+    AuraRecordListResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuraRecord'
+        meta:
+          type: object
+          properties:
+            totalItems:
+              type: integer
+            itemsPerPage:
+              type: integer
+            currentPage:
+              type: integer
+            totalPages:
+              type: integer
