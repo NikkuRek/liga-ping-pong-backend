@@ -3,10 +3,13 @@
   "version": "0.2.0",
   "description": "",
   "main": "app.js",
+  "engines": {
+    "node": ">=22.11.0"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/app.js",
-    "dev": "tsc && node dist/app.js",
+    "dev": "nodemon dist/app.js",
     "seeds": "node dist/data/insert-seeders",
     "seeds-build": "tsc && node dist/config/sequelize.config && node dist/data/insert-seeders",
     "seeds-dev": "tsc && node dist/config/sequelize.config && node dist/data/insert-seeders && node dist/app.js",
@@ -21,30 +24,32 @@
     "@types/jsonwebtoken": "^9.0.8",
     "@types/morgan": "^1.9.9",
     "@types/sequelize": "^4.28.20",
+    "@types/socket.io": "^3.0.1",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
     "standard": "^17.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.2"
   },
   "dependencies": {
-    "@types/socket.io": "^3.0.1",
-    "@types/swagger-jsdoc": "^6.0.4",
-    "@types/swagger-ui-express": "^4.1.6",
-    "axios": "^1.7.9",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "express-validator": "^7.1.0",
+    "express-validator": "^7.3.1",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "mysql2": "^3.12.0",
-    "node": "^20.14.0",
+    "nodemon": "^3.1.14",
     "sequelize": "^6.37.3",
     "socket.io": "^4.8.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "xlsx": "^0.18.5",
     "yamljs": "^0.3.0"
+  },
+  "overrides": {
+    "minimatch": "^10.2.1",
+    "glob": "^7.2.3"
   },
   "eslintConfig": {
     "extends": "standard"
