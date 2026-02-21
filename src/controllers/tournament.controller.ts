@@ -54,4 +54,13 @@ export class TournamentController {
       data,
     });
   };
+
+  patch = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status, message, data } = await TournamentServices.patch(Number(id), req.body);
+    return res.status(status).json({
+      message,
+      data,
+    });
+  };
 }

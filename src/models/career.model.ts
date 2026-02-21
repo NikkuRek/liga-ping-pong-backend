@@ -9,7 +9,7 @@ export const CareerModel = {
   name_career: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
+    unique: 'unique_name_career',
   },
   createdAt: {
     type: DataTypes.DATE,

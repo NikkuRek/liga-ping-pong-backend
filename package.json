@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/app.js",
-    "dev": "nodemon dist/app.js",
+    "dev": "tsc && nodemon dist/app.js",
     "seeds": "node dist/data/insert-seeders",
     "seeds-build": "tsc && node dist/config/sequelize.config && node dist/data/insert-seeders",
     "seeds-dev": "tsc && node dist/config/sequelize.config && node dist/data/insert-seeders && node dist/app.js",
@@ -19,6 +19,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.8",
@@ -33,6 +34,7 @@
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",

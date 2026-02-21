@@ -1,16 +1,20 @@
 import { PlayerDB, DayDB } from "../config/sequelize.config"
-import { ValidationError } from "sequelize"
+import { ValidationError, IncludeOptions } from "sequelize"
 import type { PlayerInterface } from "../interfaces"
 import { InscriptionServices } from "./inscription.service"
 
 class PlayerService {
+  private readonly defaultIncludes: IncludeOptions[] = [
+    {
+      model: DayDB,
+      as: 'Days'
+    }
+  ]
+
   async getAll() {
     try {
       const player = await PlayerDB.findAll({
-        include: {
-          model: DayDB,
-          as: 'Days'
-        }
+        include: this.defaultIncludes
       })
       return {
         status: 200,
@@ -29,10 +33,7 @@ class PlayerService {
   async getOne(ci: string) {
     try {
       const player = await PlayerDB.findByPk(ci, {
-        include: {
-          model: DayDB,
-          as: 'Days'
-        }
+        include: this.defaultIncludes
       });
 
       if (!player) {
@@ -60,10 +61,7 @@ class PlayerService {
     try {
       const activePlayers = await PlayerDB.findAll({
         where: { status: true },
-        include: {
-          model: DayDB,
-          as: 'Days'
-        }
+        include: this.defaultIncludes
       });
       return {
         status: 200,
@@ -83,10 +81,7 @@ class PlayerService {
     try {
       const inactivePlayers = await PlayerDB.findAll({
         where: { status: false },
-        include: {
-          model: DayDB,
-          as: 'Days'
-        }
+        include: this.defaultIncludes
       });
       return {
         status: 200,
@@ -274,6 +269,39 @@ class PlayerService {
         status: 500,
         message: "Error al eliminar jugador",
       };
+    }
+  }
+
+  async patch(ci: string, playerData: Partial<PlayerInterface>) {
+    try {
+      const player = await PlayerDB.findByPk(ci);
+      if (!player) {
+        return {
+          status: 404,
+          message: "Jugador no encontrado",
+          data: null,
+        }
+      }
+
+      const { createdAt, updatedAt, ci: _, ...dataToUpdate } = playerData as any;
+      await PlayerDB.update(dataToUpdate, { where: { ci } });
+      
+      const updatedPlayer = await PlayerDB.findByPk(ci, {
+        include: this.defaultIncludes
+      });
+
+      return {
+        status: 200,
+        message: "Jugador actualizado parcialmente",
+        data: updatedPlayer,
+      }
+    } catch (error) {
+      console.error("Error al actualizar parcialmente jugador:", error);
+      return {
+        status: 500,
+        message: "Error al actualizar parcialmente jugador",
+        data: null,
+      }
     }
   }
 }

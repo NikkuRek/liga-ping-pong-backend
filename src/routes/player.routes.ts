@@ -30,6 +30,7 @@ router.put(
 ) // http://localhost:3004/api/player/ci
 
 router.delete("/:ci", playerController.softDelete) // http://localhost:3004/api/player/ci
+router.patch("/:ci", playerController.patch) // http://localhost:3004/api/player/ci
 router.delete("/delete/:ci", playerController.delete) // http://localhost:3004/api/player/delete/ci
 
 export const PlayerRoute = router

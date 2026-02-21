@@ -54,4 +54,13 @@ export class SetsController {
       message,
     });
   };
+
+  patch = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status, message, data } = await SetsServices.patch(Number(id), req.body);
+    return res.status(status).json({
+      message,
+      data,
+    });
+  };
 }

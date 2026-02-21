@@ -9,7 +9,7 @@ export const CredentialModel = {
   player_ci: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
+    unique: 'unique_credential_player',
     references: {
       model: "players",
       key: "ci",

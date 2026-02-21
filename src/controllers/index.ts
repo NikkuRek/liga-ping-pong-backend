@@ -1,4 +1,4 @@
-export * from "./aura-record.controller"
+export * from "./aura_record.controller"
 export * from "./career.controller"
 export * from "./credential.controller"
 export * from "./player.controller"

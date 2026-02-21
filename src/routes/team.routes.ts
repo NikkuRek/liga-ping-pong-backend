@@ -38,12 +38,17 @@ router.put(
     teamController.update,
 ) // PUT /api/team/:id
 
-// Eliminar un equipo
 router.delete(
     "/:id",
     teamValidators.validateIdExists,
     teamController.delete,
 ) // DELETE /api/team/:id
+
+router.patch(
+    "/:id",
+    teamValidators.validateIdExists,
+    teamController.patch,
+) // PATCH /api/team/:id
 
 export const TeamRoute = router
 

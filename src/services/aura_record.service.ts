@@ -53,9 +53,9 @@ class AuraRecordService {
         })
         if (!AuraRecords || AuraRecords.length === 0) {
           return {
-            status: 404,
+            status: 200,
             message: "No se encontraron registros para el jugador",
-            data: null,
+            data: [],
           }
         }
         return {

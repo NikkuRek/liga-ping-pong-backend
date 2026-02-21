@@ -1,4 +1,4 @@
-export * from "./aura-record.interface"
+export * from "./aura_record.interface"
 export * from "./availability.interface"
 export * from "./career.interface"
 export * from "./credential.interface"

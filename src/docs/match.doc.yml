@@ -1,33 +1,25 @@
-# filepath: c:\Users\Usuario\Documents\dev\liga-ping-pong-backend\src\docs\match.doc.yml
 paths:
   /match:
     get:
       tags:
         - Match
-      summary: Obtiene todos los partidos
-      description: Retorna un array con todos los partidos
+      summary: Listar todos los partidos
+      description: Retorna un historial completo de todos los partidos registrados, incluyendo torneos, jugadores y sets.
       responses:
         200:
-          description: Operación exitosa
+          description: Listado de partidos obtenido exitonamente.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/MatchWithSets"
+                $ref: '#/components/schemas/MatchListResponse'
         500:
-          description: Error al obtener partidos
+          $ref: '#/components/responses/ErrorServer'
 
     post:
       tags:
         - Match
-      summary: Crea un nuevo partido
-      description: Crea un nuevo partido con los datos proporcionados
+      summary: Crear nuevo partido (Directo)
+      description: Registra un partido finalizado o pendiente directamente en el sistema.
       security:
         - bearerAuth: []
       requestBody:
@@ -35,32 +27,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MatchInput"
+              $ref: '#/components/schemas/MatchInput'
       responses:
         201:
-          description: Partido creado correctamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: "#/components/schemas/MatchWithSets"
-        400:
-          description: Datos inválidos
-        404:
-          description: Torneo o inscripción no encontrada
-        500:
-          description: Error al crear partido
+          description: Partido creado correctamente.
+        401:
+          $ref: '#/components/responses/Unauthorized'
 
   /match/propose:
     post:
       tags:
         - Match
-      summary: Propone un nuevo partido
-      description: Crea una propuesta de partido que debe ser aprobada por el oponente
+      summary: Proponer un partido a otro jugador
+      description: Crea un partido con estado 'Propuesto' y envía una notificación en tiempo real vía Socket.io al oponente.
       security:
         - bearerAuth: []
       requestBody:
@@ -68,198 +47,52 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MatchInput"
+              $ref: '#/components/schemas/MatchInput'
       responses:
         201:
-          description: Partido propuesto correctamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: "#/components/schemas/MatchWithSets"
-        400:
-          description: Datos inválidos
-        404:
-          description: Torneo o inscripción no encontrada
-        500:
-          description: Error al proponer partido
+          description: Propuesta de partido enviada.
 
   /match/{id}:
     get:
       tags:
         - Match
-      summary: Obtiene un partido por ID
-      description: Retorna un partido según el ID proporcionado
+      summary: Obtener detalles de un partido
       parameters:
-        - name: id
-          in: path
-          description: ID del partido
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/idParam'
       responses:
         200:
-          description: Operación exitosa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: "#/components/schemas/MatchWithSets"
+          description: Detalles del partido.
         404:
-          description: Partido no encontrado
-        500:
-          description: Error al obtener partido
+          description: Partido no encontrado.
 
     put:
       tags:
         - Match
-      summary: Actualiza un partido
-      description: Actualiza los datos de un partido según el ID proporcionado
+      summary: Actualización completa del partido
       security:
         - bearerAuth: []
       parameters:
-        - name: id
-          in: path
-          description: ID del partido
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/idParam'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MatchInput"
+              $ref: '#/components/schemas/MatchInput'
       responses:
         200:
-          description: Partido actualizado correctamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: "#/components/schemas/MatchWithSets"
-        400:
-          description: Datos inválidos
-        404:
-          description: Partido no encontrado
-        500:
-          description: Error al actualizar partido
+          description: Partido actualizado.
 
-    delete:
+    patch:
       tags:
         - Match
-      summary: Elimina un partido
-      description: Elimina un partido según el ID proporcionado
+      summary: Actualización parcial o de resultado
+      description: Permite actualizar el ganador, el estado o la fecha sin enviar todo el objeto. Si se agrega un ganador, el estado cambia automáticamente a 'Finalizado' y se recalcula el AURA.
       security:
         - bearerAuth: []
       parameters:
-        - name: id
-          in: path
-          description: ID del partido
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: Partido eliminado correctamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        404:
-          description: Partido no encontrado
-        500:
-          description: Error al eliminar partido
-
-  /match/{id}/cascade:
-    delete:
-      tags:
-        - Match
-      summary: Elimina un partido en cascada
-      description: |
-        Elimina un partido junto con todos sus datos asociados en el orden correcto:
-        1. Revierte los cambios de aura de los jugadores (resta el cambio registrado en aura-record)
-        2. Elimina los registros de aura (aura-records)
-        3. Elimina los sets asociados
-        4. Elimina el partido
-
-        **Nota importante sobre la reversión de aura:**
-        - Si el jugador ganó aura en ese partido, se le resta ese cambio
-        - Si el jugador perdió aura en ese partido, se le suma ese cambio (revertir una pérdida)
-        - Los cambios de aura de partidos posteriores NO se ven afectados
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          description: ID del partido
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: Partido y sus datos asociados eliminados correctamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Partido y sus datos asociados eliminados correctamente
-        404:
-          description: Partido no encontrado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Partido no encontrado
-        500:
-          description: Error al eliminar partido en cascada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Error al eliminar partido en cascada
-
-  /match/{id}/result:
-    put:
-      tags:
-        - Match
-      summary: Actualiza el resultado de un partido
-      description: Actualiza el ganador y perdedor de un partido según el ID proporcionado
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          description: ID del partido
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/idParam'
       requestBody:
-        required: true
         content:
           application/json:
             schema:
@@ -267,420 +100,122 @@ paths:
               properties:
                 winner_inscription_id:
                   type: integer
-                  description: ID de la inscripción ganadora
+                status:
+                  type: string
+                  enum: [Propuesto, Pendiente, Finalizado]
+                match_datetime:
+                  type: string
+                  format: date-time
       responses:
         200:
-          description: Resultado actualizado correctamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: "#/components/schemas/MatchWithSets"
-        400:
-          description: Datos inválidos
-        404:
-          description: Partido no encontrado
-        500:
-          description: Error al actualizar resultado
+          description: Partido actualizado parcialmente.
 
-  /match/tournament/{id_tournament}:
-    get:
+    delete:
       tags:
         - Match
-      summary: Obtiene partidos por torneo
-      description: Retorna un array con todos los partidos de un torneo específico
+      summary: Eliminar partido (Soft)
+      security:
+        - bearerAuth: []
       parameters:
-        - name: id_tournament
-          in: path
-          description: ID del torneo
-          required: true
-          schema:
-            type: integer
+        - $ref: '#/components/parameters/idParam'
       responses:
         200:
-          description: Operación exitosa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/MatchWithSets"
-        500:
-          description: Error al obtener partidos
+          description: Partido eliminado.
+
+  /match/{id}/cascade:
+    delete:
+      tags:
+        - Match
+      summary: Eliminación en cascada y reversión de AURA
+      description: Elimina el partido, sus sets y registros de AURA. Además, revierte el cálculo de AURA de los jugadores involucrados.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/idParam'
+      responses:
+        200:
+          description: Partido y dependencias eliminadas, AURA revertida.
 
   /match/player/{player_ci}:
     get:
       tags:
         - Match
-      summary: Obtiene partidos por CI del jugador
-      description: |
-        Retorna un array con todos los partidos en los que ha participado un jugador específico.
-        Busca todas las inscripciones del jugador y luego obtiene los partidos donde aparece como inscription1_id o inscription2_id.
+      summary: Listar partidos por jugador
       parameters:
         - name: player_ci
           in: path
-          description: Cédula de identidad del jugador
           required: true
           schema:
             type: string
       responses:
         200:
-          description: Operación exitosa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Partidos obtenidos correctamente
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/MatchWithSets"
-        404:
-          description: No se encontraron inscripciones para este jugador
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: No se encontraron inscripciones para este jugador
-                  data:
-                    type: array
-                    example: []
-        500:
-          description: Error al obtener partidos por CI del jugador
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Error al obtener partidos por CI del jugador
-                  data:
-                    type: null
-
-  /match/player/name:
-    get:
-      tags:
-        - Match
-      summary: Obtiene partidos por nombre del jugador
-      description: Busca jugadores por first_name y/o last_name (búsqueda parcial con case-insensitive) y retorna los partidos donde participaron.
-      parameters:
-        - name: first_name
-          in: query
-          description: Nombre o parte del nombre del jugador
-          required: false
-          schema:
-            type: string
-        - name: last_name
-          in: query
-          description: Apellido o parte del apellido del jugador
-          required: false
-          schema:
-            type: string
-      responses:
-        200:
-          description: Operación exitosa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Partidos obtenidos correctamente
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/MatchWithSets"
-        400:
-          description: Se requiere al menos first_name o last_name para la búsqueda
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Se requiere al menos first_name o last_name para la búsqueda
-                  data:
-                    type: array
-                    example: []
-        404:
-          description: No se encontraron jugadores/inscripciones/partidos para los criterios proporcionados
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: No se encontraron partidos para los jugadores buscados
-                  data:
-                    type: array
-                    example: []
-        500:
-          description: Error al obtener partidos por nombre del jugador
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Error al obtener partidos por nombre del jugador
-                  data:
-                    type: null
-
-  /match/player/{player_ci}/current-week-matches:
-    get:
-      tags:
-        - Match
-      summary: Obtiene partidos de un jugador en la semana actual para el torneo 2
-      description: |
-        Retorna un array con todos los partidos en los que ha participado un jugador específico durante la semana actual (Lunes a Domingo) y que pertenecen al torneo con ID 2.
-      parameters:
-        - name: player_ci
-          in: path
-          description: Cédula de identidad del jugador
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Operación exitosa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Partidos del torneo 2 en la semana actual obtenidos correctamente
-                  data:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/MatchWithSets"
-        404:
-          description: No se encontraron inscripciones para este jugador
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: No se encontraron inscripciones para este jugador
-                  data:
-                    type: array
-                    example: []
-        500:
-          description: Error al obtener los partidos
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Error al obtener partidos por CI del jugador en la semana actual
-                  data:
-                    type: null
+          description: Partidos del jugador obtenidos.
 
 components:
+  parameters:
+    idParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  responses:
+    ErrorServer:
+      description: Error interno del servidor.
+    Unauthorized:
+      description: Token no proporcionado o inválido.
+
   schemas:
     Match:
       type: object
       properties:
         match_id:
           type: integer
-          description: ID del partido
         tournament_id:
           type: integer
-          description: ID del torneo
         inscription1_id:
           type: integer
-          description: ID de la primera inscripción
         inscription2_id:
           type: integer
-          description: ID de la segunda inscripción
         winner_inscription_id:
           type: integer
           nullable: true
-          description: ID de la inscripción ganadora
         match_datetime:
           type: string
           format: date-time
-          nullable: true
-          description: Fecha y hora del partido
-        round:
-          type: string
-          description: Ronda del partido
         status:
           type: string
-          enum: [Pendiente, En Juego, Finalizado]
-          description: Estado del partido
         createdAt:
           type: string
           format: date-time
-          description: Fecha de creación
         updatedAt:
           type: string
           format: date-time
-          description: Fecha de última actualización
-        set:
-          $ref: "#/components/schemas/Set"
-
-    MatchWithSets:
-      type: object
-      properties:
-        match_id:
-          type: integer
-          description: ID del partido
-        tournament_id:
-          type: integer
-          description: ID del torneo
-        inscription1_id:
-          type: integer
-          description: ID de la primera inscripción
-        Inscription1:
-          type: object
-          description: Datos de la primera inscripción con información del jugador
-          properties:
-            inscription_id:
-              type: integer
-            player_ci:
-              type: string
-            player:
-              type: object
-              properties:
-                ci:
-                  type: string
-                  description: Cédula del jugador
-                first_name:
-                  type: string
-                  description: Nombre del jugador
-                last_name:
-                  type: string
-                  description: Apellido del jugador
-        inscription2_id:
-          type: integer
-          description: ID de la segunda inscripción
-        Inscription2:
-          type: object
-          description: Datos de la segunda inscripción con información del jugador
-          properties:
-            inscription_id:
-              type: integer
-            player_ci:
-              type: string
-            player:
-              type: object
-              properties:
-                ci:
-                  type: string
-                  description: Cédula del jugador
-                first_name:
-                  type: string
-                  description: Nombre del jugador
-                last_name:
-                  type: string
-                  description: Apellido del jugador
-        winner_inscription_id:
-          type: integer
-          nullable: true
-          description: ID de la inscripción ganadora
-        WinnerInscription:
-          type: object
-          nullable: true
-          description: Datos de la inscripción ganadora con información del jugador
-          properties:
-            inscription_id:
-              type: integer
-            player_ci:
-              type: string
-            player:
-              type: object
-              properties:
-                ci:
-                  type: string
-                  description: Cédula del jugador
-                first_name:
-                  type: string
-                  description: Nombre del jugador
-                last_name:
-                  type: string
-                  description: Apellido del jugador
-        match_datetime:
-          type: string
-          format: date-time
-          nullable: true
-          description: Fecha y hora del partido
-        round:
-          type: string
-          description: Ronda del partido
-        status:
-          type: string
-          enum: [Pendiente, En Juego, Finalizado]
-          description: Estado del partido
-        createdAt:
-          type: string
-          format: date-time
-          description: Fecha de creación
-        updatedAt:
-          type: string
-          format: date-time
-          description: Fecha de última actualización
-        sets:
-          type: array
-          items:
-            $ref: "#/components/schemas/Set"
 
     MatchInput:
       type: object
-      properties:
-        tournament_id:
-          type: integer
-          description: ID del torneo
-        inscription1_id:
-          type: integer
-          description: ID de la primera inscripción
-        inscription2_id:
-          type: integer
-          description: ID de la segunda inscripción
-        winner_inscription_id:
-          type: integer
-          nullable: true
-          description: ID de la inscripción ganadora
-        match_datetime:
-          type: string
-          format: date-time
-          nullable: true
-          description: Fecha y hora del partido
-        round:
-          type: string
-          description: Ronda del partido
-        status:
-          type: string
-          enum: [Pendiente, En Juego, Finalizado]
-          description: Estado del partido
       required:
         - tournament_id
         - inscription1_id
         - inscription2_id
-        - match_datetime
-        - round
+      properties:
+        tournament_id:
+          type: integer
+        inscription1_id:
+          type: integer
+        inscription2_id:
+          type: integer
+        match_datetime:
+          type: string
+          format: date-time
+
+    MatchListResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Match'

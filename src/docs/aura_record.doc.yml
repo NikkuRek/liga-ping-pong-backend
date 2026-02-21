@@ -1,0 +1,81 @@
+paths:
+  /aura_record:
+    get:
+      tags:
+        - AuraRecord
+      summary: Listar todos los registros de AURA
+      description: Retorna el historial completo de cambios de puntuación AURA de todos los jugadores.
+      responses:
+        200:
+          description: Listado obtenido.
+
+  /aura_record/{id}:
+    get:
+      tags:
+        - AuraRecord
+      summary: Obtener registro de AURA por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Detalles del registro.
+
+  /aura_record/player/{player_ci}:
+    get:
+      tags:
+        - AuraRecord
+      summary: Listar historial de AURA de un jugador
+      parameters:
+        - name: player_ci
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Historial del jugador.
+
+  /aura_record/match/{matchId}:
+    get:
+      tags:
+        - AuraRecord
+      summary: Listar registros de AURA generados por un partido
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Registros del partido.
+
+components:
+  schemas:
+    AuraRecord:
+      type: object
+      properties:
+        aura_record_id:
+          type: integer
+        player_ci:
+          type: string
+        match_id:
+          type: integer
+        previous_aura:
+          type: integer
+        new_aura:
+          type: integer
+        change_reason:
+          type: string
+        change_amount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

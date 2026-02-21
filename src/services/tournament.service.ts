@@ -170,6 +170,28 @@ class TournamentService {
       }
     }
   }
+
+  async patch(id: number, tournamentData: Partial<TournamentInterface>) {
+    try {
+      const tournament = await TournamentDB.findByPk(id);
+      if (!tournament) {
+        return { status: 404, message: "Torneo no encontrado" };
+      }
+
+      const { tournament_id, createdAt, updatedAt, ...dataToUpdate } = tournamentData as any;
+      await TournamentDB.update(dataToUpdate, { where: { tournament_id: id } });
+      
+      const updatedTournament = await TournamentDB.findByPk(id);
+      return {
+        status: 200,
+        message: "Torneo actualizado parcialmente",
+        data: updatedTournament,
+      }
+    } catch (error) {
+      console.error("Error al parchear torneo:", error);
+      return { status: 500, message: "Error al actualizar torneo" };
+    }
+  }
 }
 
 export const TournamentServices = new TournamentService()

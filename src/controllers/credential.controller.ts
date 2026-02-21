@@ -71,14 +71,22 @@ export class CredentialController {
     if (status === 200 && data) {
       try {
         const token = await createToken(data.player)
+        
+        // Establecer el token en una cookie HttpOnly
+        res.cookie('token', token, {
+          httpOnly: true,
+          secure: true, // Siempre true para permitir SameSite: 'none'
+          sameSite: 'none', // Permite cookies en peticiones cross-origin
+          maxAge: 30 * 24 * 60 * 60 * 1000 // 30 días
+        })
+
         return res.status(status).json({
           message,
-          token,
           user: data.player,
         })
       } catch (error) {
         return res.status(500).json({
-          message: "Error generating token",
+          message: "Error al generar el token",
         })
       }
     }
@@ -87,4 +95,23 @@ export class CredentialController {
       data,
     })
   }
+
+  logout = async (req: Request, res: Response) => {
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none'
+    });
+    return res.status(200).json({
+      message: "Sesión cerrada correctamente"
+    });
+  }
+
+  patch = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status, message } = await CredentialServices.patch(Number(id), req.body);
+    return res.status(status).json({
+      message,
+    });
+  };
 }

@@ -54,4 +54,13 @@ export class TeamController {
       message,
     });
   };
+
+  patch = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status, message, data } = await TeamServices.patch(Number(id), req.body);
+    return res.status(status).json({
+      message,
+      data,
+    });
+  };
 }

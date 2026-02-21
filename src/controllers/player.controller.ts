@@ -69,4 +69,13 @@ export class PlayerController {
       message,
     });
   };
+
+  patch = async (req: Request, res: Response) => {
+    const { ci } = req.params;
+    const { status, message, data } = await PlayerServices.patch(ci, req.body);
+    return res.status(status).json({
+      message,
+      data,
+    });
+  };
 }

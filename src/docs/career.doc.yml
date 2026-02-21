@@ -3,89 +3,47 @@ paths:
     get:
       tags:
         - Career
-      summary: Obtiene todas las carreras
-      description: Retorna un array con todas las carreras
+      summary: Listar todas las carreras
       responses:
         200:
-          description: Operación exitosa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Career'
-        500:
-          description: Error del servidor
+          description: Listado de carreras obtenido exitosamente.
+
     post:
       tags:
         - Career
-      summary: Crea una nueva carrera
-      description: Crea una nueva carrera con los datos proporcionados
+      summary: Crear nueva carrera
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Career'
+              $ref: '#/components/schemas/CareerInput'
       responses:
         201:
-          description: Carrera creada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Career'
-        400:
-          description: Datos inválidos
-        500:
-          description: Error del servidor
-  /career/{career_id}:
+          description: Carrera creada.
+
+  /career/{id}:
     get:
       tags:
         - Career
-      summary: Obtiene una carrera por id
-      description: Retorna una carrera según el id proporcionado
+      summary: Obtener carrera por ID
       parameters:
-        - name: career_id
+        - name: id
           in: path
-          description: id de la carrera
           required: true
           schema:
             type: integer
       responses:
         200:
-          description: Operación exitosa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Career'
-        404:
-          description: Carrera no encontrada
-        500:
-          description: Error del servidor
+          description: Detalles de la carrera.
+
     put:
       tags:
         - Career
-      summary: Actualiza una carrera
-      description: Actualiza los datos de una carrera según el id proporcionado
+      summary: Actualización completa de carrera
       parameters:
-        - name: career_id
+        - name: id
           in: path
-          description: id de la carrera
           required: true
           schema:
             type: integer
@@ -94,57 +52,67 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Career'
+              $ref: '#/components/schemas/CareerInput'
       responses:
         200:
-          description: Carrera actualizada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Career'
-        404:
-          description: Carrera no encontrada
-        500:
-          description: Error del servidor
+          description: Carrera actualizada.
+
+    patch:
+      tags:
+        - Career
+      summary: Actualización parcial de carrera
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        200:
+          description: Carrera actualizada parcialmente.
+
     delete:
       tags:
         - Career
-      summary: Elimina una carrera
-      description: Elimina una carrera según el id proporcionado
+      summary: Eliminar carrera
       parameters:
-        - name: career_id
+        - name: id
           in: path
-          description: id de la carrera
           required: true
           schema:
             type: integer
       responses:
         200:
-          description: Carrera eliminada
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        404:
-          description: Carrera no encontrada
-        500:
-          description: Error del servidor
+          description: Carrera eliminada.
 
 components:
   schemas:
     Career:
       type: object
       properties:
-        name_career:
+        career_id:
+          type: integer
+        name:
           type: string
-          description: Nombre de la carrera
-          
-        
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CareerInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string

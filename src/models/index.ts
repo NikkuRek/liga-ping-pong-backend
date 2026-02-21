@@ -1,4 +1,4 @@
-export * from "./aura-record.model"
+export * from "./aura_record.model"
 export * from "./availability.model"
 export * from "./career.model"
 export * from "./credential.model"

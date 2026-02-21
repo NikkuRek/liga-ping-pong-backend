@@ -26,6 +26,7 @@ router.put(
   tournamentController.update,
 )
 router.delete("/:id", tournamentValidator.validateTournamentIdExists, tournamentController.delete)
+router.patch("/:id", tournamentValidator.validateTournamentIdExists, tournamentController.patch)
 
 export const TournamentRoute = router
 

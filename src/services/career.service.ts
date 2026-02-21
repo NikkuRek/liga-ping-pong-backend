@@ -111,6 +111,28 @@ class CareerService {
       }
     }
   }
+
+  async patch(career_id: number, careerData: Partial<CareerInterface>) {
+    try {
+      const career = await CareerDB.findByPk(career_id);
+      if (!career) {
+        return { status: 404, message: "Carrera no encontrada" };
+      }
+
+      const { career_id: _, createdAt, updatedAt, ...dataToUpdate } = careerData as any;
+      await CareerDB.update(dataToUpdate, { where: { career_id } });
+      
+      const updatedCareer = await CareerDB.findByPk(career_id);
+      return {
+        status: 200,
+        message: "Carrera actualizada parcialmente",
+        data: updatedCareer,
+      }
+    } catch (error) {
+      console.error("Error al parchear carrera:", error);
+      return { status: 500, message: "Error al actualizar carrera" };
+    }
+  }
 }
 
 export const CareerServices = new CareerService()

@@ -8,7 +8,7 @@ import { InscriptionRoute } from "./inscription.routes"
 import { MatchRoute } from "./match.routes"
 import { SetsRoute } from "./sets.routes"
 import { TeamRoute } from "./team.routes"
-import { AuraRecordRoute } from "./aura-record.routes"
+import { AuraRecordRoute } from "./aura_record.routes"
 
 const router = Router()
 

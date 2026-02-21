@@ -178,6 +178,31 @@ class SetsService {
       }
     }
   }
+
+  async patch(id: number, setData: Partial<SetsInterface>) {
+    try {
+      const existingSet = await SetsDB.findByPk(id);
+      if (!existingSet) {
+        return { status: 404, message: "Set no encontrado", data: null };
+      }
+
+      const { createdAt, updatedAt, ...dataToUpdate } = setData as any;
+      await SetsDB.update(dataToUpdate, { where: { set_id: id } });
+      
+      const updatedSet = await SetsDB.findByPk(id, {
+        include: [{ model: MatchDB }]
+      });
+
+      return {
+        status: 200,
+        message: "Set actualizado parcialmente",
+        data: updatedSet,
+      }
+    } catch (error) {
+      console.error("Error al parchear set:", error);
+      return { status: 500, message: "Error al actualizar set", data: null };
+    }
+  }
 }
 
 export const SetsServices = new SetsService()

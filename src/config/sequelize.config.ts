@@ -165,10 +165,34 @@ PlayerDB.hasMany(AuraRecordDB, { foreignKey: "player_ci" })
 AuraRecordDB.belongsTo(MatchDB, { foreignKey: "match_id" })
 MatchDB.hasMany(AuraRecordDB, { foreignKey: "match_id" })
 
+const cleanDuplicateIndexes = async () => {
+  const queryInterface = db.getQueryInterface();
+  const tables = ["careers", "days", "players", "credentials"];
+
+  for (const table of tables) {
+    try {
+      const indexes: any = await queryInterface.showIndex(table);
+      for (const index of indexes) {
+        // Si el índice es único y termina en un número (ej. name_career_2), es probable que sea un duplicado huérfano de Sequelize
+        if (index.name !== 'PRIMARY' && /_\d+$/.test(index.name)) {
+          console.log(`Eliminando índice redundante ${index.name} de la tabla ${table}...`);
+          await queryInterface.removeIndex(table, index.name);
+        }
+      }
+    } catch (e) {
+      console.error(`Error limpiando índices de la tabla ${table}:`, e);
+    }
+  }
+};
+
 export const syncModels = async () => {
   try {
     await db.authenticate()
     console.log("Conectando a la base de datos...")
+    
+    // Limpiar índices duplicados antes de sincronizar para evitar ER_TOO_MANY_KEYS
+    await cleanDuplicateIndexes();
+
     await db.sync({ alter: true })
     console.log("Base de datos sincronizada")
   } catch (error) {

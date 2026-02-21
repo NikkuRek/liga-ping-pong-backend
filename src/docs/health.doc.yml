@@ -1,68 +1,33 @@
-# DESCRIPTION: Endpoint para verificar el estado de la aplicación y la conexión a la base de datos lpp_db.
 paths:
   /health:
     get:
       tags:
         - Health
-      summary: Verifica el estado de la aplicación
-      description: Retorna el estado de la aplicación y la conexión a la base de datos lpp_db.
+      summary: Verificar estado de la API
+      description: Retorna información sobre el estado del servidor y la conexión a la base de datos PostgreSQL.
       responses:
         200:
-          description: La aplicación está funcionando correctamente y la base de datos lpp_db está conectada.
+          description: API operativa y DB conectada.
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    description: Estado de la aplicación.
-                  database:
-                    type: string
-                    description: Estado de la conexión a la base de datos lpp_db.
-                  database_name:
-                    type: string
-                    description: Nombre de la base de datos conectada.
-              examples:
-                success:
-                  value:
-                    status: "ok"
-                    database: "connected"
-                    database_name: "lpp_db"
+              example:
+                status: "ok"
+                database: "connected"
+                database_name: "lpp_db"
         500:
-          description: Error en la conexión a la base de datos lpp_db.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    description: Estado de la aplicación.
-                  database:
-                    type: string
-                    description: Estado de la conexión a la base de datos lpp_db.
-                  database_name:
-                    type: string
-                    description: Nombre de la base de datos conectada.
-              examples:
-                error:
-                  value:
-                    status: "error"
-                    database: "disconnected"
-                    database_name: "lpp_db"
+          description: Error en la conexión a la base de datos.
 
   /health/token:
     get:
       tags:
         - Health
-      summary: Verifica la validez del token JWT
-      description: Verifica si el token JWT proporcionado es válido y retorna información del usuario autenticado.
+      summary: Validar token JWT
+      description: Verifica si el token Bearer proporcionado es válido y retorna el payload del usuario.
       security:
         - bearerAuth: []
       responses:
         200:
-          description: Token válido
+          description: Token válido.
           content:
             application/json:
               schema:
@@ -72,31 +37,6 @@ paths:
                     type: string
                     example: "valid"
                   user:
-                    type: object
-                    properties:
-                      ci:
-                        type: string
-                        description: CI del jugador
-                      first_name:
-                        type: string
-                        description: Nombre
-                      last_name:
-                        type: string
-                        description: Apellido
-                      phone:
-                        type: string
-                        description: Teléfono
-                      semester:
-                        type: integer
-                        description: Semestre
-                      career_id:
-                        type: integer
-                        description: ID de carrera
-                      aura:
-                        type: number
-                        description: Aura
-                      status:
-                        type: boolean
-                        description: Estado activo
+                    $ref: '#/src/docs/player.doc.yml#/components/schemas/Player'
         401:
-          description: Token inválido o expirado
+          description: Token ausente, inválido o expirado.

@@ -7,7 +7,7 @@ import {
   auraRecordPlayerValidator,
   createAuraRecordValidator,
   updateAuraRecordValidator,
-} from "../validators/aura-record.validator"
+} from "../validators/aura_record.validator"
 
 const router = Router()
 const auraRecordController = new AuraRecordController()

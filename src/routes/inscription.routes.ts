@@ -30,6 +30,7 @@ router.put(
   inscriptionController.update,
 )
 router.delete("/:id", inscriptionValidator.validateIdExists, inscriptionController.delete)
+router.patch("/:id", inscriptionValidator.validateIdExists, inscriptionController.patch)
 
 export const InscriptionRoute = router
 

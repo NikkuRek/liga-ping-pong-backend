@@ -1,31 +1,37 @@
 import { MatchDB, SetsDB, AuraRecordDB, PlayerDB, InscriptionDB } from "../config/sequelize.config"
 import type { MatchInterface } from "../interfaces"
-import { auraCalculationService } from "../middlewares/aura-calculator.middlewares"
-import { Op } from "sequelize"
+import { auraCalculationService } from "../middlewares/aura_calculator.middlewares"
+import { Op, IncludeOptions } from "sequelize"
 
 class MatchService {
+  /**
+   * Asociaciones estándar para incluir en las consultas de partidos.
+   * Centraliza la lógica de joins para evitar redundancia.
+   */
+  private readonly defaultIncludes: IncludeOptions[] = [
+    { model: SetsDB },
+    {
+      model: InscriptionDB,
+      as: "Inscription1",
+      include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+    },
+    {
+      model: InscriptionDB,
+      as: "Inscription2",
+      include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+    },
+    {
+      model: InscriptionDB,
+      as: "WinnerInscription",
+      required: false,
+      include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
+    },
+  ]
+
   async getAll() {
     try {
       const matches = await MatchDB.findAll({
-        include: [
-          { model: SetsDB },
-          {
-            model: InscriptionDB,
-            as: "Inscription1",
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-          {
-            model: InscriptionDB,
-            as: "Inscription2",
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-          {
-            model: InscriptionDB,
-            as: "WinnerInscription",
-            required: false,
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-        ],
+        include: this.defaultIncludes,
       })
       return {
         status: 200,
@@ -45,25 +51,7 @@ class MatchService {
   async getOne(match_id: number) {
     try {
       const match = await MatchDB.findByPk(match_id, {
-        include: [
-          { model: SetsDB },
-          {
-            model: InscriptionDB,
-            as: "Inscription1",
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-          {
-            model: InscriptionDB,
-            as: "Inscription2",
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-          {
-            model: InscriptionDB,
-            as: "WinnerInscription",
-            required: false,
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-        ],
+        include: this.defaultIncludes,
       })
       if (!match) {
         return {
@@ -238,7 +226,7 @@ class MatchService {
 
       if (inscriptions.length === 0) {
         return {
-          status: 404,
+          status: 200,
           message: "No se encontraron inscripciones para este jugador",
           data: [],
         }
@@ -255,25 +243,7 @@ class MatchService {
             { inscription2_id: { [Op.in]: inscriptionIds } },
           ],
         },
-        include: [
-          { model: SetsDB },
-          {
-            model: InscriptionDB,
-            as: "Inscription1",
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-          {
-            model: InscriptionDB,
-            as: "Inscription2",
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-          {
-            model: InscriptionDB,
-            as: "WinnerInscription",
-            required: false,
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-        ],
+        include: this.defaultIncludes,
       })
 
       return {
@@ -338,25 +308,7 @@ class MatchService {
             { tournament_id: 2 },
           ],
         },
-        include: [
-          { model: SetsDB },
-          {
-            model: InscriptionDB,
-            as: "Inscription1",
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-          {
-            model: InscriptionDB,
-            as: "Inscription2",
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-          {
-            model: InscriptionDB,
-            as: "WinnerInscription",
-            required: false,
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-        ],
+        include: this.defaultIncludes,
       });
   
       return {
@@ -436,25 +388,7 @@ class MatchService {
             { inscription2_id: { [Op.in]: inscriptionIdValues } },
           ],
         },
-        include: [
-          { model: SetsDB },
-          {
-            model: InscriptionDB,
-            as: "Inscription1",
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-          {
-            model: InscriptionDB,
-            as: "Inscription2",
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-          {
-            model: InscriptionDB,
-            as: "WinnerInscription",
-            required: false,
-            include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
-          },
-        ],
+        include: this.defaultIncludes,
       })
 
       if (!matches || matches.length === 0) {
@@ -492,6 +426,56 @@ class MatchService {
 
 
 
+
+  async patch(match_id: number, matchData: Partial<MatchInterface>) {
+    try {
+      const match = await MatchDB.findByPk(match_id);
+      if (!match) {
+        return {
+          status: 404,
+          message: "Partido no encontrado",
+          data: null,
+        }
+      }
+
+      const { createdAt, updatedAt, match_id: _, ...dataToUpdate } = matchData as any;
+      
+      // Si se está actualizando el ganador y no tenía uno previo, marcar como Finalizado y actualizar AURA
+      const previousWinner = match.getDataValue("winner_inscription_id");
+      
+      await MatchDB.update(dataToUpdate, { where: { match_id } });
+
+      if (dataToUpdate.winner_inscription_id && !previousWinner) {
+        try {
+          await MatchDB.update({ status: "Finalizado" }, { where: { match_id } });
+          const inscription1_id = match.getDataValue("inscription1_id");
+          const inscription2_id = match.getDataValue("inscription2_id");
+          const winner_id = dataToUpdate.winner_inscription_id;
+          const loser_id = winner_id === inscription1_id ? inscription2_id : inscription1_id;
+          await auraCalculationService.updateAURAAfterMatch(winner_id, loser_id, match_id);
+        } catch (auraError) {
+          console.error("[AURA] Error en patch al actualizar AURA:", auraError);
+        }
+      }
+
+      const updatedMatch = await MatchDB.findByPk(match_id, {
+        include: this.defaultIncludes
+      });
+
+      return {
+        status: 200,
+        message: "Partido actualizado parcialmente",
+        data: updatedMatch,
+      }
+    } catch (error) {
+      console.error("Error al actualizar parcialmente partido:", error);
+      return {
+        status: 500,
+        message: "Error al actualizar parcialmente partido",
+        data: null,
+      }
+    }
+  }
 
   private async revertAuraChanges(match_id: number): Promise<void> {
     try {

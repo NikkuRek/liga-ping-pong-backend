@@ -45,4 +45,13 @@ export class CareerController {
       message,
     })
   }
+
+  patch = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status, message, data } = await CareerServices.patch(Number(id), req.body);
+    return res.status(status).json({
+      message,
+      data,
+    });
+  };
 }

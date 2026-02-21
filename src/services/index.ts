@@ -1,4 +1,4 @@
-export * from "./aura-record.service"
+export * from "./aura_record.service"
 export * from "./career.service"
 export * from "./credential.service"
 export * from "./player.service"

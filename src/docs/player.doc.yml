@@ -3,11 +3,11 @@ paths:
     get:
       tags:
         - Player
-      summary: Obtiene todos los jugadores
-      description: Retorna un array con todos los jugadores
+      summary: Listar todos los jugadores
+      description: Retorna una lista completa de todos los jugadores registrados en el sistema, incluyendo sus detalles básicos.
       responses:
         200:
-          description: Operación exitosa
+          description: Lista de jugadores obtenida exitosamente.
           content:
             application/json:
               schema:
@@ -15,134 +15,97 @@ paths:
                 properties:
                   message:
                     type: string
+                    example: "Jugadores obtenidos correctamente"
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Player'
         500:
-          description: Error del servidor
+          $ref: '#/components/responses/ErrorServer'
 
     post:
       tags:
         - Player
-      summary: Crea un nuevo jugador
-      description: Crea un nuevo jugador con los datos proporcionados, incluyendo los días disponibles
+      summary: Registrar nuevo jugador
+      description: Crea un nuevo perfil de jugador. Requiere datos personales y la lista de días disponibles para jugar.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required:
+                - playerData
+                - available_days
               properties:
                 playerData:
-                  $ref: '#/components/schemas/Player'
+                  $ref: '#/components/schemas/PlayerInput'
                 available_days:
-                  $ref: '#/components/schemas/available_days'
+                  $ref: '#/components/schemas/AvailableDays'
       responses:
         201:
-          description: Jugador creado correctamente
+          description: Jugador registrado correctamente.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Player'
+                $ref: '#/components/schemas/PlayerResponse'
         400:
-          description: Datos inválidos
+          description: Error en la validación de los datos proporcionados.
         500:
-          description: Error al crear jugador
+          $ref: '#/components/responses/ErrorServer'
 
   /player/active:
     get:
       tags:
         - Player
-      summary: Obtiene jugadores activos
-      description: Retorna un array con todos los jugadores que están activos
+      summary: Listar jugadores activos
+      description: Retorna únicamente los jugadores que tienen su estado marcado como activo (true).
       responses:
         200:
-          description: Operación exitosa
+          description: Lista de jugadores activos.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Player'
-        500:
-          description: Error del servidor
+                $ref: '#/components/schemas/PlayerListResponse'
 
   /player/inactive:
     get:
       tags:
         - Player
-      summary: Obtiene jugadores inactivos
-      description: Retorna un array con todos los jugadores que están inactivos
+      summary: Listar jugadores inactivos
+      description: Retorna únicamente los jugadores que han sido deshabilitados (status false).
       responses:
         200:
-          description: Operación exitosa
+          description: Lista de jugadores inactivos.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Player'
-        500:
-          description: Error del servidor
+                $ref: '#/components/schemas/PlayerListResponse'
 
   /player/{ci}:
     get:
       tags:
         - Player
-      summary: Obtiene un jugador por CI
-      description: Retorna un jugador según la CI proporcionado
+      summary: Buscar jugador por CI
       parameters:
-        - name: ci
-          in: path
-          description: CI del jugador
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/ciParam'
       responses:
         200:
-          description: Operación exitosa
+          description: Datos del jugador encontrados.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Player'
+                $ref: '#/components/schemas/PlayerResponse'
         404:
-          description: Jugador no encontrado
-        500:
-          description: Error del servidor
+          description: No existe un jugador con el CI proporcionado.
 
     put:
       tags:
         - Player
-      summary: Actualiza un jugador
-      description: Actualiza los datos de un jugador según la CI proporcionado, incluyendo los días disponibles
+      summary: Actualización completa de jugador
+      description: Sobrescribe todos los datos de un jugador existente.
       parameters:
-        - name: ci
-          in: path
-          description: CI del jugador
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/ciParam'
       requestBody:
         required: true
         content:
@@ -151,123 +114,155 @@ paths:
               type: object
               properties:
                 playerData:
-                  $ref: '#/components/schemas/Player'
+                  $ref: '#/components/schemas/PlayerInput'
                 available_days:
-                  $ref: '#/components/schemas/available_days'
+                  $ref: '#/components/schemas/AvailableDays'
       responses:
         200:
-          description: Jugador actualizado correctamente
+          description: Jugador actualizado exitosamente.
+        404:
+          description: Jugador no encontrado.
+
+    patch:
+      tags:
+        - Player
+      summary: Actualización parcial de jugador
+      description: Permite modificar uno o varios campos específicos de un jugador sin afectar el resto.
+      parameters:
+        - $ref: '#/components/parameters/ciParam'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlayerInput'
+      responses:
+        200:
+          description: Campos actualizados correctamente.
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Player'
-        400:
-          description: Datos inválidos
+                $ref: '#/components/schemas/PlayerResponse'
         404:
-          description: Jugador no encontrado
-        500:
-          description: Error al actualizar jugador
+          description: Jugador no encontrado.
 
     delete:
       tags:
         - Player
-      summary: Deshabilita un jugador
-      description: Deshabilita un jugador según la CI proporcionado. Este borrado es lógico y no elimina físicamente el registro.
+      summary: Deshabilitación lógica (Borrado suave)
+      description: Cambia el estado del jugador a 'inactivo' pero conserva sus datos en la base de datos.
       parameters:
-        - name: ci
-          in: path
-          description: CI del jugador
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/ciParam'
       responses:
         200:
-          description: Jugador deshabilitado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        404:
-          description: Jugador no encontrado
-        500:
-          description: Error del servidor
+          description: Jugador deshabilitado correctamente.
 
   /player/delete/{ci}:
     delete:
       tags:
         - Player
-      summary: Elimina físicamente un jugador
-      description: Elimina físicamente un jugador según la CI proporcionado.
+      summary: Eliminación física
+      description: Borra permanentemente el registro del jugador de la base de datos. NO SE PUEDE DESHACER.
       parameters:
-        - name: ci
-          in: path
-          description: CI del jugador
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/ciParam'
       responses:
         200:
-          description: Jugador eliminado físicamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        404:
-          description: Jugador no encontrado
-        500:
-          description: Error del servidor
+          description: Registro eliminado permanentemente.
 
 components:
+  parameters:
+    ciParam:
+      name: ci
+      in: path
+      description: Cédula de Identidad del jugador (Primary Key)
+      required: true
+      schema:
+        type: string
+        example: "1234567"
+
+  responses:
+    ErrorServer:
+      description: Error interno del servidor.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Ha ocurrido un error inesperado"
+
   schemas:
     Player:
       type: object
       properties:
         ci:
           type: string
-          description: Cédula de identidad del jugador
+          example: "1234567"
         first_name:
           type: string
-          description: Primer nombre del jugador
+          example: "Juan"
         last_name:
           type: string
-          description: Apellido del jugador
+          example: "Pérez"
         phone:
           type: string
-          description: Teléfono del jugador
+          example: "0981234567"
         semester:
           type: integer
-          description: Semestre del jugador
+          example: 5
         career_id:
           type: integer
-          description: ID de la carrera del jugador
+          example: 1
         aura:
           type: integer
-          nullable: true
-          description: Puntuación AURA del jugador
+          example: 1200
         status:
           type: boolean
-          description: Estado del jugador (true=activo, false=inactivo)
+          example: true
         createdAt:
           type: string
           format: date-time
-          description: Fecha de creación
         updatedAt:
           type: string
           format: date-time
-          description: Fecha de última actualización
-    available_days:
+
+    PlayerInput:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone:
+          type: string
+        semester:
+          type: integer
+        career_id:
+          type: integer
+        aura:
+          type: integer
+
+    AvailableDays:
       type: array
       items:
         type: integer
-      description: Lista de IDs de días disponibles (day_id)
+      description: IDs de los días (1=Lunes, 7=Domingo)
+      example: [1, 3, 5]
+
+    PlayerResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Player'
+
+    PlayerListResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Player'

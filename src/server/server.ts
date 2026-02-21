@@ -3,6 +3,7 @@ import { createServer } from "http"
 import { Server as SocketServer } from "socket.io"
 import cors from "cors"
 import morgan from "morgan"
+import cookieParser from "cookie-parser"
 import swaggerJsDoc from "swagger-jsdoc"
 import swaggerUi from "swagger-ui-express"
 import { swaggerOptions } from "../config"
@@ -61,8 +62,12 @@ export class Server {
   }
 
   middlewares() {
-    this.app.use(cors())
+    this.app.use(cors({
+      origin: true,
+      credentials: true
+    }))
     this.app.use(express.json())
+    this.app.use(cookieParser())
     this.app.use(express.static("src/public"))
     this.app.use(morgan("dev"))
   }
@@ -97,18 +102,24 @@ export class Server {
       console.log('Usuario conectado:', socket.id)
 
       // JWT auth
-      const token = socket.handshake.auth?.token
+      let token = socket.handshake.auth?.token;
+
+      // Si no hay token en auth, buscar en cookies del header
+      if (!token && socket.handshake.headers.cookie) {
+        const match = socket.handshake.headers.cookie.match(/token=([^;]+)/);
+        if (match) token = match[1];
+      }
+
       if (!token) {
         socket.disconnect()
         return
       }
-      const decoded = verifyToken(token)
+      const decoded: any = verifyToken(token)
       if (!decoded || !decoded.ci) {
         socket.disconnect()
         return
       }
       (socket as any).playerCI = decoded.ci
-      socket.join(decoded.ci)
       socket.join(decoded.ci)
 
       // Handle match events

@@ -7,6 +7,7 @@ class CredentialService {
   async getAll() {
     try {
       const credentials = await CredentialDB.findAll({
+        attributes: { exclude: ["password"] },
         include: {
           model: PlayerDB,
           as: "Player",
@@ -30,6 +31,7 @@ class CredentialService {
   async getOne(id: string) {
     try {
       const credential = await CredentialDB.findByPk(id, {
+        attributes: { exclude: ["password"] },
         include: {
           model: PlayerDB,
           as: "Player",
@@ -75,6 +77,7 @@ class CredentialService {
 
       const credential = await CredentialDB.findOne({
         where: { player_ci },
+        attributes: { exclude: ["password"] },
         include: {
           model: PlayerDB,
           as: "Player",
@@ -139,10 +142,13 @@ class CredentialService {
         password: hashedPassword,
       })
 
+      const credentialResponse = newCredential.get({ plain: true })
+      delete (credentialResponse as any).password
+
       return {
         status: 201,
         message: "Credencial creada correctamente",
-        data: newCredential,
+        data: credentialResponse,
       }
     } catch (error) {
       console.error("Error al crear credencial:", error)
@@ -180,6 +186,7 @@ class CredentialService {
       await existingCredential.update(credentialData)
 
       const updatedCredential = await CredentialDB.findByPk(id, {
+        attributes: { exclude: ["password"] },
         include: {
           model: PlayerDB,
           as: "Player",
@@ -226,6 +233,7 @@ class CredentialService {
 
       const updatedCredential = await CredentialDB.findOne({
         where: { player_ci },
+        attributes: { exclude: ["password"] },
         include: {
           model: PlayerDB,
           as: "Player",
@@ -298,11 +306,14 @@ class CredentialService {
         }
       }
 
+      const safeCredential = credential.get({ plain: true })
+      delete (safeCredential as any).password
+
       return {
         status: 200,
         message: "Autenticación exitosa",
         data: {
-          credential: credential,
+          credential: safeCredential,
           player: (credential as any).Player,
         },
       }
@@ -313,6 +324,27 @@ class CredentialService {
         message: "Error en autenticación",
         data: null,
       }
+    }
+  }
+
+  async patch(id: number, credentialData: Partial<any>) {
+    try {
+      const credential = await CredentialDB.findByPk(id);
+      if (!credential) {
+        return { status: 404, message: "Credencial no encontrada" };
+      }
+
+      const dataToUpdate = { ...credentialData };
+      if (dataToUpdate.password) {
+        const salt = await bcrypt.genSalt(10);
+        dataToUpdate.password = await bcrypt.hash(dataToUpdate.password, salt);
+      }
+
+      await CredentialDB.update(dataToUpdate, { where: { credential_id: id } });
+      return { status: 200, message: "Credencial actualizada correctamente" };
+    } catch (error) {
+      console.error("Error al parchear credencial:", error);
+      return { status: 500, message: "Error al actualizar credencial" };
     }
   }
 }

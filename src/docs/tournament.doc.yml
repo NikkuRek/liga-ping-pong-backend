@@ -3,204 +3,114 @@ paths:
     get:
       tags:
         - Tournament
-      summary: Obtiene todos los torneos
-      description: Retorna un array con todos los torneos registrados
+      summary: Listar todos los torneos
       responses:
         200:
-          description: Operación exitosa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Tournament'
-        500:
-          description: Error al obtener torneos
+          description: Lista de torneos.
 
     post:
       tags:
         - Tournament
-      summary: Crea un nuevo torneo
-      description: Crea un nuevo torneo con los datos proporcionados
+      summary: Crear nuevo torneo
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TournamentCreate'
+              $ref: '#/components/schemas/TournamentInput'
       responses:
         201:
-          description: Torneo creado correctamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Tournament'
-        400:
-          description: Datos inválidos o nombre de torneo duplicado
-        500:
-          description: Error al crear torneo
-
-  /tournament/{id}:
-    get:
-      tags:
-        - Tournament
-      summary: Obtiene un torneo por ID
-      description: Retorna un torneo según el ID proporcionado
-      parameters:
-        - name: id
-          in: path
-          description: ID del torneo
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: Operación exitosa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Tournament'
-        404:
-          description: Torneo no encontrado
-        400:
-          description: ID inválido
-        500:
-          description: Error al obtener torneo
-
-    put:
-      tags:
-        - Tournament
-      summary: Actualiza un torneo
-      description: Actualiza los datos de un torneo según el ID proporcionado
-      parameters:
-        - name: id
-          in: path
-          description: ID del torneo
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TournamentUpdate'
-      responses:
-        200:
-          description: Torneo actualizado correctamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                  data:
-                    $ref: '#/components/schemas/Tournament'
-        400:
-          description: Datos inválidos o nombre de torneo duplicado
-        404:
-          description: Torneo no encontrado
-        500:
-          description: Error al actualizar torneo
-
-    delete:
-      tags:
-        - Tournament
-      summary: Elimina un torneo
-      description: Elimina un torneo según el ID proporcionado
-      parameters:
-        - name: id
-          in: path
-          description: ID del torneo
-          required: true
-          schema:
-            type: integer
-      responses:
-        200:
-          description: Torneo eliminado correctamente
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        404:
-          description: Torneo no encontrado
-        500:
-          description: Error al eliminar torneo
+          description: Torneo creado.
 
   /tournament/player/{player_ci}:
     get:
       tags:
         - Tournament
-      summary: Obtiene torneos por CI del jugador
-      description: |
-        Retorna un array con todos los torneos en los que está inscrito un jugador específico.
-        Busca todas las inscripciones del jugador y luego obtiene los torneos únicos asociados.
+      summary: Listar torneos donde participa un jugador
       parameters:
         - name: player_ci
           in: path
-          description: Cédula de identidad del jugador
           required: true
           schema:
             type: string
       responses:
         200:
-          description: Operación exitosa
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Torneos obtenidos correctamente
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Tournament'
-        404:
-          description: No se encontraron inscripciones para este jugador
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: No se encontraron inscripciones para este jugador
-                  data:
-                    type: array
-                    example: []
-        500:
-          description: Error al obtener torneos por CI del jugador
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Error al obtener torneos por CI del jugador
-                  data:
-                    type: null
+          description: Torneos del jugador.
+
+  /tournament/{id}:
+    get:
+      tags:
+        - Tournament
+      summary: Obtener torneo por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Detalles del torneo.
+
+    put:
+      tags:
+        - Tournament
+      summary: Actualización completa del torneo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TournamentInput'
+      responses:
+        200:
+          description: Torneo actualizado.
+
+    patch:
+      tags:
+        - Tournament
+      summary: Actualización parcial del torneo
+      description: Permite cambiar el estado (En Curso, Finalizado, etc.) o la fecha sin re-enviar todo.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                status:
+                  type: string
+                  enum: [Pendiente, En Curso, Finalizado]
+      responses:
+        200:
+          description: Torneo actualizado parcialmente.
+
+    delete:
+      tags:
+        - Tournament
+      summary: Eliminar torneo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Torneo eliminado.
 
 components:
   schemas:
@@ -209,107 +119,23 @@ components:
       properties:
         tournament_id:
           type: integer
-          description: ID del torneo
         name:
           type: string
-          description: Nombre del torneo
-        description:
-          type: string
-          nullable: true
-          description: Descripción del torneo
-        tournament_type:
-          type: string
-          enum: [Individual, Dobles]
-          description: Tipo de torneo
-        format:
-          type: string
-          description: Formato del torneo
-        start_date:
-          type: string
-          format: date
-          description: Fecha de inicio
-        end_date:
-          type: string
-          format: date
-          nullable: true
-          description: Fecha de fin
         status:
           type: string
-          enum: [Próximo, En Curso, Finalizado, Cancelado]
-          description: Estado del torneo
         createdAt:
           type: string
           format: date-time
-          description: Fecha de creación
         updatedAt:
           type: string
           format: date-time
-          description: Fecha de última actualización
 
-    TournamentCreate:
+    TournamentInput:
       type: object
       required:
         - name
-        - tournament_type
-        - format
-        - start_date
-        - status
       properties:
         name:
           type: string
-          description: Nombre del torneo
-        description:
-          type: string
-          nullable: true
-          description: Descripción del torneo
-        tournament_type:
-          type: string
-          enum: [Individual, Dobles]
-          description: Tipo de torneo
-        format:
-          type: string
-          description: Formato del torneo
-        start_date:
-          type: string
-          format: date
-          description: Fecha de inicio
-        end_date:
-          type: string
-          format: date
-          nullable: true
-          description: Fecha de fin
         status:
           type: string
-          enum: [Próximo, En Curso, Finalizado, Cancelado]
-          description: Estado del torneo
-
-    TournamentUpdate:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Nombre del torneo
-        description:
-          type: string
-          nullable: true
-          description: Descripción del torneo
-        tournament_type:
-          type: string
-          enum: [Individual, Dobles]
-          description: Tipo de torneo
-        format:
-          type: string
-          description: Formato del torneo
-        start_date:
-          type: string
-          format: date
-          description: Fecha de inicio
-        end_date:
-          type: string
-          format: date
-          nullable: true
-          description: Fecha de fin
-        status:
-          type: string
-          enum: [Próximo, En Curso, Finalizado, Cancelado]
-          description: Estado del torneo

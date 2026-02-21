@@ -27,6 +27,7 @@ router.post(
   matchValidators.validateFields,
   matchValidators.validateTournamentAndInscriptionsExist,
   validateFields,
+  matchLimiter,
   matchController.propose
 );
 router.put(
@@ -45,6 +46,13 @@ router.put(
   matchValidators.validateWinnerInscription,
   validateFields,
   matchController.update
+);
+router.patch(
+  "/:id",
+  validateToken,
+  matchValidators.validateMatchIdExists,
+  validateFields,
+  matchController.patch
 );
 router.delete("/:id", validateToken, matchValidators.validateMatchIdExists, matchController.delete);
 router.delete(

@@ -16,7 +16,7 @@ export const PlayerModel = {
   phone: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
+    unique: 'unique_player_phone',
   },
   semester: {
     type: DataTypes.INTEGER,

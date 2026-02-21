@@ -9,6 +9,6 @@ export const DayModel = {
   day_name: {
     type: DataTypes.ENUM("Lunes", "Martes", "Miércoles", "Jueves", "Viernes"),
     allowNull: false,
-    unique: true,
+    unique: 'unique_day_name',
   },
 }

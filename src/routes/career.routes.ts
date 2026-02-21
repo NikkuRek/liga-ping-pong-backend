@@ -26,6 +26,7 @@ router.put(
   careerController.update,
 )
 router.delete("/:id", careerController.delete)
+router.patch("/:id", careerController.patch)
 
 export const CareerRoute = router
 

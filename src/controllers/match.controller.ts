@@ -26,6 +26,7 @@ export class MatchController {
     return res.status(status).json({
       message,
       data,
+      stats: (req as any).matchStats
     });
   };
 
@@ -47,6 +48,7 @@ export class MatchController {
     return res.status(status).json({
       message,
       data,
+      stats: (req as any).matchStats
     });
   };
 
@@ -104,4 +106,13 @@ export class MatchController {
       data,
     });
   }
+
+  patch = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status, message, data } = await MatchServices.patch(Number(id), req.body);
+    return res.status(status).json({
+      message,
+      data,
+    });
+  };
 }

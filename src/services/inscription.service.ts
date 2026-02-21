@@ -1,15 +1,18 @@
 import { InscriptionDB, PlayerDB, TournamentDB, TeamDB } from "../config/sequelize.config"
 import type { InscriptionInterface } from "../interfaces"
+import { IncludeOptions } from "sequelize"
 
 class InscriptionService {
+  private readonly defaultIncludes: IncludeOptions[] = [
+    { model: PlayerDB },
+    { model: TeamDB },
+    { model: TournamentDB }
+  ]
+
   async getAll() {
     try {
       const inscriptions = await InscriptionDB.findAll({
-        include: [
-          { model: PlayerDB },
-          { model: TeamDB },
-          { model: TournamentDB }
-        ],
+        include: this.defaultIncludes,
       })
       return {
         status: 200,
@@ -29,11 +32,7 @@ class InscriptionService {
   async getOne(inscription_id: number) {
     try {
       const inscription = await InscriptionDB.findByPk(inscription_id, {
-        include: [
-          { model: PlayerDB },
-          { model: TeamDB },
-          { model: TournamentDB }
-        ],
+        include: this.defaultIncludes,
       })
       if (!inscription) {
         return {
@@ -68,9 +67,9 @@ class InscriptionService {
       })
       if (!inscriptions || inscriptions.length === 0) {
         return {
-          status: 404,
+          status: 200,
           message: "No se encontraron inscripciones para el torneo",
-          data: null,
+          data: [],
         }
       }
       return {
@@ -99,9 +98,9 @@ class InscriptionService {
       })
       if (!inscriptions || inscriptions.length === 0) {
         return {
-          status: 404,
+          status: 200,
           message: "No se encontraron inscripciones para el jugador",
-          data: null,
+          data: [],
         }
       }
       return {
@@ -130,9 +129,9 @@ class InscriptionService {
       })
       if (!inscriptions || inscriptions.length === 0) {
         return {
-          status: 404,
+          status: 200,
           message: "No se encontraron inscripciones para el equipo",
-          data: null,
+          data: [],
         }
       }
       return {
@@ -194,11 +193,7 @@ class InscriptionService {
       const newInscription = await InscriptionDB.create(inscriptionData as any)
 
       const createdInscription = await InscriptionDB.findByPk(newInscription.getDataValue("inscription_id"), {
-        include: [
-          { model: PlayerDB },
-          { model: TeamDB },
-          { model: TournamentDB }
-        ],
+        include: this.defaultIncludes,
       })
 
       return {
@@ -279,11 +274,7 @@ class InscriptionService {
       await InscriptionDB.update(inscriptionData, { where: { inscription_id } })
 
       const updatedInscription = await InscriptionDB.findByPk(inscription_id, {
-        include: [
-          { model: PlayerDB },
-          { model: TeamDB },
-          { model: TournamentDB }
-        ],
+        include: this.defaultIncludes,
       })
 
       return {
@@ -321,6 +312,31 @@ class InscriptionService {
         status: 500,
         message: "Error al eliminar inscripción",
       }
+    }
+  }
+
+  async patch(inscription_id: number, inscriptionData: Partial<InscriptionInterface>) {
+    try {
+      const inscription = await InscriptionDB.findByPk(inscription_id);
+      if (!inscription) {
+        return { status: 404, message: "Inscripción no encontrada" };
+      }
+
+      const { inscription_id: _, createdAt, updatedAt, ...dataToUpdate } = inscriptionData as any;
+      await InscriptionDB.update(dataToUpdate, { where: { inscription_id } });
+      
+      const updatedInscription = await InscriptionDB.findByPk(inscription_id, {
+        include: this.defaultIncludes
+      });
+
+      return {
+        status: 200,
+        message: "Inscripción actualizada parcialmente",
+        data: updatedInscription,
+      }
+    } catch (error) {
+      console.error("Error al parchear inscripción:", error);
+      return { status: 500, message: "Error al actualizar inscripción" };
     }
   }
 }

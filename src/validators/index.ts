@@ -1,5 +1,5 @@
 export * from "./career.validators";
-export * from "./aura-record.validator";
+export * from "./aura_record.validator";
 export * from "./credential.validators";
 export * from "./inscription.validators";
 export * from "./match.validators";

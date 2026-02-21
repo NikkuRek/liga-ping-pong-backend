@@ -29,6 +29,7 @@ router.put(
     setsController.update,
 )
 router.delete("/:id", setsValidator.validateIdExists, setsController.delete)
+router.patch("/:id", setsValidator.validateIdExists, setsController.patch)
 
 export const SetsRoute = router
 

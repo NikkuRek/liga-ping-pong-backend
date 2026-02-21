@@ -1,15 +1,17 @@
 import { TeamDB, PlayerDB } from "../config/sequelize.config"
 import type { TeamInterface } from "../interfaces"
-import { Op } from "sequelize"
+import { Op, IncludeOptions } from "sequelize"
 
 class TeamService {
+  private readonly defaultIncludes: IncludeOptions[] = [
+    { model: PlayerDB, as: "Player1" },
+    { model: PlayerDB, as: "Player2" },
+  ]
+
   async getAll() {
     try {
       const teams = await TeamDB.findAll({
-        include: [
-          { model: PlayerDB, as: "Player1" },
-          { model: PlayerDB, as: "Player2" },
-        ],
+        include: this.defaultIncludes,
       })
       return {
         status: 200,
@@ -29,10 +31,7 @@ class TeamService {
   async getOne(team_id: number) {
     try {
       const team = await TeamDB.findByPk(team_id, {
-        include: [
-          { model: PlayerDB, as: "Player1" },
-          { model: PlayerDB, as: "Player2" },
-        ],
+        include: this.defaultIncludes,
       })
       if (!team) {
         return {
@@ -62,10 +61,7 @@ class TeamService {
         where: {
           [Op.or]: [{ player1_ci: ci }, { player2_ci: ci }],
         },
-        include: [
-          { model: PlayerDB, as: "Player1" },
-          { model: PlayerDB, as: "Player2" },
-        ],
+        include: this.defaultIncludes,
       })
       return {
         status: 200,
@@ -141,10 +137,7 @@ class TeamService {
       const newTeam = await TeamDB.create(teamData)
 
       const createdTeam = await TeamDB.findByPk(newTeam.getDataValue("team_id"), {
-        include: [
-          { model: PlayerDB, as: "Player1" },
-          { model: PlayerDB, as: "Player2" },
-        ],
+        include: this.defaultIncludes,
       })
 
       return {
@@ -234,10 +227,7 @@ class TeamService {
       await TeamDB.update(teamData, { where: { team_id } })
 
       const updatedTeam = await TeamDB.findByPk(team_id, {
-        include: [
-          { model: PlayerDB, as: "Player1" },
-          { model: PlayerDB, as: "Player2" },
-        ],
+        include: this.defaultIncludes,
       })
 
       return {
@@ -275,6 +265,31 @@ class TeamService {
         status: 500,
         message: "Error al eliminar equipo",
       }
+    }
+  }
+
+  async patch(team_id: number, teamData: Partial<TeamInterface>) {
+    try {
+      const team = await TeamDB.findByPk(team_id);
+      if (!team) {
+        return { status: 404, message: "Equipo no encontrado" };
+      }
+
+      const { createdAt, updatedAt, team_id: _, ...dataToUpdate } = teamData as any;
+      await TeamDB.update(dataToUpdate, { where: { team_id } });
+      
+      const updatedTeam = await TeamDB.findByPk(team_id, {
+        include: this.defaultIncludes
+      });
+
+      return {
+        status: 200,
+        message: "Equipo actualizado parcialmente",
+        data: updatedTeam,
+      }
+    } catch (error) {
+      console.error("Error al parchear equipo:", error);
+      return { status: 500, message: "Error al actualizar equipo" };
     }
   }
 }
