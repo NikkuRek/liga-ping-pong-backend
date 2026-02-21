@@ -9,6 +9,7 @@ import {
   playerSeed,
   teamSeed,
   tournamentSeed,
+  administratorSeed,
 } from "../data/seeders"
 
 export const insertSeeders = async () => {
@@ -22,6 +23,7 @@ export const insertSeeders = async () => {
     await teamSeed()
     await tournamentSeed()
     await inscriptionSeed()
+    await administratorSeed()
 
     console.log("Datos de prueba insertados correctamente")
   } catch (error) {

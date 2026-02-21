@@ -12,7 +12,7 @@ export const playerSeed = async () => {
         semester: 5,
         career_id: 1, 
         aura: 1300,  
-        status: true,
+        is_admin: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       },

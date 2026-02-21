@@ -49,8 +49,8 @@ paths:
     post:
       tags:
         - Match
-      summary: Proponer un partido a otro jugador
-      description: Crea un partido con estado 'Propuesto' y envía una notificación en tiempo real vía Socket.io al oponente.
+      summary: Proponer el resultado de un partido a otro jugador
+      description: Cambia el estado del partido a 'Propuesto' tras cargar los sets y envía una notificación en tiempo real vía socket ('resultProposed') al oponente para su validación.
       security:
         - bearerAuth: []
       requestBody:
@@ -113,7 +113,7 @@ paths:
                   type: integer
                 status:
                   type: string
-                  enum: [Propuesto, Pendiente, Finalizado]
+                  enum: [Propuesto, Pendiente, Finalizado, Rechazado]
                 match_datetime:
                   type: string
                   format: date-time

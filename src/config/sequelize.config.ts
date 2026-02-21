@@ -13,6 +13,7 @@ import {
   MatchModel,
   SetsModel,
   CredentialModel,
+  AdministratorModel,
 } from "../models"
 
 dotenv.config()
@@ -105,6 +106,11 @@ export const CredentialDB = db.define("credentials", CredentialModel, {
   tableName: "credentials",
 })
 
+export const AdministratorDB = db.define("administrators", AdministratorModel, {
+  timestamps: true,
+  tableName: "administrators",
+})
+
 
 
 // Relaciones
@@ -156,8 +162,10 @@ InscriptionDB.hasMany(MatchDB, { foreignKey: "winner_inscription_id", as: "Match
 SetsDB.belongsTo(MatchDB, { foreignKey: "match_id" })
 MatchDB.hasMany(SetsDB, { foreignKey: "match_id" })
 
-PlayerDB.hasOne(CredentialDB, { foreignKey: "player_ci", sourceKey: "ci", as: "Credential" })
 CredentialDB.belongsTo(PlayerDB, { foreignKey: "player_ci", targetKey: "ci", as: "Player" })
+
+AdministratorDB.belongsTo(PlayerDB, { foreignKey: "player_ci", targetKey: "ci", as: "Player" })
+PlayerDB.hasOne(AdministratorDB, { foreignKey: "player_ci", sourceKey: "ci", as: "AdminPrivileges" })
 
 AuraRecordDB.belongsTo(PlayerDB, { foreignKey: "player_ci" })
 PlayerDB.hasMany(AuraRecordDB, { foreignKey: "player_ci" })

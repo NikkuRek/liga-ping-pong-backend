@@ -6,7 +6,7 @@ export interface MatchInterface {
   winner_inscription_id?: number | null;
   match_datetime?: Date | null;
   round: string;
-  status?: 'Pendiente' | 'En Juego' | 'Finalizado';
+  status?: 'Pendiente' | 'En Juego' | 'Finalizado' | 'Propuesto' | 'Rechazado';
   createdAt?: Date;
   updatedAt?: Date;
 }

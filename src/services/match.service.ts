@@ -93,6 +93,10 @@ class MatchService {
   async create(match: MatchInterface) {
     try {
       const { createdAt, updatedAt, match_id, ...matchData } = match
+      // Por defecto un partido nuevo sin status empieza en 'Pendiente'
+      if (!(matchData as any).status) {
+        (matchData as any).status = 'Pendiente';
+      }
       const newMatch = await MatchDB.create(matchData as any)
       return {
         status: 201,
@@ -127,7 +131,7 @@ class MatchService {
     }
   }
 
-  async update(match_id: number, match: MatchInterface) {
+  async update(match_id: number, match: MatchInterface, isAdmin: boolean = false) {
     try {
       const existingMatch = await MatchDB.findByPk(match_id)
       if (!existingMatch) {
@@ -138,26 +142,37 @@ class MatchService {
         }
       }
 
-      const previousWinner = existingMatch.getDataValue("winner_inscription_id")
-
+      const previousStatus = existingMatch.getDataValue("status")
       const { createdAt, updatedAt, match_id: _, ...matchData } = match
 
-      if (match.winner_inscription_id && !previousWinner) {
-        ; (matchData as any).status = "Finalizado"
+      // Si es un rechazo, el marcador o socket debe haber enviado un motivo, 
+      // aquí solo nos aseguramos de que el estado sea consistente.
+      if (match.status === 'Rechazado' && !(matchData as any).rejection_reason && !isAdmin) {
+         // Podríamos lanzar error, pero el controlador/socket debería validarlo.
+         // Por ahora permitimos la actualización si ya viene validado.
       }
 
       await MatchDB.update(matchData, { where: { match_id } })
       const updatedMatch = await MatchDB.findByPk(match_id)
 
-      if (match.winner_inscription_id && !previousWinner) {
+      // El cálculo de AURA se dispara si:
+      // 1. El estado cambia a 'Finalizado' (flujo normal).
+      // 2. El usuario es Admin y fuerza el estado 'Finalizado' (Bypass).
+      const shouldCalculateAura = (match.status === "Finalizado" && previousStatus !== "Finalizado") || 
+                                  (match.status === "Finalizado" && isAdmin);
+
+      if (shouldCalculateAura) {
         try {
-          const inscription1_id = existingMatch.getDataValue("inscription1_id")
-          const inscription2_id = existingMatch.getDataValue("inscription2_id")
-          const winner_id = match.winner_inscription_id
-          const loser_id = winner_id === inscription1_id ? inscription2_id : inscription1_id
+          const winner_id = updatedMatch?.getDataValue("winner_inscription_id")
+          const inscription1_id = updatedMatch?.getDataValue("inscription1_id")
+          const inscription2_id = updatedMatch?.getDataValue("inscription2_id")
 
-          await auraCalculationService.updateAURAAfterMatch(winner_id, loser_id, match_id)
-
+          if (winner_id && inscription1_id && inscription2_id) {
+            const loser_id = winner_id === inscription1_id ? inscription2_id : inscription1_id
+            await auraCalculationService.updateAURAAfterMatch(winner_id, loser_id, match_id)
+          } else {
+             console.warn(`[AURA] No se pudo calcular AURA para el match ${match_id}: Faltan IDs de ganador o inscripciones.`)
+          }
         } catch (auraError) {
           console.error("[AURA] Error calculating AURA, but match update succeeded:", auraError)
         }
@@ -169,6 +184,7 @@ class MatchService {
         data: updatedMatch,
       }
     } catch (error) {
+      console.error("Error al actualizar partido:", error)
       return {
         status: 500,
         message: "Error al actualizar partido",
@@ -442,7 +458,7 @@ class MatchService {
 
 
 
-  async patch(match_id: number, matchData: Partial<MatchInterface>) {
+  async patch(match_id: number, matchData: Partial<MatchInterface>, isAdmin: boolean = false) {
     try {
       const match = await MatchDB.findByPk(match_id);
       if (!match) {
@@ -453,34 +469,43 @@ class MatchService {
         }
       }
 
+      const previousStatus = match.getDataValue("status");
       const { createdAt, updatedAt, match_id: _, ...dataToUpdate } = matchData as any;
       
-      // Si se está actualizando el ganador y no tenía uno previo, marcar como Finalizado y actualizar AURA
-      const previousWinner = match.getDataValue("winner_inscription_id");
-      
       await MatchDB.update(dataToUpdate, { where: { match_id } });
+      const updatedMatch = await MatchDB.findByPk(match_id);
 
-      if (dataToUpdate.winner_inscription_id && !previousWinner) {
+      // El cálculo de AURA se dispara si:
+      // 1. El estado cambia a 'Finalizado' (flujo normal).
+      // 2. El usuario es Admin y fuerza el estado 'Finalizado' (Bypass).
+      const shouldCalculateAura = (matchData.status === "Finalizado" && previousStatus !== "Finalizado") || 
+                                  (matchData.status === "Finalizado" && isAdmin);
+
+      if (shouldCalculateAura) {
         try {
-          await MatchDB.update({ status: "Finalizado" }, { where: { match_id } });
-          const inscription1_id = match.getDataValue("inscription1_id");
-          const inscription2_id = match.getDataValue("inscription2_id");
-          const winner_id = dataToUpdate.winner_inscription_id;
-          const loser_id = winner_id === inscription1_id ? inscription2_id : inscription1_id;
-          await auraCalculationService.updateAURAAfterMatch(winner_id, loser_id, match_id);
+          const winner_id = updatedMatch?.getDataValue("winner_inscription_id")
+          const inscription1_id = updatedMatch?.getDataValue("inscription1_id")
+          const inscription2_id = updatedMatch?.getDataValue("inscription2_id")
+
+          if (winner_id && inscription1_id && inscription2_id) {
+            const loser_id = winner_id === inscription1_id ? inscription2_id : inscription1_id
+            await auraCalculationService.updateAURAAfterMatch(winner_id, loser_id, match_id)
+          } else {
+             console.warn(`[AURA] No se pudo calcular AURA para el match ${match_id} en patch: Faltan IDs.`)
+          }
         } catch (auraError) {
           console.error("[AURA] Error en patch al actualizar AURA:", auraError);
         }
       }
 
-      const updatedMatch = await MatchDB.findByPk(match_id, {
+      const refreshedMatch = await MatchDB.findByPk(match_id, {
         include: this.defaultIncludes
       });
 
       return {
         status: 200,
         message: "Partido actualizado parcialmente",
-        data: updatedMatch,
+        data: refreshedMatch,
       }
     } catch (error) {
       console.error("Error al actualizar parcialmente partido:", error);

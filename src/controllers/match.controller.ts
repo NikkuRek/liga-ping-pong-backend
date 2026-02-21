@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { MatchServices, InscriptionServices } from "../services";
+import { MatchServices, InscriptionServices, AdministratorServices } from "../services";
 
 export class MatchController {
   constructor() {}
@@ -46,7 +46,7 @@ export class MatchController {
         const opponentCI = (opponentInscription.data as any).player_ci
         // Emit to opponent
         const io = (global as any).io
-        io.to(opponentCI).emit('matchProposed', { matchId: (match as any).match_id, proposerCI: playerCI })
+        io.to(opponentCI).emit('resultProposed', { matchId: (match as any).match_id, proposerCI: playerCI })
       }
     }
     return res.status(status).json({
@@ -58,7 +58,9 @@ export class MatchController {
 
   update = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { status, message, data } = await MatchServices.update(Number(id), req.body);
+    const playerCI = (req as any).player?.ci;
+    const isAdmin = playerCI ? await AdministratorServices.isAdmin(playerCI) : false;
+    const { status, message, data } = await MatchServices.update(Number(id), req.body, isAdmin);
     return res.status(status).json({
       message,
       data,
@@ -113,7 +115,9 @@ export class MatchController {
 
   patch = async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { status, message, data } = await MatchServices.patch(Number(id), req.body);
+    const playerCI = (req as any).player?.ci;
+    const isAdmin = playerCI ? await AdministratorServices.isAdmin(playerCI) : false;
+    const { status, message, data } = await MatchServices.patch(Number(id), req.body, isAdmin);
     return res.status(status).json({
       message,
       data,

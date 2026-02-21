@@ -8,7 +8,7 @@ import swaggerJsDoc from "swagger-jsdoc"
 import swaggerUi from "swagger-ui-express"
 import { swaggerOptions } from "../config"
 import { verifyToken } from "../helpers/jwt.helpers"
-import { MatchServices, InscriptionServices } from "../services"
+import { MatchServices, InscriptionServices, PlayerServices, AdministratorServices } from "../services"
 
 import {
   AuraRecordRoute,
@@ -122,42 +122,66 @@ export class Server {
       (socket as any).playerCI = decoded.ci
       socket.join(decoded.ci)
 
-      // Handle match events
-      socket.on('approveMatch', async (data) => {
+      // Handle result consensus events
+      socket.on('approveResult', async (data) => {
         const { matchId } = data
-        // Get match
-        const match = await MatchServices.getOne(matchId)
-        if (match.status !== 200 || (match.data as any).status !== 'Propuesto') return
-        // Check if socket.playerCI is one of the players
-        const inscription1 = await InscriptionServices.getOne((match.data as any).inscription1_id)
-        const inscription2 = await InscriptionServices.getOne((match.data as any).inscription2_id)
+        const matchResponse = await MatchServices.getOne(matchId)
+        if (matchResponse.status !== 200) return
+        
+        const match = matchResponse.data as any
+        if (match.status !== 'Propuesto') return
+
+        // Obtener jugador del socket para verificar si es admin
+        const playerResponse = await PlayerServices.getOne((socket as any).playerCI)
+        const isAdmin = (playerResponse.data as any)?.is_admin || false
+
+        const inscription1 = await InscriptionServices.getOne(match.inscription1_id)
+        const inscription2 = await InscriptionServices.getOne(match.inscription2_id)
         const player1CI = (inscription1.data as any)?.player_ci
         const player2CI = (inscription2.data as any)?.player_ci
-        if ((socket as any).playerCI !== player1CI && (socket as any).playerCI !== player2CI) return
+
+        // Si no es admin, validar que sea uno de los jugadores
+        if (!isAdmin && (socket as any).playerCI !== player1CI && (socket as any).playerCI !== player2CI) return
+        
+        // Notificar al proponente (si existe)
         const proposerCI = (socket as any).playerCI === player1CI ? player2CI : player1CI
-        // Update status to 'Pendiente'
-        const current = match.data as any
-        await MatchServices.update(matchId, { ...current.dataValues, status: 'Pendiente' } as any)
-        // Create sets? Assume 3 sets or something, but for now, skip, as per user, create sets later
-        // Emit to proposer
-        this.io.to(proposerCI).emit('matchApproved', { matchId })
+
+        // Actualizar estado a 'Finalizado' -> Esto disparará el AURA en el servicio
+        await MatchServices.update(matchId, { ...match.dataValues, status: 'Finalizado' } as any, isAdmin)
+        
+        this.io.to(proposerCI).emit('resultApproved', { matchId, approvedBy: (socket as any).playerCI })
+        console.log(`[SOCKET] Resultado ${matchId} aprobado por ${(socket as any).playerCI} (Admin: ${isAdmin})`)
       })
 
-      socket.on('rejectMatch', async (data) => {
-        const { matchId } = data
-        // Similar checks
-        const match = await require('../services').MatchServices.getOne(matchId)
-        if (match.status !== 200 || (match.data as any).status !== 'Propuesto') return
-        const inscription1 = await InscriptionServices.getOne((match.data as any).inscription1_id)
-        const inscription2 = await InscriptionServices.getOne((match.data as any).inscription2_id)
+      socket.on('rejectResult', async (data) => {
+        const { matchId, reason } = data
+        
+        // El motivo de rechazo es obligatorio
+        if (!reason || reason.trim() === '') {
+          socket.emit('error', { message: 'El motivo de rechazo es obligatorio' })
+          return
+        }
+
+        const matchResponse = await MatchServices.getOne(matchId)
+        if (matchResponse.status !== 200) return
+        
+        const match = matchResponse.data as any
+        if (match.status !== 'Propuesto') return
+
+        const inscription1 = await InscriptionServices.getOne(match.inscription1_id)
+        const inscription2 = await InscriptionServices.getOne(match.inscription2_id)
         const player1CI = (inscription1.data as any)?.player_ci
         const player2CI = (inscription2.data as any)?.player_ci
+
         if ((socket as any).playerCI !== player1CI && (socket as any).playerCI !== player2CI) return
         const proposerCI = (socket as any).playerCI === player1CI ? player2CI : player1CI
-        // Delete match
-        await MatchServices.delete(matchId)
-        // Emit to proposer
-        this.io.to(proposerCI).emit('matchRejected', { matchId })
+
+        // Actualizar estado a 'Rechazado' con el motivo
+        await MatchServices.update(matchId, { ...match.dataValues, status: 'Rechazado', rejection_reason: reason } as any)
+        
+        // Notificar al proponente
+        this.io.to(proposerCI).emit('resultRejected', { matchId, rejectedBy: (socket as any).playerCI, reason })
+        console.log(`[SOCKET] Resultado ${matchId} rechazado por ${(socket as any).playerCI}. Motivo: ${reason}`)
       })
 
       socket.on('disconnect', () => {
