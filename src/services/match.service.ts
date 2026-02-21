@@ -28,15 +28,30 @@ class MatchService {
     },
   ]
 
-  async getAll() {
+  async getAll(limit?: number, page?: number) {
     try {
-      const matches = await MatchDB.findAll({
+      const options: any = {
         include: this.defaultIncludes,
-      })
+        order: [["createdAt", "DESC"]],
+      };
+
+      if (limit !== undefined && page !== undefined) {
+        options.limit = limit;
+        options.offset = (page - 1) * limit;
+      }
+
+      const { count, rows } = await MatchDB.findAndCountAll(options);
+
       return {
         status: 200,
         message: "Partidos obtenidos correctamente",
-        data: matches,
+        data: rows,
+        meta: {
+          totalItems: count,
+          itemsPerPage: limit || count,
+          currentPage: page || 1,
+          totalPages: limit ? Math.ceil(count / limit) : 1,
+        }
       }
     } catch (error) {
       console.error("Error al obtener partidos:", error)

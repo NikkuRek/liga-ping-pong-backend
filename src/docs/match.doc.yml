@@ -3,8 +3,19 @@ paths:
     get:
       tags:
         - Match
-      summary: Listar todos los partidos
-      description: Retorna un historial completo de todos los partidos registrados, incluyendo torneos, jugadores y sets.
+      summary: Listar todos los partidos (Paginado)
+      description: Retorna un historial de los partidos registrados con soporte para paginación. Por defecto retorna todos si no se especifican límites.
+      parameters:
+        - name: limit
+          in: query
+          description: Cantidad de registros por página (ej. 30, 50, 70).
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Número de página a recuperar.
+          schema:
+            type: integer
       responses:
         200:
           description: Listado de partidos obtenido exitonamente.
@@ -219,3 +230,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Match'
+        meta:
+          type: object
+          properties:
+            totalItems:
+              type: integer
+            itemsPerPage:
+              type: integer
+            currentPage:
+              type: integer
+            totalPages:
+              type: integer

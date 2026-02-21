@@ -5,10 +5,14 @@ export class MatchController {
   constructor() {}
 
   all = async (req: Request, res: Response) => {
-    const { status, message, data } = await MatchServices.getAll();
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const page = req.query.page ? Number(req.query.page) : (limit ? 1 : undefined);
+
+    const { status, message, data, meta }: any = await MatchServices.getAll(limit, page);
     return res.status(status).json({
       message,
       data,
+      meta
     });
   };
 

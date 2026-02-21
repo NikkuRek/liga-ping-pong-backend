@@ -2,15 +2,30 @@ import { SetsDB, MatchDB } from "../config/sequelize.config"
 import type { SetsInterface } from "../interfaces"
 
 class SetsService {
-  async getAll() {
+  async getAll(limit?: number, page?: number) {
     try {
-      const sets = await SetsDB.findAll({
+      const options: any = {
         include: [{ model: MatchDB }],
-      })
+        order: [["createdAt", "DESC"]],
+      };
+
+      if (limit !== undefined && page !== undefined) {
+        options.limit = limit;
+        options.offset = (page - 1) * limit;
+      }
+
+      const { count, rows } = await SetsDB.findAndCountAll(options);
+
       return {
         status: 200,
         message: "Sets obtenidos correctamente",
-        data: sets,
+        data: rows,
+        meta: {
+          totalItems: count,
+          itemsPerPage: limit || count,
+          currentPage: page || 1,
+          totalPages: limit ? Math.ceil(count / limit) : 1,
+        }
       }
     } catch (error) {
       console.error("Error al obtener sets:", error)

@@ -3,11 +3,26 @@ paths:
     get:
       tags:
         - Sets
-      summary: Listar todos los sets registrados
-      description: Retorna un listado de todos los sets de todos los partidos.
+      summary: Listar todos los sets registrados (Paginado)
+      description: Retorna un listado de todos los sets de todos los partidos con soporte para paginación.
+      parameters:
+        - name: limit
+          in: query
+          description: Cantidad de registros por página.
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Número de página.
+          schema:
+            type: integer
       responses:
         200:
           description: Operación exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SetsListResponse'
 
     post:
       tags:
@@ -126,6 +141,27 @@ components:
         updatedAt:
           type: string
           format: date-time
+
+    SetsListResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sets'
+        meta:
+          type: object
+          properties:
+            totalItems:
+              type: integer
+            itemsPerPage:
+              type: integer
+            currentPage:
+              type: integer
+            totalPages:
+              type: integer
 
     SetsInput:
       type: object
