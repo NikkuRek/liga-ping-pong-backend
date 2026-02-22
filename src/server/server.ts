@@ -149,7 +149,7 @@ export class Server {
         // Actualizar estado a 'Finalizado' -> Esto disparará el AURA en el servicio
         await MatchServices.update(matchId, { ...match.dataValues, status: 'Finalizado' } as any, isAdmin)
         
-        this.io.to(proposerCI).emit('resultApproved', { matchId, approvedBy: (socket as any).playerCI })
+        this.io.to(player1CI).to(player2CI).emit('matchFinalized', { matchId, approvedBy: (socket as any).playerCI })
         console.log(`[SOCKET] Resultado ${matchId} aprobado por ${(socket as any).playerCI} (Admin: ${isAdmin})`)
       })
 
@@ -180,7 +180,7 @@ export class Server {
         await MatchServices.update(matchId, { ...match.dataValues, status: 'Rechazado', rejection_reason: reason } as any)
         
         // Notificar al proponente
-        this.io.to(proposerCI).emit('resultRejected', { matchId, rejectedBy: (socket as any).playerCI, reason })
+        this.io.to(player1CI).to(player2CI).emit('matchRejected', { matchId, rejectedBy: (socket as any).playerCI, reason })
         console.log(`[SOCKET] Resultado ${matchId} rechazado por ${(socket as any).playerCI}. Motivo: ${reason}`)
       })
 

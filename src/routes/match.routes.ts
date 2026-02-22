@@ -7,6 +7,7 @@ const router = Router();
 const matchController = new MatchController();
 
 router.get("/", matchController.all); // http://localhost:3004/api/match
+router.get("/finals", matchController.getFinals);
 router.get("/player/:player_ci", matchController.getMatchesByPlayerCI); // http://localhost:3004/api/match/player/:player_ci
 router.get("/player/:player_ci/current-week-matches", matchController.getMatchesByCIInCurrentWeek);
 router.get("/:id", matchValidators.validateMatchIdExists, matchController.one);

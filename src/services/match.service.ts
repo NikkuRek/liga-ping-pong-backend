@@ -1,4 +1,4 @@
-import { MatchDB, SetsDB, AuraRecordDB, PlayerDB, InscriptionDB } from "../config/sequelize.config"
+import { MatchDB, SetsDB, AuraRecordDB, PlayerDB, InscriptionDB, TournamentDB } from "../config/sequelize.config"
 import type { MatchInterface } from "../interfaces"
 import { auraCalculationService } from "../middlewares/aura_calculator.middlewares"
 import { Op, IncludeOptions } from "sequelize"
@@ -26,6 +26,7 @@ class MatchService {
       required: false,
       include: [{ model: PlayerDB, attributes: ["ci", "first_name", "last_name"] }],
     },
+    { model: AuraRecordDB, required: false },
   ]
 
   async getAll(limit?: number, page?: number) {
@@ -359,6 +360,31 @@ class MatchService {
 
 
 
+
+  async getFinals() {
+    try {
+      const finals = await MatchDB.findAll({
+        where: { round: "Final", status: "Finalizado" },
+        include: [
+          ...this.defaultIncludes,
+          { model: TournamentDB, attributes: ["name"] }
+        ]
+      });
+
+      return {
+        status: 200,
+        message: "Finales obtenidas correctamente",
+        data: finals,
+      };
+    } catch (error) {
+      console.error("Error al obtener finales:", error);
+      return {
+        status: 500,
+        message: "Error al obtener finales",
+        data: null,
+      };
+    }
+  }
 
   async getMatchesByPlayerName(first_name: string, last_name: string) {
     try {

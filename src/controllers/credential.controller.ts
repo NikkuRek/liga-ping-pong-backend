@@ -82,6 +82,7 @@ export class CredentialController {
 
         return res.status(status).json({
           message,
+          token,
           user: data.player,
         })
       } catch (error) {

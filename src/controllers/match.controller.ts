@@ -101,6 +101,14 @@ export class MatchController {
     });
   };
 
+  getFinals = async (req: Request, res: Response) => {
+    const { status, message, data } = await MatchServices.getFinals();
+    return res.status(status).json({
+      message,
+      data,
+    });
+  };
+
   getMatchesByPlayerName = async (req: Request, res: Response) => {
     const { first_name, last_name } = req.query;
     const { status, message, data } = await MatchServices.getMatchesByPlayerName(
