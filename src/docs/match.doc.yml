@@ -113,7 +113,7 @@ paths:
                   type: integer
                 status:
                   type: string
-                  enum: [Propuesto, Pendiente, Finalizado, Rechazado]
+                  enum: [Propuesto, Pendiente, Finalizado]
                 match_datetime:
                   type: string
                   format: date-time

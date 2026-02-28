@@ -36,6 +36,7 @@ export class MatchController {
 
   propose = async (req: Request, res: Response) => {
     const playerCI = (req as any).player.ci
+
     const { status, message, data } = await MatchServices.propose(req.body);
     if (status === 201) {
       // Get opponent CI

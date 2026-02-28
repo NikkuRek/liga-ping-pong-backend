@@ -154,34 +154,62 @@ export class Server {
       })
 
       socket.on('rejectResult', async (data) => {
+        console.log(`[SOCKET_DEBUG - Server] Received 'rejectResult' from ${socket.id}`, data)
         const { matchId, reason } = data
         
         // El motivo de rechazo es obligatorio
         if (!reason || reason.trim() === '') {
+          console.log(`[SOCKET_DEBUG - Server] Reject failed: Reason is missing`)
           socket.emit('error', { message: 'El motivo de rechazo es obligatorio' })
           return
         }
 
         const matchResponse = await MatchServices.getOne(matchId)
-        if (matchResponse.status !== 200) return
+        if (matchResponse.status !== 200) {
+           console.log(`[SOCKET_DEBUG - Server] Reject failed: Match ${matchId} not found`)
+           return
+        }
         
         const match = matchResponse.data as any
-        if (match.status !== 'Propuesto') return
+        if (match.status !== 'Propuesto') {
+           console.log(`[SOCKET_DEBUG - Server] Reject failed: Match ${matchId} is not 'Propuesto'`)
+           return
+        }
 
         const inscription1 = await InscriptionServices.getOne(match.inscription1_id)
         const inscription2 = await InscriptionServices.getOne(match.inscription2_id)
         const player1CI = (inscription1.data as any)?.player_ci
         const player2CI = (inscription2.data as any)?.player_ci
 
-        if ((socket as any).playerCI !== player1CI && (socket as any).playerCI !== player2CI) return
-        const proposerCI = (socket as any).playerCI === player1CI ? player2CI : player1CI
+        console.log(`[SOCKET_DEBUG - Server] P1_CI: ${player1CI}, P2_CI: ${player2CI}, Caller_CI: ${(socket as any).playerCI}`)
 
-        // Actualizar estado a 'Rechazado' con el motivo
-        await MatchServices.update(matchId, { ...match.dataValues, status: 'Rechazado', rejection_reason: reason } as any)
+        // NO actualizamos Base de Datos para mantener el estado "Propuesto" oficial.
+        // Toda la lógica de Rechazo es una capa visual manejada vía Caché y Sockets.
         
         // Notificar al proponente
+        console.log(`[SOCKET_DEBUG - Server] Emitting 'matchRejected' to ${player1CI} & ${player2CI}`)
         this.io.to(player1CI).to(player2CI).emit('matchRejected', { matchId, rejectedBy: (socket as any).playerCI, reason })
         console.log(`[SOCKET] Resultado ${matchId} rechazado por ${(socket as any).playerCI}. Motivo: ${reason}`)
+      })
+
+      socket.on('reproposeResult', async (data) => {
+        console.log(`[SOCKET_DEBUG - Server] Received 'reproposeResult' from ${socket.id}`, data)
+        const { matchId } = data
+        const matchResponse = await MatchServices.getOne(matchId)
+        if (matchResponse.status !== 200) return
+        
+        const match = matchResponse.data as any
+        const inscription1 = await InscriptionServices.getOne(match.inscription1_id)
+        const inscription2 = await InscriptionServices.getOne(match.inscription2_id)
+        const player1CI = (inscription1.data as any)?.player_ci
+        const player2CI = (inscription2.data as any)?.player_ci
+
+        // Notificar al oponente
+        const opponentCI = (socket as any).playerCI === player1CI ? player2CI : player1CI
+        console.log(`[SOCKET_DEBUG - Server] Emitting 'matchReproposed' to Opponent CI: ${opponentCI}`)
+        
+        this.io.to(opponentCI).emit('matchReproposed', { matchId, reproposedBy: (socket as any).playerCI })
+        console.log(`[SOCKET] Resultado ${matchId} re-propuesto por ${(socket as any).playerCI}`)
       })
 
       socket.on('disconnect', () => {
